@@ -5,6 +5,20 @@
 # all files named *.c or */cpp are compiled to form the library
 file(GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.c lib/*.cpp lib/utils/*.cpp)
 
+# MLX GPU Backend (optional, Apple Silicon only)
+if(WITH_MLX)
+    add_subdirectory(lib/math/hal/mlx)
+    if(MLX_BACKEND_TARGET)
+        list(APPEND CORE_SRC_FILES $<TARGET_OBJECTS:${MLX_BACKEND_TARGET}>)
+        # Add MLX include directories (set via PARENT_SCOPE in subdirectory)
+        if(MLX_INCLUDE_DIRS)
+            list(APPEND CORE_INCLUDE_DIRS ${MLX_INCLUDE_DIRS})
+        endif()
+        add_compile_definitions(WITH_MLX)
+        message(STATUS "MLX GPU Backend included in core library")
+    endif()
+endif()
+
 list(APPEND CORE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 list(APPEND CORE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 include_directories(${CORE_INCLUDE_DIRS})
@@ -41,6 +55,10 @@ add_custom_target(allcore)
 if(BUILD_SHARED)
     set(CORELIBS PUBLIC OPENFHEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})
     target_link_libraries(OPENFHEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS} ${ADDITIONAL_LIBS})
+    # Link MLX library if enabled
+    if(WITH_MLX AND MLX_LIBS)
+        target_link_libraries(OPENFHEcore ${MLX_LIBS})
+    endif()
     add_dependencies(allcore OPENFHEcore)
 endif()
 

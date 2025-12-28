@@ -1,0 +1,2 @@
+BenchmarkCKKS/Encoder/Encode/RingType=Standard/logN=14/logQP=390/Qi=8/Pi=1/LogScale=40/PrecMode=PREC64-10         	    1105	   2150713 ns/op
+BenchmarkCKKS/Encoder/Decode/RingType=Standard/logN=14/logQP=390/Qi=8/Pi=1/LogScale=40/PrecMode=PREC64-10         	     171	  13035875 ns/op
