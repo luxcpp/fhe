@@ -9,7 +9,7 @@ jobs:
   call_with_gcc:
     uses: openfheorg/openfhe-development/.github/workflows/generic_workflow.yml@github-ci
     with:
-      runner: ubuntu-latest
+      runner: ubuntu-22.04
       compiler: "GCC-11"
       native_backend: "all"
       mb2_jobs: "all"
@@ -34,7 +34,7 @@ jobs:
     needs: call_with_gcc
     uses: openfheorg/openfhe-development/.github/workflows/generic_workflow.yml@github-ci
     with:
-      runner: ubuntu-latest
+      runner: ubuntu-22.04
       compiler: "CLANG-14"
       native_backend: "all"
       mb2_jobs: "all"
