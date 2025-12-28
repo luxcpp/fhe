@@ -5,8 +5,7 @@ name: Manual
 # The changes from the workflow_dispatch inputs to the workflow_call inputs are:
 # - "type: choice" is replaced with "type: string"
 # - all "options:" are removed
-# The variable/tag for the runner (var.RUNNER) is defined on the "Actions secrets and variables" page, tab "Variables":
-# https://github.com/openfheorg/openfhe-development/settings/variables/actions
+# Using GitHub-hosted ubuntu-latest runners for simplicity
 on:
   workflow_call:
     inputs:
@@ -105,7 +104,7 @@ jobs:
   call:
     uses: openfheorg/openfhe-development/.github/workflows/generic_workflow.yml@github-ci
     with:
-      runner: ${{ vars.RUNNER }}
+      runner: ubuntu-latest
       compiler: "${{ inputs.compiler }}"
       native_backend: "${{ inputs.native_backend }}"
       mb2_jobs: "${{ inputs.mb2_jobs }}"

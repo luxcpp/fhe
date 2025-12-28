@@ -9,7 +9,7 @@ jobs:
   call_with_gcc:
     uses: openfheorg/openfhe-development/.github/workflows/generic_workflow.yml@github-ci
     with:
-      runner: ${{ vars.RUNNER }}
+      runner: ubuntu-latest
       compiler: "GCC-11"
       native_backend: "all"
       mb2_jobs: "all"
@@ -34,7 +34,7 @@ jobs:
     needs: call_with_gcc
     uses: openfheorg/openfhe-development/.github/workflows/generic_workflow.yml@github-ci
     with:
-      runner: ${{ vars.RUNNER }}
+      runner: ubuntu-latest
       compiler: "CLANG-14"
       native_backend: "all"
       mb2_jobs: "all"
@@ -63,7 +63,7 @@ jobs:
   ###############################################
   pages:
     needs: call_with_clang
-    runs-on: ${{ vars.RUNNER }}
+    runs-on: ubuntu-latest
     env:
       GIT_SUBMODULE_STRATEGY: recursive
     steps:
