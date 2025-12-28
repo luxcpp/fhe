@@ -108,7 +108,7 @@ double* ckks_decrypt(CKKSContext* ctx, CKKSKeyPair* kp, CKKSCiphertext* ct, int*
         Plaintext pt;
         ctx->cc->Decrypt(kp->sk, ct->ct, &pt);
         
-        auto& vec = pt->GetRealPackedValue();
+        const auto& vec = pt->GetRealPackedValue();
         *out_len = static_cast<int>(vec.size());
         
         double* result = static_cast<double*>(malloc(*out_len * sizeof(double)));

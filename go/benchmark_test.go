@@ -243,7 +243,7 @@ func TestCKKSCorrectness(t *testing.T) {
 	t.Skip("Enable with actual CKKS implementation")
 
 	// Test that both backends produce same results
-	values := []float64{3.14159, 2.71828, 1.41421, 1.61803}
+	_ = []float64{3.14159, 2.71828, 1.41421, 1.61803} // values for comparison
 
 	// Pure Go
 	// latticeResult := lattice_encrypt_add_decrypt(values)
