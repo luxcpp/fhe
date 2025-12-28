@@ -65,14 +65,37 @@ jobs:
           make -j$(nproc)
           make install
 
+      - name: Debug - List installed libraries
+        run: |
+          echo "=== Installed files ==="
+          find ${{ github.workspace }}/install -name "*.so*" -o -name "*.a" 2>/dev/null || true
+          echo "=== Library directory ==="
+          ls -la ${{ github.workspace }}/install/lib/ 2>/dev/null || echo "lib/ not found"
+          ls -la ${{ github.workspace }}/install/lib64/ 2>/dev/null || echo "lib64/ not found"
+          echo "=== PKG_CONFIG_PATH ==="
+          find ${{ github.workspace }}/install -name "*.pc" 2>/dev/null || true
+
+      - name: Setup library paths
+        run: |
+          # Create lib symlink if libraries are in lib64
+          if [ -d "${{ github.workspace }}/install/lib64" ] && [ ! -d "${{ github.workspace }}/install/lib" ]; then
+            ln -s ${{ github.workspace }}/install/lib64 ${{ github.workspace }}/install/lib
+          fi
+          echo "=== Verify library path ==="
+          ls -la ${{ github.workspace }}/install/lib/ || echo "lib/ not found after symlink"
+
       - name: Build Go Bindings
         working-directory: go
         env:
-          CGO_CXXFLAGS: "-std=c++17 -I${{ github.workspace }}/install/include/openfhe -I${{ github.workspace }}/install/include/openfhe/core -I${{ github.workspace }}/install/include/openfhe/binfhe -I${{ github.workspace }}/install/include/openfhe/pke"
-          CGO_LDFLAGS: "-L${{ github.workspace }}/install/lib -Wl,-rpath,${{ github.workspace }}/install/lib -lOpenFHEbinfhe -lOpenFHEcore -lOpenFHEpke"
+          CGO_ENABLED: "1"
           LD_LIBRARY_PATH: "${{ github.workspace }}/install/lib"
         run: |
-          go build ./...
+          echo "=== CGO paths from source files ==="
+          echo "SRCDIR for tfhe/context.go resolves to: $(cd tfhe && pwd)"
+          echo "Relative path ../../install/lib resolves to: $(cd tfhe && realpath ../../install/lib 2>/dev/null || echo 'path does not exist')"
+          echo "Libraries in install/lib:"
+          ls -la ${{ github.workspace }}/install/lib/*.so* 2>/dev/null || echo "No .so files found"
+          go build -v ./...
 
       - name: Test Go Bindings
         working-directory: go
