@@ -67,11 +67,17 @@ jobs:
 
       - name: Build Go Bindings
         working-directory: go
+        env:
+          CGO_CXXFLAGS: "-std=c++17 -I${{ github.workspace }}/install/include/openfhe -I${{ github.workspace }}/install/include/openfhe/core -I${{ github.workspace }}/install/include/openfhe/binfhe -I${{ github.workspace }}/install/include/openfhe/pke"
+          CGO_LDFLAGS: "-L${{ github.workspace }}/install/lib -Wl,-rpath,${{ github.workspace }}/install/lib -lOpenFHEbinfhe -lOpenFHEcore -lOpenFHEpke"
+          LD_LIBRARY_PATH: "${{ github.workspace }}/install/lib"
         run: |
           go build ./...
 
       - name: Test Go Bindings
         working-directory: go
+        env:
+          LD_LIBRARY_PATH: "${{ github.workspace }}/install/lib"
         run: |
           go test ./... -v
 
