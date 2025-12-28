@@ -26,7 +26,8 @@ jobs:
           cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/openfhe-install \
             -DBUILD_UNITTESTS=ON \
             -DBUILD_EXAMPLES=OFF \
-            -DBUILD_BENCHMARKS=OFF
+            -DBUILD_BENCHMARKS=OFF \
+            -DWITH_MLX=OFF
           make -j$(nproc)
           make install
 
@@ -59,7 +60,8 @@ jobs:
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install \
             -DBUILD_UNITTESTS=OFF \
             -DBUILD_EXAMPLES=OFF \
-            -DBUILD_BENCHMARKS=OFF
+            -DBUILD_BENCHMARKS=OFF \
+            -DWITH_MLX=OFF
           make -j$(nproc)
           make install
 
