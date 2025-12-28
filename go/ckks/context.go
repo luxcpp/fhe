@@ -13,7 +13,7 @@ package ckks
 
 /*
 #cgo CXXFLAGS: -std=c++17 -O3 -I${SRCDIR}/../../install/include/openfhe -I${SRCDIR}/../../install/include/openfhe/pke -I${SRCDIR}/../../install/include/openfhe/core -I${SRCDIR}/../../install/include/openfhe/binfhe
-#cgo LDFLAGS: -L${SRCDIR}/../../install/lib -Wl,-rpath,${SRCDIR}/../../install/lib -lOpenFHEpke -lOpenFHEcore -lOpenFHEbinfhe
+#cgo LDFLAGS: -L${SRCDIR}/../../install/lib -Wl,-rpath,${SRCDIR}/../../install/lib -lOPENFHEpke -lOPENFHEcore -lOPENFHEbinfhe
 
 #include <stdlib.h>
 

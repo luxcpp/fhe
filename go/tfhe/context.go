@@ -6,7 +6,7 @@ package tfhe
 
 /*
 #cgo CXXFLAGS: -std=c++17 -I${SRCDIR}/../../install/include/openfhe -I${SRCDIR}/../../install/include/openfhe/core -I${SRCDIR}/../../install/include/openfhe/binfhe
-#cgo LDFLAGS: -L${SRCDIR}/../../install/lib -Wl,-rpath,${SRCDIR}/../../install/lib -lOpenFHEbinfhe -lOpenFHEcore -lOpenFHEpke
+#cgo LDFLAGS: -L${SRCDIR}/../../install/lib -Wl,-rpath,${SRCDIR}/../../install/lib -lOPENFHEbinfhe -lOPENFHEcore -lOPENFHEpke
 
 #include <stdlib.h>
 
