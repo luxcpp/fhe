@@ -3,7 +3,9 @@
 #
 
 # all files named *.c or */cpp are compiled to form the library
+# Exclude MLX GPU files - they are conditionally added below via WITH_MLX
 file(GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.c lib/*.cpp lib/utils/*.cpp)
+list(FILTER CORE_SRC_FILES EXCLUDE REGEX ".*/mlx/.*")
 
 # MLX GPU Backend (optional, Apple Silicon only)
 if(WITH_MLX)
