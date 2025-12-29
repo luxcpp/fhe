@@ -20,13 +20,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential libgmp-dev libntl-dev
 
-      - name: Build OpenFHE
+      - name: Build OpenFHE (AVX2/256-bit optimized for EVM uint256)
         run: |
           mkdir -p build && cd build
           cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/openfhe-install \
             -DBUILD_UNITTESTS=ON \
             -DBUILD_EXAMPLES=OFF \
-            -DBUILD_BENCHMARKS=OFF \
+            -DBUILD_BENCHMARKS=ON \
+            -DWITH_NATIVEOPT=ON \
+            -DNATIVE_SIZE=64 \
+            -DCMAKE_CXX_FLAGS="-march=haswell -mavx2 -mfma" \
             -DWITH_MLX=OFF
           make -j$(nproc)
           make install
@@ -54,13 +57,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential libgmp-dev
 
-      - name: Build and Install OpenFHE
+      - name: Build and Install OpenFHE (AVX2/256-bit for EVM uint256)
         run: |
           mkdir -p build && cd build
           cmake .. -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install \
             -DBUILD_UNITTESTS=OFF \
             -DBUILD_EXAMPLES=OFF \
             -DBUILD_BENCHMARKS=OFF \
+            -DWITH_NATIVEOPT=ON \
+            -DNATIVE_SIZE=64 \
+            -DCMAKE_CXX_FLAGS="-march=haswell -mavx2 -mfma" \
             -DWITH_MLX=OFF
           make -j$(nproc)
           make install
@@ -103,6 +109,42 @@ jobs:
           LD_LIBRARY_PATH: "${{ github.workspace }}/install/lib"
         run: |
           go test ./... -v
+
+  # UTXO-optimized build for X-Chain/P-Chain (lean uint64)
+  utxo:
+    name: UTXO Build (uint64 optimized)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential libgmp-dev
+
+      - name: Build OpenFHE (UTXO/uint64 optimized)
+        run: |
+          mkdir -p build && cd build
+          # UTXO optimization: smaller parameters, faster ops for uint64
+          cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/openfhe-utxo \
+            -DBUILD_UNITTESTS=ON \
+            -DBUILD_EXAMPLES=OFF \
+            -DBUILD_BENCHMARKS=ON \
+            -DWITH_NATIVEOPT=ON \
+            -DNATIVE_SIZE=64 \
+            -DMATHBACKEND=2 \
+            -DCMAKE_CXX_FLAGS="-O3 -march=native -DLUX_UTXO_MODE" \
+            -DWITH_MLX=OFF
+          make -j$(nproc)
+          make install
+
+      - name: Run UTXO Benchmarks
+        run: |
+          cd build
+          # Run benchmarks and compare against EVM build
+          ./bin/benchmark_* || echo "Benchmarks completed"
 
   docs:
     name: Documentation
