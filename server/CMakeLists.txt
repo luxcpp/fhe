@@ -67,7 +67,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto
     ZLIB::ZLIB
-    FHEbinfhe
+    FHEbin
     FHEcore
     FHEpke
     pthread

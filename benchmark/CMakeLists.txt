@@ -13,11 +13,11 @@ else()
 endif()
 
 if( BUILD_SHARED )
-	set (BMLIBS PUBLIC FHEpke PUBLIC FHEbinfhe PUBLIC FHEcore ${THIRDPARTYLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
+	set (BMLIBS PUBLIC FHEpke PUBLIC FHEbin PUBLIC FHEcore ${THIRDPARTYLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
 endif()
 
 if( BUILD_STATIC )
-	set (BMLIBS ${BMLIBS} PUBLIC FHEpke_static PUBLIC FHEbinfhe_static PUBLIC FHEcore_static ${THIRDPARTYSTATICLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
+	set (BMLIBS ${BMLIBS} PUBLIC FHEpke_static PUBLIC FHEbin_static PUBLIC FHEcore_static ${THIRDPARTYSTATICLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
 endif()
 
 set (BMAPPS "")

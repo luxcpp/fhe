@@ -125,7 +125,9 @@ inline T ct_eq(T a, T b) noexcept {
     // Otherwise, high bit of (diff | -diff) is 1
     // Right shift gives us 0 or 1
     constexpr size_t bits = sizeof(T) * 8;
-    T is_nonzero = (diff | (~diff + 1)) >> (bits - 1);
+    // Note: Cast to T before shift to avoid integer promotion issues
+    // (e.g., uint8_t gets promoted to int, causing wrong shift results)
+    T is_nonzero = static_cast<T>(diff | (~diff + 1)) >> (bits - 1);
 
     // is_nonzero is 0 if equal, 1 if not equal
     // We want mask of all 1s if equal

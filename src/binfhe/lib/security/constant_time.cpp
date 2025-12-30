@@ -297,7 +297,10 @@ void ct_prefix_compare(uint8_t* flags, size_t num_limbs) {
 
         for (size_t i = 0; i < num_limbs; ++i) {
             if (i >= stride) {
-                temp[i] = ct_combine_flags(flags[i], flags[i - stride]);
+                // flags[i-stride] is the accumulated result from higher limbs (higher significance)
+                // flags[i] is the current limb result (lower significance)
+                // ct_combine_flags(high, low) returns high if definite, else propagates low
+                temp[i] = ct_combine_flags(flags[i - stride], flags[i]);
             } else {
                 temp[i] = flags[i];
             }
