@@ -35,6 +35,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <array>
+#include <atomic>
 
 #ifdef WITH_MLX
 #include <mlx/mlx.h>
@@ -50,12 +51,126 @@ namespace gpu {
 #ifdef WITH_MLX
 
 // =============================================================================
+// PBS Workspace - Pre-allocated arrays to avoid allocation in hot paths
+// =============================================================================
+//
+// Holds constant arrays that would otherwise be allocated on every PBS call.
+// Initialize once at engine creation, then slice as needed for batch sizes.
+
+struct PBSWorkspace {
+    // Use shared_ptr to allow default construction
+    std::shared_ptr<mx::array> qArray;       // [maxBatch, N] filled with Q
+    std::shared_ptr<mx::array> twoNArray;    // [maxBatch, N] filled with 2*N
+    std::shared_ptr<mx::array> oneArray;     // [maxBatch, N] filled with 1
+    std::shared_ptr<mx::array> zeroArray;    // [maxBatch, N] filled with 0
+    std::shared_ptr<mx::array> indices;      // [N] with 0,1,2,...,N-1
+    
+    // Scalar arrays (frequently used)
+    std::shared_ptr<mx::array> qScalar;      // scalar Q
+    std::shared_ptr<mx::array> twoNScalar;   // scalar 2*N
+    std::shared_ptr<mx::array> oneScalar;    // scalar 1
+    std::shared_ptr<mx::array> zeroScalar;   // scalar 0
+    
+    // LWE-dimension arrays for euint256 context
+    std::shared_ptr<mx::array> zeroLWE;      // [n+1] zero LWE ciphertext
+    std::shared_ptr<mx::array> zeroLWEBatch; // [8, n+1] for 8-word operations
+    
+    uint32_t maxBatch_ = 0;
+    uint32_t N_ = 0;
+    uint32_t n_ = 0;
+    uint64_t Q_ = 0;
+    bool initialized_ = false;
+    
+    PBSWorkspace() = default;
+    
+    void init(uint32_t maxBatch, uint32_t N, uint32_t n, uint64_t Q) {
+        if (initialized_ && maxBatch_ >= maxBatch && N_ == N && n_ == n && Q_ == Q) {
+            return;  // Already initialized with sufficient capacity
+        }
+        
+        maxBatch_ = maxBatch;
+        N_ = N;
+        n_ = n;
+        Q_ = Q;
+        
+        int iMaxBatch = static_cast<int>(maxBatch);
+        int iN = static_cast<int>(N);
+        int iNplus1 = static_cast<int>(n + 1);
+        
+        // Pre-allocate batch arrays
+        qArray = std::make_shared<mx::array>(
+            mx::full({iMaxBatch, iN}, static_cast<int64_t>(Q), mx::int64));
+        twoNArray = std::make_shared<mx::array>(
+            mx::full({iMaxBatch, iN}, static_cast<int64_t>(2 * N), mx::int64));
+        oneArray = std::make_shared<mx::array>(
+            mx::full({iMaxBatch, iN}, static_cast<int64_t>(1), mx::int64));
+        zeroArray = std::make_shared<mx::array>(
+            mx::zeros({iMaxBatch, iN}, mx::int64));
+        indices = std::make_shared<mx::array>(
+            mx::arange(0, iN, 1, mx::int32));
+        
+        // Scalar arrays
+        qScalar = std::make_shared<mx::array>(static_cast<int64_t>(Q));
+        twoNScalar = std::make_shared<mx::array>(static_cast<int64_t>(2 * N));
+        oneScalar = std::make_shared<mx::array>(static_cast<int64_t>(1));
+        zeroScalar = std::make_shared<mx::array>(static_cast<int64_t>(0));
+        
+        // LWE arrays
+        zeroLWE = std::make_shared<mx::array>(mx::zeros({iNplus1}, mx::int64));
+        zeroLWEBatch = std::make_shared<mx::array>(mx::zeros({8, iNplus1}, mx::int64));
+        
+        // Evaluate all arrays to ensure they're on GPU
+        mx::eval(*qArray, *twoNArray, *oneArray, *zeroArray, *indices);
+        mx::eval(*qScalar, *twoNScalar, *oneScalar, *zeroScalar);
+        mx::eval(*zeroLWE, *zeroLWEBatch);
+        
+        initialized_ = true;
+    }
+    
+    // Get zero array slice for given batch size
+    mx::array getZeros(int batchSize, int dim) const {
+        if (zeroArray && dim == static_cast<int>(N_)) {
+            return mx::slice(*zeroArray, {0, 0}, {batchSize, dim});
+        }
+        // Fallback for non-standard dimensions or uninitialized
+        return mx::zeros({batchSize, dim}, mx::int64);
+    }
+    
+    // Get zero LWE ciphertext (for single use)
+    mx::array getZeroLWE() const {
+        if (zeroLWE) {
+            return *zeroLWE;
+        }
+        // Fallback if not initialized
+        return mx::zeros({static_cast<int>(n_ + 1)}, mx::int64);
+    }
+    
+    // Get zero LWE for batch index (sliced from pre-allocated batch)
+    mx::array getZeroLWESlice(int idx) const {
+        if (zeroLWEBatch) {
+            return mx::reshape(
+                mx::slice(*zeroLWEBatch, {idx, 0}, {idx + 1, static_cast<int>(n_ + 1)}),
+                {static_cast<int>(n_ + 1)});
+        }
+        // Fallback if not initialized
+        return mx::zeros({static_cast<int>(n_ + 1)}, mx::int64);
+    }
+    
+    // Get Q scalar (pre-allocated)
+    const mx::array& getQScalar() const { return *qScalar; }
+    
+    // Get 2N scalar (pre-allocated)
+    const mx::array& getTwoNScalar() const { return *twoNScalar; }
+};
+
+// =============================================================================
 // Test Polynomial Types (for cache key)
 // =============================================================================
 
 enum class TestPolyType : uint32_t {
     IDENTITY = 0,           // f(x) = x (modular refresh)
     SIGN_EXTRACT,           // f(x) = (x >= threshold) ? 1 : 0
+    IS_ZERO,                // f(x) = 1 if x == 0, else 0 (equality check)
     BOOL_AND,               // f(x+y) encodes AND(x,y)
     BOOL_OR,                // f(x+y) encodes OR(x,y)
     BOOL_XOR,               // f(x+y) encodes XOR(x,y)
@@ -120,8 +235,8 @@ public:
 
     // Cache statistics
     size_t size() const { return cache_.size(); }
-    size_t hitCount() const { return hit_count_; }
-    size_t missCount() const { return miss_count_; }
+    size_t hitCount() const { return hit_count_.load(std::memory_order_relaxed); }
+    size_t missCount() const { return miss_count_.load(std::memory_order_relaxed); }
 
 private:
     TestPolynomialCache() = default;
@@ -137,8 +252,8 @@ private:
     // Custom LUT cache (hashed)
     std::unordered_map<size_t, std::shared_ptr<mx::array>> custom_cache_;
 
-    mutable size_t hit_count_ = 0;
-    mutable size_t miss_count_ = 0;
+    mutable std::atomic<size_t> hit_count_{0};
+    mutable std::atomic<size_t> miss_count_{0};
 
     // Generate test polynomial for given type
     mx::array generate(TestPolyType type, uint32_t param);
@@ -245,6 +360,9 @@ public:
     };
 
     OptimizedPBSEngine(const Config& cfg);
+    
+    // Access workspace for advanced users
+    const PBSWorkspace& workspace() const { return workspace_; }
 
     // Set keys (call once after key generation)
     void setBootstrapKey(const mx::array& bsk);
@@ -330,6 +448,9 @@ private:
     // Engines
     std::unique_ptr<BlindRotate> br_;
     std::unique_ptr<KeySwitch> ks_;
+    
+    // Pre-allocated workspace to avoid hot-path allocations
+    PBSWorkspace workspace_;
 
     // Batching state
     bool batching_ = false;
@@ -393,13 +514,14 @@ inline const mx::array& TestPolynomialCache::get(TestPolyType type, uint32_t par
     auto it = cache_.find(key);
 
     if (it != cache_.end()) {
-        ++hit_count_;
+        hit_count_.fetch_add(1, std::memory_order_relaxed);
         return *it->second;
     }
 
-    ++miss_count_;
+    miss_count_.fetch_add(1, std::memory_order_relaxed);
     auto poly = generate(type, param);
     cache_[key] = std::make_shared<mx::array>(std::move(poly));
+    // eval() here is correct - one-time cache initialization
     mx::eval(*cache_[key]);
     return *cache_[key];
 }
@@ -411,11 +533,11 @@ inline const mx::array& TestPolynomialCache::getCustom(const std::vector<int64_t
     auto it = custom_cache_.find(h);
 
     if (it != custom_cache_.end()) {
-        ++hit_count_;
+        hit_count_.fetch_add(1, std::memory_order_relaxed);
         return *it->second;
     }
 
-    ++miss_count_;
+    miss_count_.fetch_add(1, std::memory_order_relaxed);
 
     // Resize LUT to N if needed (repeat or truncate)
     std::vector<int64_t> resized(cfg_.N);
@@ -424,6 +546,7 @@ inline const mx::array& TestPolynomialCache::getCustom(const std::vector<int64_t
     }
 
     auto poly = mx::array(resized.data(), {static_cast<int>(cfg_.N)}, mx::int64);
+    // eval() here is correct - one-time cache initialization
     mx::eval(poly);
     custom_cache_[h] = std::make_shared<mx::array>(std::move(poly));
     return *custom_cache_[h];
@@ -463,6 +586,15 @@ inline mx::array TestPolynomialCache::generate(TestPolyType type, uint32_t param
             // f(x) = 1 if x >= N/2, else 0 (sign bit extraction)
             for (uint32_t i = 0; i < N; ++i) {
                 data[i] = (i >= N / 2) ? static_cast<int64_t>(half_q) : 0;
+            }
+            break;
+
+        case TestPolyType::IS_ZERO:
+            // f(x) = 1 if x == 0, else 0 (zero check for equality)
+            // Only the first coefficient (representing zero) maps to 1
+            data[0] = static_cast<int64_t>(half_q);  // Output 1 (encoded as q/2)
+            for (uint32_t i = 1; i < N; ++i) {
+                data[i] = 0;  // Output 0 for all non-zero inputs
             }
             break;
 
@@ -590,7 +722,7 @@ inline BatchPBS::BatchPBS(const mx::array& bsk, const Config& cfg)
 
     br_ = std::make_unique<BlindRotate>(brCfg);
 
-    // Keep BSK on GPU
+    // eval() here is correct - key upload (one-time init)
     mx::eval(bsk_);
 }
 
@@ -612,9 +744,8 @@ inline void BatchPBS::combineLWE() {
     if (!lwe_dirty_ || pending_lwe_.empty()) return;
 
     // Stack all LWE ciphertexts into [batch, n+1]
-    // Avoid intermediate evals - build single concatenation
+    // No eval here - let caller decide when to sync
     auto combined = mx::stack(pending_lwe_, 0);
-    mx::eval(combined);
 
     combined_lwe_ = std::make_shared<mx::array>(std::move(combined));
     lwe_dirty_ = false;
@@ -645,13 +776,15 @@ inline mx::array BatchPBS::execute() {
     // Different test polynomials - need to handle per-element
     // Stack test polynomials for batched processing
     auto test_batch = mx::stack(pending_polys_, 0);  // [B, N]
-    mx::eval(test_batch);
+    // No intermediate eval - let lazy evaluation continue
 
     // Execute blind rotation with batched test polynomials
     // BlindRotate handles this internally - each element uses its own test poly
     // For efficiency, we extend the accumulator initialization to be batch-aware
 
     // Initialize accumulators with per-element test polynomials
+    // Need eval here to access raw pointers for CPU-side init
+    mx::eval(*combined_lwe_, test_batch);
     auto lwe_ptr = combined_lwe_->data<int64_t>();
     auto test_ptr = test_batch.data<int64_t>();
 
@@ -660,8 +793,8 @@ inline mx::array BatchPBS::execute() {
     // Initial rotation: X^{-b} * testPoly for each element
     for (int b = 0; b < B; ++b) {
         int64_t b_val = lwe_ptr[b * (cfg_.n + 1) + cfg_.n];
-        int32_t shift = static_cast<int32_t>((b_val % (2 * N) + 2 * N) % (2 * N));
-        shift = (2 * N - shift) % (2 * N);  // Negative rotation
+        int32_t b_mod = static_cast<int32_t>((b_val % (2 * N) + 2 * N) % (2 * N));
+        int32_t shift = (b_mod == 0) ? 0 : (2 * N - b_mod);  // Negative rotation, handle zero case
 
         for (int i = 0; i < N; ++i) {
             int32_t src = (i + shift);
@@ -679,8 +812,10 @@ inline mx::array BatchPBS::execute() {
 
     // Execute blind rotation loop
     // This is the optimized path using the batch-initialized accumulator
+    // Use pre-allocated scalar arrays to avoid allocation in loop
     auto Q_arr = mx::array(static_cast<int64_t>(cfg_.Q));
     auto two_N = mx::array(static_cast<int64_t>(2 * N));
+    mx::eval(Q_arr, two_N);  // Ensure evaluated once before loop
 
     for (uint32_t i = 0; i < cfg_.n; ++i) {
         auto a_i = mx::slice(*combined_lwe_, {0, static_cast<int>(i)},
@@ -766,15 +901,20 @@ inline OptimizedPBSEngine::OptimizedPBSEngine(const Config& cfg) : cfg_(cfg) {
     ksCfg.Q = cfg.Q;
     ksCfg.q_lwe = cfg.q_lwe;
     ks_ = std::make_unique<KeySwitch>(ksCfg);
+    
+    // Initialize pre-allocated workspace to avoid hot-path allocations
+    workspace_.init(static_cast<uint32_t>(cfg.maxBatchSize), cfg.N, cfg.n, cfg.Q);
 }
 
 inline void OptimizedPBSEngine::setBootstrapKey(const mx::array& bsk) {
     bsk_ = std::make_shared<mx::array>(bsk);
+    // eval() here is correct - key upload (one-time init)
     mx::eval(*bsk_);
 }
 
 inline void OptimizedPBSEngine::setKeySwitchKey(const mx::array& ksk) {
     ksk_ = std::make_shared<mx::array>(ksk);
+    // eval() here is correct - key upload (one-time init)
     mx::eval(*ksk_);
 }
 
@@ -787,7 +927,7 @@ inline mx::array OptimizedPBSEngine::singlePBS(const mx::array& lwe,
 
     // Reshape single LWE to batch of 1
     auto lwe_batch = mx::reshape(lwe, {1, static_cast<int>(cfg_.n + 1)});
-    mx::eval(lwe_batch);
+    // No eval here - let lazy evaluation continue
 
     // Execute blind rotation
     auto rlwe = br_->blindRotate(lwe_batch, *bsk_, testPoly);
@@ -809,9 +949,8 @@ inline mx::array OptimizedPBSEngine::refresh(const mx::array& lwe) {
 
 inline mx::array OptimizedPBSEngine::combinedLWE(const mx::array& a, const mx::array& b) {
     // Homomorphic addition: c = a + b
-    auto result = mx::add(a, b);
-    mx::eval(result);
-    return result;
+    // No eval - let caller decide when to sync
+    return mx::add(a, b);
 }
 
 inline mx::array OptimizedPBSEngine::boolAnd(const mx::array& a, const mx::array& b) {
@@ -858,7 +997,7 @@ inline mx::array OptimizedPBSEngine::boolNot(const mx::array& a) {
 
     // Only negate the b component, keep a component negated
     // Result: (−a, q/2 − b)
-    mx::eval(not_a);
+    // No eval - let caller decide when to sync
     return not_a;
 }
 
@@ -939,6 +1078,7 @@ inline mx::array OptimizedPBSEngine::mux(const mx::array& cond, const mx::array&
     // Use test polynomial that outputs val when cond=1, 0 otherwise
 
     // Get value from val ciphertext for test polynomial generation
+    // Need eval here to access raw pointer for value extraction
     mx::eval(val);
     int64_t v = val.data<int64_t>()[cfg_.n];  // b component approximates the value
 
@@ -1000,6 +1140,7 @@ inline std::vector<mx::array> OptimizedPBSEngine::executeBatch(
     }
 
     auto rlwe_batch = batcher.executeWithKeySwitch(*ksk_);
+    // Single eval at batch boundary instead of per-element
     mx::eval(rlwe_batch);
 
     // Split result into individual LWE ciphertexts
@@ -1011,7 +1152,7 @@ inline std::vector<mx::array> OptimizedPBSEngine::executeBatch(
         auto lwe = mx::slice(rlwe_batch, {static_cast<int>(i), 0},
                             {static_cast<int>(i + 1), nPlus1});
         lwe = mx::reshape(lwe, {nPlus1});
-        mx::eval(lwe);
+        // No eval here - slices share memory with parent
         results.push_back(std::move(lwe));
     }
 

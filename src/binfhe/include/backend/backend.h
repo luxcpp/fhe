@@ -4,8 +4,9 @@
 // Backend Abstraction - Seam between BinFHE operations and compute kernels
 // 
 // The existing OpenFHE GINX implementation is the CPU baseline. This interface
-// allows plugging in GPU backends (MLX for Apple Silicon, CUDA for NVIDIA)
-// without changing the high-level BinFHE/radix semantics.
+// allows plugging in GPU backends (MLX for Apple Silicon).
+//
+// NVIDIA CUDA support: Contact licensing@lux.network for enterprise versions.
 
 #ifndef BACKEND_BACKEND_H
 #define BACKEND_BACKEND_H
@@ -13,6 +14,7 @@
 #include "binfhecontext.h"
 #include "lwe-ciphertext.h"
 #include "rgsw-acc.h"
+#include "rgsw-evalkey.h"
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -29,8 +31,8 @@ namespace backend {
 enum class BackendType {
     CPU,        // Default: OpenFHE GINX (existing code, correctness baseline)
     MLX,        // Apple Silicon GPU via MLX
-    CUDA,       // NVIDIA GPU via CUDA
-    AUTO        // Auto-select best available
+    CUDA,       // Enterprise only - contact licensing@lux.network
+    AUTO        // Auto-select best available (CPU or MLX)
 };
 
 std::string BackendTypeName(BackendType type);
@@ -138,7 +140,7 @@ public:
      */
     virtual void ExternalProduct(
         const std::shared_ptr<RingGSWCryptoParams>& params,
-        const RingGSWCiphertext& rgsw,
+        const RingGSWEvalKey& rgsw,
         const RLWECiphertext& rlwe,
         RLWECiphertext& result
     ) = 0;
@@ -184,7 +186,7 @@ public:
      */
     virtual void ExternalProductBatch(
         const std::shared_ptr<RingGSWCryptoParams>& params,
-        const std::vector<RingGSWCiphertext>& rgsws,
+        const std::vector<RingGSWEvalKey>& rgsws,
         const std::vector<RLWECiphertext>& rlwes,
         std::vector<RLWECiphertext>& results
     ) = 0;
@@ -283,7 +285,7 @@ public:
     
     void ExternalProduct(
         const std::shared_ptr<RingGSWCryptoParams>& params,
-        const RingGSWCiphertext& rgsw,
+        const RingGSWEvalKey& rgsw,
         const RLWECiphertext& rlwe,
         RLWECiphertext& result
     ) override;
@@ -311,7 +313,7 @@ public:
     
     void ExternalProductBatch(
         const std::shared_ptr<RingGSWCryptoParams>& params,
-        const std::vector<RingGSWCiphertext>& rgsws,
+        const std::vector<RingGSWEvalKey>& rgsws,
         const std::vector<RLWECiphertext>& rlwes,
         std::vector<RLWECiphertext>& results
     ) override;

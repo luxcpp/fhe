@@ -55,7 +55,6 @@ RadixInt RadixInt::EncryptBytes(
     
     // Convert bytes (big-endian) to limbs (little-endian)
     uint32_t bits_per_limb = params.limb_params.message_bits;
-    uint64_t limb_mask = (1ULL << bits_per_limb) - 1;
     
     // Accumulate bits from bytes
     std::vector<uint64_t> limb_values(params.num_limbs, 0);
@@ -259,10 +258,11 @@ void RadixInt::BitwiseNotInPlace(const ShortIntLUTs& luts) {
 }
 
 void RadixInt::ShlInPlace(uint32_t bits, const ShortIntLUTs& luts) {
+    (void)luts;  // Used for bit-level shift (future implementation)
     uint32_t bits_per_limb = params_.limb_params.message_bits;
     uint32_t limb_shift = bits / bits_per_limb;
-    uint32_t bit_shift = bits % bits_per_limb;
-    
+    // uint32_t bit_shift = bits % bits_per_limb;  // TODO: implement bit-level shift
+
     // Shift limbs
     if (limb_shift > 0) {
         for (uint32_t i = params_.num_limbs - 1; i >= limb_shift; --i) {
@@ -272,16 +272,16 @@ void RadixInt::ShlInPlace(uint32_t bits, const ShortIntLUTs& luts) {
             limbs_[i] = ShortInt::Encrypt(*cc_, params_.limb_params, 0, nullptr);
         }
     }
-    
-    // Shift bits within limbs (if needed)
-    // This requires homomorphic shift which is complex
+
+    // TODO: Shift bits within limbs (requires homomorphic shift via LUT)
 }
 
 void RadixInt::ShrInPlace(uint32_t bits, const ShortIntLUTs& luts) {
+    (void)luts;  // Used for bit-level shift (future implementation)
     uint32_t bits_per_limb = params_.limb_params.message_bits;
     uint32_t limb_shift = bits / bits_per_limb;
-    uint32_t bit_shift = bits % bits_per_limb;
-    
+    // uint32_t bit_shift = bits % bits_per_limb;  // TODO: implement bit-level shift
+
     // Shift limbs
     if (limb_shift > 0) {
         for (uint32_t i = 0; i < params_.num_limbs - limb_shift; ++i) {
@@ -291,6 +291,8 @@ void RadixInt::ShrInPlace(uint32_t bits, const ShortIntLUTs& luts) {
             limbs_[i] = ShortInt::Encrypt(*cc_, params_.limb_params, 0, nullptr);
         }
     }
+
+    // TODO: Shift bits within limbs (requires homomorphic shift via LUT)
 }
 
 // ============================================================================

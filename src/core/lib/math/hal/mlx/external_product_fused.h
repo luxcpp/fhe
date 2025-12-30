@@ -400,10 +400,8 @@ inline void TwiddleCache::compute_twiddles() {
     inv_tw_ = std::make_shared<mx::array>(mx::array(inv_tw.data(), {n}, mx::int64));
     inv_precon_ = std::make_shared<mx::array>(mx::array(inv_tw_precon.data(), {n}, mx::int64));
 
-    mx::eval(*fwd_tw_);
-    mx::eval(*fwd_precon_);
-    mx::eval(*inv_tw_);
-    mx::eval(*inv_precon_);
+    // Combined eval for twiddle cache init - one-time setup
+    mx::eval(*fwd_tw_, *fwd_precon_, *inv_tw_, *inv_precon_);
 }
 
 // =============================================================================
@@ -491,8 +489,8 @@ inline mx::array FusedExternalProduct::executeBatch(const mx::array& rlwe_batch,
         int L = static_cast<int>(params_.L);
         uint64_t Q = params_.Q;
 
-        mx::eval(rlwe_batch);
-        mx::eval(rgsw_batch);
+        // Combined eval for inputs
+        mx::eval(rlwe_batch, rgsw_batch);
 
         auto Q_arr = mx::array(static_cast<int64_t>(Q));
         auto mask = mx::array(static_cast<int64_t>(params_.base_mask));
@@ -535,6 +533,7 @@ inline mx::array FusedExternalProduct::executeBatch(const mx::array& rlwe_batch,
         auto result = mx::stack({mx::reshape(acc_0, {B, 1, N}),
                             mx::reshape(acc_1, {B, 1, N})}, 1);
         result = mx::reshape(result, {B, 2, N});
+        // eval() at end of public API - batch boundary
         mx::eval(result);
 
         return recordTime(result);
@@ -547,6 +546,7 @@ inline void FusedExternalProduct::executeAccumulate(mx::array& acc,
     auto ext_prod = executeBatch(rlwe, rgsw);
     auto Q_arr = mx::array(static_cast<int64_t>(params_.Q));
     acc = mx::remainder(mx::add(acc, ext_prod), Q_arr);
+    // eval() at end of public API
     mx::eval(acc);
 }
 
@@ -558,8 +558,8 @@ inline mx::array FusedExternalProduct::cmux(const mx::array& d0,
     int N = static_cast<int>(params_.N);
     uint64_t Q = params_.Q;
 
-    mx::eval(d0);
-    mx::eval(d1);
+    // Materialize inputs before computation (single eval)
+    mx::eval(d0, d1);
 
     // Compute diff = d1 - d0
     auto Q_arr = mx::array(static_cast<int64_t>(Q));
@@ -593,8 +593,8 @@ inline mx::array FusedExternalProduct::executeCPU(const mx::array& rlwe,
     int L = static_cast<int>(params_.L);
     uint64_t Q = params_.Q;
 
-    mx::eval(rlwe);
-    mx::eval(rgsw);
+    // CPU fallback: materialize for pointer access (required)
+    mx::eval(rlwe, rgsw);
 
     auto rlwe_ptr = rlwe.data<int64_t>();
     auto rgsw_ptr = rgsw.data<int64_t>();

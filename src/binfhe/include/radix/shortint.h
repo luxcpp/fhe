@@ -120,6 +120,27 @@ private:
     ShortIntParams params_;
     LWECiphertext ct_;
     bool has_carry_ = false;
+
+    // Friend declarations for free functions that need private access
+    friend std::pair<ShortInt, ShortInt> Add(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend std::pair<ShortInt, ShortInt> AddWithCarry(const ShortInt& a, const ShortInt& b, const ShortInt& carry_in, const ShortIntLUTs& luts);
+    friend std::pair<ShortInt, ShortInt> Sub(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend std::pair<ShortInt, ShortInt> SubWithBorrow(const ShortInt& a, const ShortInt& b, const ShortInt& borrow_in, const ShortIntLUTs& luts);
+    friend std::pair<ShortInt, ShortInt> Mul(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Lt(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Le(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Gt(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Ge(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Eq(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Ne(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt And(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Or(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Xor(const ShortInt& a, const ShortInt& b, const ShortIntLUTs& luts);
+    friend ShortInt Not(const ShortInt& a, const ShortIntLUTs& luts);
+    friend ShortInt Select(const ShortInt& sel, const ShortInt& if_true, const ShortInt& if_false);
+    friend void BatchAdd(const std::vector<ShortInt>& a, const std::vector<ShortInt>& b, std::vector<ShortInt>& sums, std::vector<ShortInt>& carries, const ShortIntLUTs& luts);
+    friend void BatchMul(const std::vector<ShortInt>& a, const std::vector<ShortInt>& b, std::vector<ShortInt>& lows, std::vector<ShortInt>& highs, const ShortIntLUTs& luts);
+    friend void BatchBootstrap(std::vector<ShortInt>& values);
 };
 
 // ============================================================================

@@ -263,9 +263,8 @@ inline mx::array BlindRotate::blindRotateGPU(const mx::array& lweBatch,
     int N = static_cast<int>(config_.N);
     uint64_t Q = config_.Q;
 
-    mx::eval(lweBatch);
-    mx::eval(bsk);
-    mx::eval(testPoly);
+    // Combine evals into single sync point for inputs
+    mx::eval(lweBatch, bsk, testPoly);
 
     auto Q_arr = mx::array(static_cast<int64_t>(Q));
     auto two_N = mx::array(static_cast<int64_t>(2 * N));
@@ -295,7 +294,7 @@ inline mx::array BlindRotate::blindRotateGPU(const mx::array& lweBatch,
     auto acc = mx::stack({mx::reshape(acc_c0, {B, 1, N}),
                            mx::reshape(acc_c1, {B, 1, N})}, 1);
     acc = mx::reshape(acc, {B, 2, N});
-    mx::eval(acc);
+    // No eval here - let lazy evaluation continue
 
     // =========================================================================
     // Step 2: Blind rotation loop - CMux for each LWE dimension
@@ -316,6 +315,7 @@ inline mx::array BlindRotate::blindRotateGPU(const mx::array& lweBatch,
             mx::int32);
 
         // Check if all rotations are zero (skip this iteration)
+        // Need eval here to check values on CPU for skip optimization
         mx::eval(rot_amounts);
         auto rot_ptr = rot_amounts.data<int32_t>();
         bool all_zero = true;
@@ -336,10 +336,11 @@ inline mx::array BlindRotate::blindRotateGPU(const mx::array& lweBatch,
 
         // CMux: acc = acc + ExternalProduct(rotated - acc, RGSW(s[i]))
         acc = cmux(acc, rotated, rgsw_i);
-
-        mx::eval(acc);
+        // NO mx::eval here - let MLX fuse loop iterations
     }
 
+    // eval() at end of public API - batch boundary
+    mx::eval(acc);
     return acc;
 }
 
@@ -358,9 +359,8 @@ inline mx::array BlindRotate::blindRotateCPU(const mx::array& lweBatch,
     uint32_t L = config_.L;
     uint64_t Q = config_.Q;
 
-    mx::eval(lweBatch);
-    mx::eval(bsk);
-    mx::eval(testPoly);
+    // Combined eval for CPU fallback - need data pointers
+    mx::eval(lweBatch, bsk, testPoly);
 
     auto lwePtr = lweBatch.data<int64_t>();
     auto bskPtr = bsk.data<int64_t>();
@@ -515,8 +515,8 @@ inline mx::array BlindRotate::negacyclicRotate(const mx::array& poly,
     int N = shape[1];
     uint64_t Q = config_.Q;
 
-    mx::eval(poly);
-    mx::eval(rotations);
+    // Combined eval - need data pointers for CPU-side index calculation
+    mx::eval(poly, rotations);
 
     // For GPU-accelerated version, we use vectorized index computation
     // and MLX gather/scatter operations
@@ -534,6 +534,7 @@ inline mx::array BlindRotate::negacyclicRotate(const mx::array& poly,
             mx::remainder(mx::add(mx::remainder(rotations, two_N), two_N), two_N),
             mx::int32);
 
+        // Need eval to access normalized rotation values
         mx::eval(rot_norm);
         auto rot_ptr = rot_norm.data<int32_t>();
 
@@ -558,9 +559,8 @@ inline mx::array BlindRotate::negacyclicRotate(const mx::array& poly,
             }
         }
 
-        auto result = mx::array(resultData.data(), shape, mx::int64);
-        mx::eval(result);
-        return result;
+        // No eval needed - returning from function boundary
+        return mx::array(resultData.data(), shape, mx::int64);
     }
 
     // CPU fallback
@@ -616,7 +616,7 @@ inline mx::array BlindRotate::negacyclicRotateRLWE(const mx::array& rlwe,
     auto result = mx::stack({mx::reshape(c0_rot, {B, 1, N}),
                               mx::reshape(c1_rot, {B, 1, N})}, 1);
     result = mx::reshape(result, {B, 2, N});
-    mx::eval(result);
+    // No eval - let caller decide when to sync
 
     return result;
 }
@@ -634,8 +634,6 @@ inline mx::array BlindRotate::decompose(const mx::array& poly) {
     int N = shape[1];
     uint32_t L = config_.L;
 
-    mx::eval(poly);
-
     if (gpu_enabled_) {
         // GPU-accelerated decomposition using bit operations
         auto mask_arr = mx::array(static_cast<int64_t>(mask_));
@@ -651,11 +649,12 @@ inline mx::array BlindRotate::decompose(const mx::array& poly) {
 
         auto result = mx::concatenate(digits, 1);
         result = mx::reshape(result, {B, static_cast<int>(L), N});
-        mx::eval(result);
+        // No eval - let caller decide when to sync
         return result;
     }
 
-    // CPU fallback
+    // CPU fallback - need eval for data pointer access
+    mx::eval(poly);
     auto polyPtr = poly.data<int64_t>();
 
     std::vector<int64_t> digitData(B * L * N);

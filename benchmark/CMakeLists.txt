@@ -2,6 +2,7 @@ include_directories( ../src/core/include )
 include_directories( ../src/core/lib )
 include_directories( ../src/pke/include )
 include_directories( ../src/binfhe/include )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )  # For perf_thresholds.h
 
 set( REGEX_FLAG -DHAVE_STD_REGEX )
 
@@ -12,15 +13,21 @@ else()
 endif()
 
 if( BUILD_SHARED )
-	set (BMLIBS PUBLIC OPENFHEpke PUBLIC OPENFHEbinfhe PUBLIC OPENFHEcore ${THIRDPARTYLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
+	set (BMLIBS PUBLIC FHEpke PUBLIC FHEbinfhe PUBLIC FHEcore ${THIRDPARTYLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
 endif()
 
 if( BUILD_STATIC )
-	set (BMLIBS ${BMLIBS} PUBLIC OPENFHEpke_static PUBLIC OPENFHEbinfhe_static PUBLIC OPENFHEcore_static ${THIRDPARTYSTATICLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
+	set (BMLIBS ${BMLIBS} PUBLIC FHEpke_static PUBLIC FHEbinfhe_static PUBLIC FHEcore_static ${THIRDPARTYSTATICLIBS} PUBLIC benchmark ${OpenMP_CXX_FLAGS})
 endif()
 
 set (BMAPPS "")
 file (GLOB BMARK_SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
+
+# fhevm_benchmarks requires WITH_LUX_EXTENSIONS for radix support
+if(NOT WITH_LUX_EXTENSIONS)
+    list(FILTER BMARK_SRC_FILES EXCLUDE REGEX "fhevm_benchmarks.cpp$")
+endif()
+
 foreach (app ${BMARK_SRC_FILES})
 	get_filename_component ( exe ${app} NAME_WE )
 	add_executable ( ${exe} ${app} )

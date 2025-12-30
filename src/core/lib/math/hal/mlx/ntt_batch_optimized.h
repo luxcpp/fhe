@@ -34,6 +34,8 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <map>
+#include <mutex>
 
 #ifdef WITH_MLX
 #include <mlx/mlx.h>
@@ -43,6 +45,36 @@ namespace mx = mlx::core;
 namespace lbcrypto {
 namespace gpu {
 namespace metal {
+
+// =============================================================================
+// Global Twiddle Factor Cache (by (N, Q) pair)
+// =============================================================================
+// Amortizes twiddle computation across all BatchVectorizedNTT instances with
+// the same (N, Q) parameters. Thread-safe.
+
+namespace {
+    struct TwiddleCacheKey {
+        uint32_t N;
+        uint64_t Q;
+        bool is_inverse;
+
+        bool operator<(const TwiddleCacheKey& other) const {
+            if (N != other.N) return N < other.N;
+            if (Q != other.Q) return Q < other.Q;
+            return is_inverse < other.is_inverse;
+        }
+    };
+
+    struct TwiddleCacheEntry {
+        std::shared_ptr<mx::array> twiddles;
+        std::shared_ptr<mx::array> precon;
+        std::vector<uint32_t> stage_offsets;
+        std::vector<mx::array> stage_views;
+    };
+
+    std::mutex g_twiddleCacheMutex;
+    std::map<TwiddleCacheKey, std::shared_ptr<TwiddleCacheEntry>> g_twiddleCache;
+}
 
 // =============================================================================
 // Precomputed Index Patterns (amortized across all NTT calls)
@@ -194,6 +226,26 @@ inline uint32_t UnifiedTwiddleBuffer::bit_reverse(uint32_t x, uint32_t bits) {
 }
 
 inline UnifiedTwiddleBuffer UnifiedTwiddleBuffer::create_forward(uint32_t N, uint64_t Q) {
+    // Check cache first
+    TwiddleCacheKey key{N, Q, false};
+    {
+        std::lock_guard<std::mutex> lock(g_twiddleCacheMutex);
+        auto it = g_twiddleCache.find(key);
+        if (it != g_twiddleCache.end()) {
+            // Found in cache - reconstruct buffer from cached data
+            UnifiedTwiddleBuffer buf;
+            buf.N = N;
+            buf.Q = Q;
+            buf.log_N = 0;
+            while ((1u << buf.log_N) < N) ++buf.log_N;
+            buf.twiddles = it->second->twiddles;
+            buf.precon = it->second->precon;
+            buf.stage_offsets = it->second->stage_offsets;
+            buf.stage_views = it->second->stage_views;
+            return buf;
+        }
+    }
+
     UnifiedTwiddleBuffer buf;
     buf.N = N;
     buf.Q = Q;
@@ -255,10 +307,41 @@ inline UnifiedTwiddleBuffer UnifiedTwiddleBuffer::create_forward(uint32_t N, uin
         mx::eval(buf.stage_views.back());
     }
 
+    // Store in cache
+    {
+        std::lock_guard<std::mutex> lock(g_twiddleCacheMutex);
+        auto entry = std::make_shared<TwiddleCacheEntry>();
+        entry->twiddles = buf.twiddles;
+        entry->precon = buf.precon;
+        entry->stage_offsets = buf.stage_offsets;
+        entry->stage_views = buf.stage_views;
+        g_twiddleCache[key] = entry;
+    }
+
     return buf;
 }
 
 inline UnifiedTwiddleBuffer UnifiedTwiddleBuffer::create_inverse(uint32_t N, uint64_t Q) {
+    // Check cache first
+    TwiddleCacheKey key{N, Q, true};
+    {
+        std::lock_guard<std::mutex> lock(g_twiddleCacheMutex);
+        auto it = g_twiddleCache.find(key);
+        if (it != g_twiddleCache.end()) {
+            // Found in cache - reconstruct buffer from cached data
+            UnifiedTwiddleBuffer buf;
+            buf.N = N;
+            buf.Q = Q;
+            buf.log_N = 0;
+            while ((1u << buf.log_N) < N) ++buf.log_N;
+            buf.twiddles = it->second->twiddles;
+            buf.precon = it->second->precon;
+            buf.stage_offsets = it->second->stage_offsets;
+            buf.stage_views = it->second->stage_views;
+            return buf;
+        }
+    }
+
     UnifiedTwiddleBuffer buf;
     buf.N = N;
     buf.Q = Q;
@@ -316,6 +399,17 @@ inline UnifiedTwiddleBuffer UnifiedTwiddleBuffer::create_inverse(uint32_t N, uin
         int end = static_cast<int>(buf.stage_offsets[s + 1]);
         buf.stage_views.push_back(mx::slice(*buf.twiddles, {start}, {end}));
         mx::eval(buf.stage_views.back());
+    }
+
+    // Store in cache
+    {
+        std::lock_guard<std::mutex> lock(g_twiddleCacheMutex);
+        auto entry = std::make_shared<TwiddleCacheEntry>();
+        entry->twiddles = buf.twiddles;
+        entry->precon = buf.precon;
+        entry->stage_offsets = buf.stage_offsets;
+        entry->stage_views = buf.stage_views;
+        g_twiddleCache[key] = entry;
     }
 
     return buf;
@@ -434,7 +528,41 @@ inline BatchVectorizedNTT::BatchVectorizedNTT(uint32_t N, uint64_t Q)
 // All batch elements processed in parallel via tensor operations.
 
 inline void BatchVectorizedNTT::forward_stage_vectorized(mx::array& data, uint32_t stage) {
+    // Shape validation
+    auto shape = data.shape();
+    if (shape.size() != 2) {
+        throw std::runtime_error("NTT input must be 2D [batch, N]");
+    }
+    if (shape[1] != static_cast<int>(N_)) {
+        throw std::runtime_error("NTT input dimension mismatch: expected N=" + 
+                                 std::to_string(N_) + ", got " + std::to_string(shape[1]));
+    }
+
     int N = static_cast<int>(N_);
+    int batch = shape[0];
+
+    // Stage 0 optimization: even/odd indices are perfectly interleaved
+    // Use slicing instead of gather for better performance
+    if (stage == 0) {
+        // data shape: [batch, N]
+        // even = data[:, 0::2], odd = data[:, 1::2]
+        auto even = mx::slice(data, {0, 0}, {batch, N}, {1, 2});
+        auto odd = mx::slice(data, {0, 1}, {batch, N}, {1, 2});
+
+        // Stage 0 twiddle is always 1 (omega^0 = 1), so hi_tw = odd
+        // Butterfly: (even + odd, even - odd) mod Q
+        auto new_lo = mx::remainder(mx::add(even, odd), *Q_arr_);
+        auto diff = mx::subtract(even, odd);
+        auto new_hi = mx::remainder(mx::add(diff, *Q_arr_), *Q_arr_);
+
+        // Interleave results back: result[:, 0::2] = new_lo, result[:, 1::2] = new_hi
+        // Use stack and reshape for efficient interleaving
+        // Shape: new_lo [batch, N/2], new_hi [batch, N/2]
+        // Stack along last dim: [batch, N/2, 2], then reshape to [batch, N]
+        auto stacked = mx::stack({new_lo, new_hi}, 2);
+        data = mx::reshape(stacked, {batch, N});
+        return;
+    }
 
     const auto& lo_idx = fwd_pattern_.lo_indices[stage];
     const auto& hi_idx = fwd_pattern_.hi_indices[stage];
@@ -463,6 +591,16 @@ inline void BatchVectorizedNTT::forward_stage_vectorized(mx::array& data, uint32
 }
 
 inline void BatchVectorizedNTT::inverse_stage_vectorized(mx::array& data, uint32_t stage) {
+    // Shape validation
+    auto shape = data.shape();
+    if (shape.size() != 2) {
+        throw std::runtime_error("NTT input must be 2D [batch, N]");
+    }
+    if (shape[1] != static_cast<int>(N_)) {
+        throw std::runtime_error("NTT input dimension mismatch: expected N=" + 
+                                 std::to_string(N_) + ", got " + std::to_string(shape[1]));
+    }
+
     int N = static_cast<int>(N_);
 
     const auto& lo_idx = inv_pattern_.lo_indices[stage];

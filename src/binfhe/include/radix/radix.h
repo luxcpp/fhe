@@ -230,11 +230,40 @@ public:
      * @brief Right shift by constant bits
      */
     void ShrInPlace(uint32_t bits, const ShortIntLUTs& luts);
-    
+
 private:
     BinFHEContext* cc_ = nullptr;
     RadixParams params_;
     std::vector<ShortInt> limbs_;
+
+    // Friend declarations for free functions that need private access
+    friend RadixInt Add(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Sub(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Mul(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt MulFull(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend std::pair<RadixInt, RadixInt> Div(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Mod(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Lt(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Le(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Gt(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Ge(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Eq(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Ne(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Min(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt Max(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt BitwiseAnd(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt BitwiseOr(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt BitwiseXor(const RadixInt& a, const RadixInt& b, const ShortIntLUTs& luts);
+    friend RadixInt BitwiseNot(const RadixInt& a, const ShortIntLUTs& luts);
+    friend RadixInt Shl(const RadixInt& a, const RadixInt& bits, const ShortIntLUTs& luts);
+    friend RadixInt Shr(const RadixInt& a, const RadixInt& bits, const ShortIntLUTs& luts);
+    friend RadixInt Rotl(const RadixInt& a, const RadixInt& bits, const ShortIntLUTs& luts);
+    friend RadixInt Rotr(const RadixInt& a, const RadixInt& bits, const ShortIntLUTs& luts);
+    friend RadixInt Select(const RadixInt& sel, const RadixInt& if_true, const RadixInt& if_false, const ShortIntLUTs& luts);
+    friend void SelectAssign(RadixInt& target, const RadixInt& sel, const RadixInt& value, const ShortIntLUTs& luts);
+    friend RadixInt Cast(const RadixInt& a, const RadixParams& new_params);
+    friend RadixInt IsZero(const RadixInt& a, const ShortIntLUTs& luts);
+    friend RadixInt IsNonZero(const RadixInt& a, const ShortIntLUTs& luts);
 };
 
 // ============================================================================

@@ -259,10 +259,8 @@ inline void NTTEngine::init_gpu() {
     inv_tw_gpu_ = std::make_shared<mx::array>(mx::array(inv_tw_i64.data(), {N}, mx::int64));
     inv_tw_precon_gpu_ = std::make_shared<mx::array>(mx::array(inv_tw_precon_i64.data(), {N}, mx::int64));
 
-    mx::eval(*tw_gpu_);
-    mx::eval(*tw_precon_gpu_);
-    mx::eval(*inv_tw_gpu_);
-    mx::eval(*inv_tw_precon_gpu_);
+    // Twiddle cache init: materialize all at once (one-time setup)
+    mx::eval(*tw_gpu_, *tw_precon_gpu_, *inv_tw_gpu_, *inv_tw_precon_gpu_);
     gpu_ready_ = true;
 }
 
@@ -399,8 +397,8 @@ inline mx::array NTTEngine::pointwise_mul(const mx::array& a, const mx::array& b
     int N = (shape.size() > 1) ? shape[1] : shape[0];
     uint64_t Q = params_.Q;
 
-    mx::eval(a);
-    mx::eval(b);
+    // CPU fallback: materialize for pointer access (required)
+    mx::eval(a, b);
     auto a_ptr = a.data<int64_t>();
     auto b_ptr = b.data<int64_t>();
     std::vector<int64_t> result(batch * N);

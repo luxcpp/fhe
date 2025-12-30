@@ -84,7 +84,10 @@ LWEPrivateKey FheContext::KeyGen() {
 }
 
 LWEPublicKey FheContext::PublicKeyGen(const LWEPrivateKey& sk) {
-    return cc_->KeyGenPublic(sk);
+    // TODO: OpenFHE BinFHE doesn't have public key generation
+    // This would need to be implemented or use a different approach
+    (void)sk;
+    return nullptr;
 }
 
 void FheContext::BootstrapKeyGen(const LWEPrivateKey& sk) {
@@ -145,17 +148,19 @@ radix::RadixInt FheContext::EncryptPublic(
 radix::RadixInt FheContext::TrivialEncrypt(uint64_t value, FheType type) {
     auto params = GetRadixParams(type);
     radix::RadixInt result(*cc_, params);
-    
+
     uint32_t bits_per_limb = params.limb_params.message_bits;
     uint64_t limb_mask = (1ULL << bits_per_limb) - 1;
-    
+
     for (uint32_t i = 0; i < params.num_limbs; ++i) {
         uint64_t limb_value = (value >> (i * bits_per_limb)) & limb_mask;
-        // Trivial encryption: ciphertext with no secret
-        auto ct = cc_->Encrypt(nullptr, limb_value, TRIVIAL, params.limb_params.total_bits());
-        result.GetLimb(i).GetCiphertext() = ct;
+        // Trivial encryption: use EvalConstant which creates a trivial ciphertext
+        // OpenFHE BinFHE doesn't have a direct trivial encrypt API like TFHE-rs
+        // For now, create a zero vector and set b = message * delta
+        // This is a placeholder - proper implementation would use the scheme's trivial encrypt
+        (void)limb_value;  // TODO: Implement proper trivial encryption
     }
-    
+
     return result;
 }
 
@@ -533,16 +538,16 @@ LWEPublicKey FheContext::DeserializePublicKey(const std::vector<uint8_t>& data) 
 }
 
 std::vector<uint8_t> FheContext::SerializeBootstrapKey() {
-    std::stringstream ss;
-    cc_->SerializeEvalKey(ss, SerType::BINARY);
-    std::string str = ss.str();
-    return std::vector<uint8_t>(str.begin(), str.end());
+    // TODO: OpenFHE BinFHE serialization API differs
+    // Need to use the correct serialization methods for refresh/switching keys
+    // For now, return empty - proper implementation would serialize the keys
+    return {};
 }
 
 void FheContext::DeserializeBootstrapKey(const std::vector<uint8_t>& data) {
-    std::string str(data.begin(), data.end());
-    std::stringstream ss(str);
-    cc_->DeserializeEvalKey(ss, SerType::BINARY);
+    // TODO: OpenFHE BinFHE deserialization API differs
+    // Need to use the correct deserialization methods
+    (void)data;
 }
 
 // ============================================================================

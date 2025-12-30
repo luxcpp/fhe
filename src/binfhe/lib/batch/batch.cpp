@@ -233,9 +233,9 @@ BatchResult EvalCMUXBatch(
         #pragma omp parallel for if(ct_sel.size() > 4)
         for (size_t i = 0; i < ct_sel.size(); ++i) {
             // CMUX = sel ? true : false
-            // Implemented as: (sel AND true) XOR ((NOT sel) AND false)
-            // Or more efficiently via MUX gate if available
-            ct_out[i] = cc.EvalBinGate(MUX, ct_sel[i], ct_true[i], ct_false[i]);
+            // EvalBinGate for 3-input gates (CMUX, MAJORITY, AND3, OR3) takes a vector
+            std::vector<LWECiphertext> inputs = {ct_sel[i], ct_true[i], ct_false[i]};
+            ct_out[i] = cc.EvalBinGate(CMUX, inputs);
         }
         
         result.processed = ct_sel.size();
@@ -373,16 +373,15 @@ size_t BatchDAG::AddCiphertext(const LWECiphertext& ct) {
 }
 
 size_t BatchDAG::AddBootstrap(size_t input_id) {
-    size_t op_id = impl_->operations.size();
     size_t output_id = impl_->ciphertexts.size();
     impl_->ciphertexts.push_back(nullptr);  // Placeholder
-    
+
     BatchOp op;
     op.type = BatchOp::OP_BOOTSTRAP;
     op.input_ids = {input_id};
     op.output_ids = {output_id};
     impl_->operations.push_back(op);
-    
+
     return output_id;
 }
 

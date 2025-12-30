@@ -96,10 +96,14 @@ std::vector<uint8_t> PackLWE(const LWECiphertext& ct, uint32_t flags) {
     packed->log_q = 64;  // TODO: Get actual modulus info
     packed->q = 0;  // Would need actual modulus
     
-    // Copy coefficients
+    // Copy coefficients (element by element since NativeVector lacks GetData())
     uint8_t* coeff_ptr = result.data() + sizeof(PackedLWE);
-    std::memcpy(coeff_ptr, a.GetData(), n * coeff_size);
-    std::memcpy(coeff_ptr + n * coeff_size, &b, coeff_size);
+    for (uint32_t i = 0; i < n; ++i) {
+        auto val = static_cast<NativeInteger::Integer>(a[i]);
+        std::memcpy(coeff_ptr + i * coeff_size, &val, coeff_size);
+    }
+    auto b_val = static_cast<NativeInteger::Integer>(b);
+    std::memcpy(coeff_ptr + n * coeff_size, &b_val, coeff_size);
     
     return result;
 }
@@ -117,13 +121,19 @@ LWECiphertext UnpackLWE(const uint8_t* data, size_t size) {
     uint32_t n = packed->n;
     const uint8_t* coeff_ptr = data + sizeof(PackedLWE);
     
-    // Create LWE ciphertext
+    // Create LWE ciphertext (element by element since NativeVector lacks GetData())
     NativeVector a(n);
-    std::memcpy(a.GetData(), coeff_ptr, n * sizeof(NativeInteger));
-    
+    for (uint32_t i = 0; i < n; ++i) {
+        NativeInteger::SignedNativeInt val;
+        std::memcpy(&val, coeff_ptr + i * sizeof(NativeInteger), sizeof(NativeInteger));
+        a[i] = val;
+    }
+
     NativeInteger b;
-    std::memcpy(&b, coeff_ptr + n * sizeof(NativeInteger), sizeof(NativeInteger));
-    
+    NativeInteger::SignedNativeInt b_val;
+    std::memcpy(&b_val, coeff_ptr + n * sizeof(NativeInteger), sizeof(NativeInteger));
+    b = b_val;
+
     return std::make_shared<LWECiphertextImpl>(std::move(a), std::move(b));
 }
 
@@ -186,9 +196,14 @@ std::vector<uint8_t> PackLWEBatch(
         for (const auto& ct : cts) {
             const auto& a = ct->GetA();
             const auto& b = ct->GetB();
-            std::memcpy(ptr, a.GetData(), n * coeff_size);
+            // Copy element by element since NativeVector lacks GetData()
+            for (uint32_t i = 0; i < n; ++i) {
+                auto val = static_cast<NativeInteger::Integer>(a[i]);
+                std::memcpy(ptr + i * coeff_size, &val, coeff_size);
+            }
             ptr += n * coeff_size;
-            std::memcpy(ptr, &b, coeff_size);
+            auto b_val = static_cast<NativeInteger::Integer>(b);
+            std::memcpy(ptr, &b_val, coeff_size);
             ptr += coeff_size;
         }
     }
@@ -237,16 +252,22 @@ std::vector<LWECiphertext> UnpackLWEBatch(const uint8_t* data, size_t size) {
             ));
         }
     } else {
-        // Sequential
+        // Sequential (element by element since NativeVector lacks GetData())
         for (size_t i = 0; i < count; ++i) {
             NativeVector a(n);
-            std::memcpy(a.GetData(), ptr, n * coeff_size);
+            for (uint32_t j = 0; j < n; ++j) {
+                NativeInteger::SignedNativeInt val;
+                std::memcpy(&val, ptr + j * coeff_size, coeff_size);
+                a[j] = val;
+            }
             ptr += n * coeff_size;
-            
+
             NativeInteger b;
-            std::memcpy(&b, ptr, coeff_size);
+            NativeInteger::SignedNativeInt b_val;
+            std::memcpy(&b_val, ptr, coeff_size);
+            b = b_val;
             ptr += coeff_size;
-            
+
             result.push_back(std::make_shared<LWECiphertextImpl>(
                 std::move(a), std::move(b)
             ));

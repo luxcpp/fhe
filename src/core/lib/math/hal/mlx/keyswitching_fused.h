@@ -510,8 +510,8 @@ inline mx::array FusedKeySwitching::external_product_fused(
     uint32_t L = cfg_.L;
     uint64_t Q = cfg_.Q;
 
-    mx::eval(rlwe);
-    mx::eval(rgsw);
+    // CPU fallback: materialize for pointer access (required)
+    mx::eval(rlwe, rgsw);
 
     auto rlwePtr = rlwe.data<int64_t>();
     auto rgswPtr = rgsw.data<int64_t>();
@@ -650,8 +650,8 @@ inline mx::array FusedKeySwitching::key_switch_fused(
     uint32_t L = cfg_.L;
     uint64_t Q = cfg_.Q;
 
-    mx::eval(rlwe);
-    mx::eval(ksk);
+    // CPU fallback: materialize for pointer access (required)
+    mx::eval(rlwe, ksk);
 
     auto rlwePtr = rlwe.data<int64_t>();
     auto kskPtr = ksk.data<int64_t>();
@@ -715,8 +715,8 @@ inline mx::array FusedKeySwitching::blind_rotate_fused(
     int N = static_cast<int>(cfg_.N);
     uint64_t Q = cfg_.Q;
 
-    mx::eval(lwe);
-    mx::eval(test_poly);
+    // CPU fallback: materialize for pointer access (required)
+    mx::eval(lwe, test_poly);
 
     auto lwePtr = lwe.data<int64_t>();
     auto testPtr = test_poly.data<int64_t>();

@@ -3,8 +3,11 @@
 // Target: 1000+ concurrent operations, massive parallelism
 //==================================================================================
 
+// These tests require the MLX backend
+#ifdef WITH_MLX
+
 #include "gtest/gtest.h"
-#include "math/hal/mlx/gpu_tfhe.h"
+#include "math/hal/mlx/fhe.h"
 #include <chrono>
 #include <random>
 #include <thread>
@@ -13,17 +16,17 @@
 using namespace lbcrypto::gpu;
 using namespace std::chrono;
 
-class GPUTFHETest : public ::testing::Test {
+class FHETest : public ::testing::Test {
 protected:
     void SetUp() override {
-        TFHEConfig config;
+        FHEConfig config;
         config.N = 1024;
         config.n = 512;
         config.L = 4;  // Reduced from 7!
         config.maxUsers = 1000;
         config.batchSize = 256;
         
-        engine_ = std::make_unique<GPUTFHEEngine>(config);
+        engine_ = std::make_unique<FHEEngine>(config);
         ASSERT_TRUE(engine_->initialize());
     }
     
@@ -31,19 +34,19 @@ protected:
         engine_->shutdown();
     }
     
-    std::unique_ptr<GPUTFHEEngine> engine_;
+    std::unique_ptr<FHEEngine> engine_;
 };
 
 //==================================================================================
 // Basic Tests
 //==================================================================================
 
-TEST_F(GPUTFHETest, EngineInitialization) {
+TEST_F(FHETest, EngineInitialization) {
     EXPECT_EQ(engine_->activeUsers(), 0);
     EXPECT_GT(engine_->availableGPUMemory(), 0);
 }
 
-TEST_F(GPUTFHETest, UserCreation) {
+TEST_F(FHETest, UserCreation) {
     uint64_t user1 = engine_->createUser();
     uint64_t user2 = engine_->createUser();
     
@@ -54,7 +57,7 @@ TEST_F(GPUTFHETest, UserCreation) {
     EXPECT_EQ(engine_->activeUsers(), 1);
 }
 
-TEST_F(GPUTFHETest, CiphertextAllocation) {
+TEST_F(FHETest, CiphertextAllocation) {
     uint64_t userId = engine_->createUser();
     
     uint32_t poolIdx = engine_->allocateCiphertexts(userId, 100);
@@ -70,7 +73,7 @@ TEST_F(GPUTFHETest, CiphertextAllocation) {
 // Concurrency Tests
 //==================================================================================
 
-TEST_F(GPUTFHETest, ConcurrentUserCreation) {
+TEST_F(FHETest, ConcurrentUserCreation) {
     const int numUsers = 100;
     std::vector<std::thread> threads;
     std::vector<uint64_t> userIds(numUsers);
@@ -106,7 +109,7 @@ TEST_F(GPUTFHETest, ConcurrentUserCreation) {
 // Performance Benchmarks
 //==================================================================================
 
-TEST_F(GPUTFHETest, BenchmarkBatchNTT) {
+TEST_F(FHETest, BenchmarkBatchNTT) {
     const std::vector<int> batchSizes = {1, 10, 100, 1000, 10000};
     
     std::cout << "\n=== Batch NTT Benchmark ===" << std::endl;
@@ -152,7 +155,7 @@ TEST_F(GPUTFHETest, BenchmarkBatchNTT) {
     }
 }
 
-TEST_F(GPUTFHETest, BenchmarkBatchExternalProduct) {
+TEST_F(FHETest, BenchmarkBatchExternalProduct) {
     const std::vector<int> batchSizes = {1, 10, 100, 500, 1000};
     
     std::cout << "\n=== Batch External Product Benchmark ===" << std::endl;
@@ -160,6 +163,7 @@ TEST_F(GPUTFHETest, BenchmarkBatchExternalProduct) {
     std::cout << "-----------|-----------------|------------------|-------------------" << std::endl;
     
     for (int batchSize : batchSizes) {
+        (void)batchSize;  // Used only when WITH_MLX is defined
 #ifdef WITH_MLX
         // Create test RLWE and RGSW ciphertexts
         std::vector<int64_t> rlweData(batchSize * 2 * 1024);
@@ -174,10 +178,13 @@ TEST_F(GPUTFHETest, BenchmarkBatchExternalProduct) {
         
         mx::array rlwe = mx::array(rlweData.data(), {batchSize, 2, 1024}, mx::int64);
         mx::array rgsw = mx::array(rgswData.data(), {batchSize, 2, 4, 2, 1024}, mx::int64);
-        mx::array output;
+        // Initialize output array with zeros - MLX arrays need explicit initialization
+        std::vector<int64_t> outputData(batchSize * 2 * 1024, 0);
+        mx::array output = mx::array(outputData.data(), {batchSize, 2, 1024}, mx::int64);
         
         mx::eval(rlwe);
         mx::eval(rgsw);
+        mx::eval(output);
         
         // Warmup
         engine_->batchExternalProduct(rlwe, rgsw, output);
@@ -203,7 +210,7 @@ TEST_F(GPUTFHETest, BenchmarkBatchExternalProduct) {
     }
 }
 
-TEST_F(GPUTFHETest, BenchmarkMassiveBatchGates) {
+TEST_F(FHETest, BenchmarkMassiveBatchGates) {
     const std::vector<int> numOps = {100, 1000, 5000, 10000};
     
     std::cout << "\n=== Massive Batch Gate Operations ===" << std::endl;
@@ -248,7 +255,7 @@ TEST_F(GPUTFHETest, BenchmarkMassiveBatchGates) {
     }
 }
 
-TEST_F(GPUTFHETest, BenchmarkMultiUserParallel) {
+TEST_F(FHETest, BenchmarkMultiUserParallel) {
     const int numUsers = 100;
     const int opsPerUser = 100;
     
@@ -314,7 +321,7 @@ TEST_F(GPUTFHETest, BenchmarkMultiUserParallel) {
 // Memory Pressure Test
 //==================================================================================
 
-TEST_F(GPUTFHETest, MemoryPressure) {
+TEST_F(FHETest, MemoryPressure) {
     std::cout << "\n=== Memory Pressure Test ===" << std::endl;
     
     size_t initialMem = engine_->totalGPUMemoryUsed();
@@ -354,7 +361,7 @@ TEST_F(GPUTFHETest, MemoryPressure) {
 // Scheduler Tests
 //==================================================================================
 
-TEST_F(GPUTFHETest, BatchScheduler) {
+TEST_F(FHETest, BatchScheduler) {
     uint64_t userId = engine_->createUser();
     engine_->allocateCiphertexts(userId, 1000);
     
@@ -383,7 +390,7 @@ TEST_F(GPUTFHETest, BatchScheduler) {
 // Circuit Evaluator Tests
 //==================================================================================
 
-TEST_F(GPUTFHETest, BatchedIntegerAdd) {
+TEST_F(FHETest, BatchedIntegerAdd) {
     uint64_t userId = engine_->createUser();
     engine_->allocateCiphertexts(userId, 10000);
     
@@ -420,7 +427,7 @@ TEST_F(GPUTFHETest, BatchedIntegerAdd) {
 // Stress Test
 //==================================================================================
 
-TEST_F(GPUTFHETest, StressTest) {
+TEST_F(FHETest, StressTest) {
     std::cout << "\n=== Stress Test ===" << std::endl;
     std::cout << "Creating 100 users, each with 1000 ciphertexts..." << std::endl;
     
@@ -470,11 +477,6 @@ TEST_F(GPUTFHETest, StressTest) {
     std::cout << "Throughput: " << (100000 * 1000.0 / opsMs) << " ops/s" << std::endl;
 }
 
-//==================================================================================
-// Main
-//==================================================================================
+#endif  // WITH_MLX
 
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+// Note: main() is provided by the test framework in Main_TestAll.cpp

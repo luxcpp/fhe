@@ -74,10 +74,18 @@ struct AppleSiliconConfig {
     static constexpr uint32_t MAX_SHARED_N = M1_SHARED_BYTES / sizeof(uint64_t);
 
     // Recommended dispatch sizes
+    // Capped at 512 to leave register headroom for better occupancy
     static uint32_t threads_per_group(uint32_t N) {
-        if (N <= 1024) return THREADS_PER_GROUP_SMALL;
-        if (N <= 4096) return THREADS_PER_GROUP_MEDIUM;
-        return THREADS_PER_GROUP_LARGE;
+        uint32_t butterflies = N / 2;
+        if (butterflies <= 32) return 32;
+        if (butterflies <= 128) return 128;
+        if (butterflies <= 256) return 256;
+        return 512;  // Cap at 512, not 1024 - leave register headroom for NTT
+    }
+
+    // Legacy function for compatibility
+    static uint32_t optimal_threads_per_group(uint32_t N) {
+        return threads_per_group(N);
     }
 
     static uint32_t threadgroups_for_butterflies(uint32_t N, uint32_t batch) {
@@ -249,7 +257,10 @@ kernel void ntt_forward_fused(
         }
 
         // Barrier between stages (required for correctness)
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        // Skip barrier after final stage - no subsequent reads from shared memory
+        if (stage < log_N - 1) {
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
     }
 
     // === Phase 3: Write results back to global memory ===
@@ -317,7 +328,11 @@ kernel void ntt_inverse_fused(
             shared_data[idx_hi] = diff_tw;
         }
 
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        // Skip barrier after final stage - no subsequent reads from shared memory
+        // (next operation is write-back which reads each element once)
+        if (stage < log_N - 1) {
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
     }
 
     // Scale by N^{-1} and write back (fused into final stage)

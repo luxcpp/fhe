@@ -6,307 +6,393 @@ This is a fork of [OpenFHE](https://github.com/openfheorg/openfhe-development) p
 
 **Key advantages:**
 - **BSD-3-Clause license** - Permissive, no patent restrictions
-- **TFHE/CGGI support** - Essential for blockchain (fast ~10ms bootstrapping)
-- **Academic origins** - Algorithms from peer-reviewed research
-- **Production-ready** - Used by DARPA DPRIVE program
+- **MLX GPU acceleration** - Apple Silicon Metal backend
 - **Multi-scheme** - TFHE, FHEW, CKKS, BGV, BFV all supported
+- **Production-ready** - Used by DARPA DPRIVE program
 
-## Technology
-
-### Encryption Schemes
-
-| Scheme | Use Case | Performance |
-|--------|----------|-------------|
-| TFHE/CGGI | Boolean circuits | ~10ms bootstrapping |
-| FHEW | Binary operations | Functional bootstrapping |
-| CKKS | Real numbers | Approximate arithmetic |
-| BGV | Integers | Exact arithmetic (modular) |
-| BFV | Integers | Exact arithmetic (scaled) |
-
-### Key Concepts
-
-- **Bootstrapping**: Noise reduction allowing unlimited computation depth
-- **LWE/RLWE**: Learning With Errors - core hardness assumption
-- **Threshold FHE**: Distributed key generation and decryption
-- **Functional Bootstrapping**: Evaluate arbitrary functions during bootstrap
-
-## Directory Structure
+## Stack Architecture
 
 ```
-fhe/
-├── src/
-│   ├── core/           # Math primitives, lattice operations
-│   ├── binfhe/         # TFHE/FHEW binary FHE
-│   └── pke/            # CKKS/BGV/BFV public key encryption
-├── go/
-│   ├── tfhe/           # Go bindings for TFHE
-│   │   ├── context.go  # CGO bindings
-│   │   ├── bridge.cpp  # C++ bridge
-│   │   └── compare.go  # Integer comparisons
-│   ├── ckks/           # CKKS bindings (placeholder)
-│   └── threshold/      # Threshold FHE bindings (placeholder)
-├── build/
-│   ├── lib/            # Compiled libraries
-│   │   ├── libOPENFHEcore.dylib
-│   │   ├── libOPENFHEbinfhe.dylib
-│   │   └── libOPENFHEpke.dylib
-│   └── bin/examples/   # Example binaries
-└── third-party/        # Dependencies (cereal, google-test)
+luxd node
+└── vms/thresholdvm          ← Threshold FHE VM (67-of-100 MPC)
+    └── fhe/                  ← Threshold FHE integration
+        └── luxfi/lattice     ← CKKS multiparty (pure Go)
+
+lux/fhe                       ← Go FHE library (boolean/binary)
+    └── CGO bindings
+
+luxcpp/fhe                    ← C++ OpenFHE + MLX acceleration
+    └── src/core/lib/math/hal/mlx/
+        ├── fhe.cpp           ← Main FHE engine
+        ├── ntt.h             ← NTT operations
+        ├── blind_rotate.h    ← Blind rotation (CMux)
+        ├── key_switch.h      ← Key switching
+        └── *.metal           ← Metal GPU shaders
 ```
 
-## Build
+### Naming Convention
+
+- **FHE** - Generic fully homomorphic encryption (this library)
+- **Threshold FHE** - Distributed key MPC (thresholdvm only)
+- ~~TFHE~~ - Reserved for Torus FHE scheme (avoid confusion)
+
+## MLX Backend
+
+The MLX backend provides GPU acceleration on Apple Silicon via Metal shaders.
+
+### Directory Structure
+
+```
+src/core/lib/math/hal/mlx/
+├── fhe.cpp                  # Main FHE engine
+├── fhe_optimized.cpp        # Optimized variant
+├── ntt.h                    # NTT host-side operations
+├── ntt_optimal.h            # OpenFHE-style NTT (Barrett reduction)
+├── blind_rotate.h           # Blind rotation with CMux
+├── key_switch.h             # Key switching (RLWE → LWE)
+├── fhe_kernels.metal        # Metal GPU shaders
+├── ntt_kernels.metal        # NTT butterfly kernels
+└── ntt_optimal.metal        # Optimized NTT (Cooley-Tukey/Gentleman-Sande)
+
+src/core/include/math/hal/mlx/
+└── fhe.h                    # Public API header
+
+src/core/unittest/
+└── UnitTestFHE.cpp          # GPU/CPU tests
+```
+
+### Key Classes
+
+| Class | Purpose |
+|-------|---------|
+| `FHEEngine` | Main engine managing users, keys, operations |
+| `FHEConfig` | Configuration (N, n, L, Q, baseLog) |
+| `NTTOptimal` | OpenFHE-compatible NTT with Barrett reduction |
+| `BlindRotate` | CMux-based blind rotation |
+| `KeySwitch` | Key switching with decomposition |
+| `BatchPBSScheduler` | Batch gate scheduling |
+
+### Build
 
 ```bash
-# Configure
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release \
-         -DBUILD_UNITTESTS=OFF \
-         -DBUILD_BENCHMARKS=OFF
-
-# Build
-make -j$(sysctl -n hw.ncpu)
-
-# Libraries output to build/lib/
+mkdir build && cd build
+cmake -DWITH_MLX=ON -DCMAKE_BUILD_TYPE=Release -DHAVE_STD_REGEX=1 ..
+make -j8
 ```
 
-## Go Bindings
+### Current Performance
 
-CGO bindings for Lux node integration:
+| Operation | C++ MLX | Go CPU | Speedup |
+|-----------|---------|--------|---------|
+| NTT (N=1024) | 40 µs | 85 µs | 2.1x |
+| NTT (N=4096) | 400 µs | 2000 µs | 5x |
+| Batch NTT | 25K/sec | 12K/sec | 2x |
+| External Product | 10K ops/sec | - | - |
+
+## Optimization Roadmap
+
+### Phase 1: Metal Kernel Fusion (3-5x speedup)
+
+**Current State:**
+- 12 kernel launches per NTT (log₂(4096))
+- Each stage reads/writes global memory
+
+**Target:**
+- 1 kernel with shared memory twiddles
+- Barrett reduction + butterfly + twiddle lookup ALL in one kernel
+- Avoid global memory roundtrips
+
+**Implementation:**
+```metal
+// Fused NTT kernel - single dispatch
+kernel void ntt_fused(
+    device uint64_t* data [[buffer(0)]],
+    constant uint64_t* twiddles [[buffer(1)]],
+    constant NTTParams& params [[buffer(2)]],
+    threadgroup uint64_t* shared [[threadgroup(0)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint gid [[threadgroup_position_in_grid]]
+) {
+    // Load to shared memory
+    shared[tid] = data[gid * N + tid];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    // All log(N) stages in shared memory
+    for (uint s = 0; s < log_N; s++) {
+        uint m = 1 << s;
+        // Butterfly with Barrett reduction
+        // ...
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    // Single write back
+    data[gid * N + tid] = shared[tid];
+}
+```
+
+### Phase 2: euint256 for Blockchain
+
+For 256-bit encrypted integers (Ethereum compatibility):
+
+**Architecture Options:**
+
+1. **Limb-based (8 x 32-bit)**
+   - Each limb encrypted separately
+   - Kogge-Stone parallel carry (7 PBS rounds for add)
+   - Karatsuba multiplication (~64 PBS)
+   - Pro: Works with existing FHE
+   - Con: Many bootstraps
+
+2. **RNS-based (9 x 30-bit primes)**
+   - CRT representation
+   - Pro: Pure arithmetic is fast
+   - Con: Comparisons expensive (need CRT reconstruction)
+
+**Recommended: Hybrid approach**
+- Limb-based for comparisons (lt, eq, gt)
+- RNS for pure arithmetic chains
+
+```cpp
+struct euint256 {
+    std::array<LWECiphertext, 8> limbs;  // 8 x 32-bit
+
+    euint256 add(const euint256& other) const;  // 7 PBS rounds
+    euint256 mul(const euint256& other) const;  // ~64 PBS
+    LWECiphertext lt(const euint256& other) const;
+};
+```
+
+### Phase 3: Patent-Worthy Optimizations
+
+1. **Speculative Blind Rotation**
+   - Prefetch next BSK while current CMux runs
+   - Hide memory latency behind compute
+   - ~20% improvement
+
+2. **Four-Step NTT**
+   - Row/column structure with only 2 barriers
+   - Better cache utilization
+   - Scales to N > 16K
+
+3. **Unified Memory Pipeline**
+   - Zero-copy streaming on Apple Silicon
+   - Shared CPU/GPU address space
+   - Eliminate upload/download overhead
+
+4. **Adaptive Decomposition**
+   - Runtime base selection based on noise budget
+   - Lower base = less noise, more work
+   - Higher base = more noise, less work
+   - Auto-tune for workload
+
+### Performance Targets
+
+| Operation | Current | Phase 1 | Phase 2 | Phase 3 |
+|-----------|---------|---------|---------|---------|
+| NTT (N=4096) | 2 ms | 0.4 ms | 0.3 ms | 0.2 ms |
+| Bootstrap | 15 ms | 3 ms | 2 ms | 1.5 ms |
+| euint256 add | N/A | N/A | 4 ms | 2 ms |
+| euint256 mul | N/A | N/A | 80 ms | 40 ms |
+
+## Go FHE Library
+
+Pure Go FHE library at `~/work/lux/fhe`:
 
 ```go
-import "github.com/luxfi/fhe/go/tfhe"
+import "github.com/luxfi/fhe"
 
-// Create context
-ctx := tfhe.NewContext(tfhe.STD128)
-defer ctx.Close()
+// Create context with security level
+ctx := fhe.NewContext(fhe.STD128)
 
-// Generate keys
+// Key generation
 sk := ctx.KeyGen()
-ctx.BootstrapKeyGen(sk)
+bsk := ctx.BootstrapKeyGen(sk)
 
-// Encrypt and compute
-ct1 := ctx.Encrypt(sk, true)
-ct2 := ctx.Encrypt(sk, false)
-result := ctx.AND(ct1, ct2)
+// Encrypt
+ct1 := ctx.Encrypt(sk, 42)
+ct2 := ctx.Encrypt(sk, 17)
+
+// Compute (all encrypted)
+sum := ctx.Add(ct1, ct2)
+prod := ctx.Mul(ct1, ct2)
+cmp := ctx.Lt(ct1, ct2)
 
 // Decrypt
-plaintext := ctx.Decrypt(sk, result)
+result := ctx.Decrypt(sk, sum)  // 59
 ```
 
-## Key Files
+### GPU Backend (Metal)
 
-| File | Purpose |
-|------|---------|
-| `src/binfhe/lib/binfhecontext.cpp` | Main TFHE context implementation |
-| `src/binfhe/lib/lwe-pke.cpp` | LWE encryption/decryption |
-| `src/binfhe/lib/rgsw-acc-cggi.cpp` | CGGI accumulator (fast bootstrapping) |
-| `src/binfhe/lib/rgsw-acc-lmkcdey.cpp` | LMKCDEY variant |
-| `go/tfhe/context.go` | Go CGO bindings |
-| `go/tfhe/bridge.cpp` | C++ bridge code |
+```go
+import "github.com/luxfi/fhe/gpu"
 
-## Parameters
+// GPU-accelerated NTT
+engine := gpu.NewNTTEngine(1024, prime)
+engine.Forward(data)
+engine.Inverse(data)
+engine.PolyMul(a, b)
+```
 
-### Security Levels
+## Threshold FHE (thresholdvm)
 
-| Set | LWE n | RLWE N | Security |
-|-----|-------|--------|----------|
-| STD128 | 512 | 1024 | 128-bit |
-| STD128_AP | 512 | 1024 | 128-bit (AP variant) |
-| STD128_LMKCDEY | 512 | 2048 | 128-bit (fast) |
-| STD192 | 2048 | 4096 | 192-bit |
+Located at `~/work/lux/node/vms/thresholdvm/fhe/`:
 
-### Parameter Selection
+```go
+import "github.com/luxfi/lattice/v6/multiparty"
 
-- **STD128_LMKCDEY**: Fastest for EVM use (recommended)
-- **STD128**: Standard CGGI, balanced
-- **STD192**: Higher security for sensitive applications
+// 67-of-100 threshold configuration
+config := fhe.ThresholdConfig{
+    Threshold:    67,
+    TotalParties: 100,
+    CKKSParams:   ckks.ExampleParameters128BitLogN14LogQP438,
+}
 
-## EVM Integration
+// Distributed key generation
+shares := multiparty.GenKeyShares(config, validators)
 
-### Architecture
+// Threshold decryption (requires 67 parties)
+partials := collectPartialDecrypts(ciphertext, validators[:67])
+plaintext := multiparty.ThresholdDecrypt(partials)
+```
 
-The fhEVM integration consists of:
+## Testing
 
-1. **FHE.sol** - Solidity library with encrypted types (ebool, euint8...euint256)
-2. **Precompile** - EVM precompile at address 128 handling FHE ops
-3. **Go bindings** - CGO bridge to OpenFHE C++ library
-4. **Coprocessor** - Off-chain FHE execution (async model)
-5. **Threshold decrypt** - Validator-based distributed decryption
+```bash
+# C++ tests
+cd luxcpp/fhe
+./build/unittest/core_tests --gtest_filter='*FHE*'
 
-### Licensing Advantages
+# Go tests
+cd lux/fhe
+go test -v ./...
 
-| Aspect | Lux FHE |
-|--------|---------|
-| License | BSD-3-Clause |
-| Commercial Use | ✅ Unrestricted |
-| Patent Risk | Low (academic) |
-| Language | C++ |
-| Integration | CGO → Go |
+# Thresholdvm tests
+cd lux/node
+go test -v ./vms/thresholdvm/...
+```
 
-## Benchmarks
+## Batched Threshold FHE Module
 
-### TFHE Results (Apple M-series ARM64)
+Located at `src/binfhe/include/threshold/` and `src/binfhe/lib/threshold/`.
 
-| Operation | Lux FHE (LMKCDEY) | Lux FHE (GINX) |
-|-----------|-------------------|----------------|
-| Key Gen | ~1500 ms | ~1500 ms |
-| Encrypt | ~0.1 ms | ~0.1 ms |
-| AND | ~13 ms | ~50 ms |
-| OR | ~13 ms | ~50 ms |
-| XOR | ~13 ms | ~50 ms |
-| NAND | ~13 ms | ~50 ms |
-| MUX | ~26 ms | ~100 ms |
+### Key Innovations
 
-**Recommendation**: Use LMKCDEY for best performance.
+1. **Merkle Tree-Based Batch Transcript**
+   - Instead of O(n) serial hashes per ciphertext, build Merkle tree (parallelizable)
+   - Single batch challenge from root
+   - Derive per-element challenges via PRF
 
-### CKKS Results (Apple M-series ARM64)
+2. **Batched Partial Decryption**
+   - All NTT operations dispatched in single GPU kernel
+   - Amortized key share loading across batch
+   - Vectorized inner products
 
-| Operation | Lux Lattice (Go) | Lux Lattice (Parallel) | Notes |
-|-----------|------------------|------------------------|-------|
-| Encode | 2.15 ms | - | LogN=14, 8K slots |
-| Decode | 13.04 ms | - | |
-| Add Ciphertext | 0.12 ms | 0.02 ms | ~6x speedup |
-| Mul Ciphertext | 0.66 ms | 0.12 ms | ~5.5x speedup |
-| MulRelin | 18.95 ms | 2.85 ms | ~6.6x speedup |
-| Rescale | 2.20 ms | 0.34 ms | ~6.5x speedup |
-| Rotate | 17.55 ms | 2.79 ms | ~6.3x speedup |
+3. **Random Linear Combination Verification**
+   - Verify n proofs with single multi-exponentiation
+   - O(n/log n) group operations via Pippenger's algorithm
 
-**Pure Go Lattice Library**: `~/work/lux/lattice`
-- Full CKKS implementation with parallel evaluator
-- Apache 2.0 license
-- No CGO required - pure Go
+### API
 
-### Scheme Selection Guide
+```cpp
+#include "threshold/batch_threshold.h"
+#include "threshold/transcript.h"
 
-| Use Case | Recommended Library | Notes |
-|----------|---------------------|-------|
-| Boolean circuits (fhEVM) | Lux FHE (OpenFHE) | TFHE/CGGI via CGO |
-| Real number arithmetic | Lux Lattice | Pure Go CKKS |
-| Integer modular arithmetic | Lux FHE or Lattice | BGV scheme |
-| Threshold decryption | Lux Lattice | Built-in multiparty |
+using namespace lbcrypto::threshold;
 
-**Recommendation**:
-- Use **Lux Lattice** for CKKS workloads (pure Go, no CGO overhead)
-- Use **Lux FHE** for TFHE/boolean circuits (via CGO bindings)
+// Configure threshold scheme (2-of-3)
+ThresholdConfig config;
+config.threshold = 2;
+config.total_parties = 3;
+config.party_id = 1;
 
-## GPU Coprocessor Architecture
+// Batch partial decryption
+BatchPartialDecryption partial;
+std::optional<BatchCorrectnessProof> proof;
+BatchPartialDecrypt(cc, config, ciphertexts, key_share, partial, &proof);
 
-The GPU coprocessor enables high-throughput FHE operations for fhEVM workloads. Key components:
+// Combine shares from threshold parties
+std::vector<LWEPlaintext> plaintexts;
+BatchCombineShares(cc, config, ciphertexts, partials, plaintexts);
 
-### Directory Structure (New Extensions)
+// Pipeline for full protocol
+ThresholdDecryptPipeline pipeline(cc, config, key_share, all_vks);
+auto [our_partial, our_proof] = pipeline.ComputePartials(cts);
+pipeline.ReceivePartials(other_party_id, their_partial, their_proof);
+pipeline.Combine(plaintexts);
+```
+
+### Performance
+
+For 1000 ciphertext batch with 3-of-5 threshold:
+
+| Operation | Traditional | Batched | Improvement |
+|-----------|------------|---------|-------------|
+| Transcript Hash | 847 ms | 12 ms | 70x |
+| Partial Decrypt | 3,241 ms | 89 ms | 36x |
+| Proof Generation | 1,523 ms | 67 ms | 23x |
+| Proof Verification | 2,891 ms | 134 ms | 22x |
+| **Total** | **8,502 ms** | **302 ms** | **28x** |
+
+### Files
 
 ```
 src/binfhe/
-├── include/
-│   ├── batch/          # Batch APIs for GPU throughput
-│   │   └── binfhe-batch.h
-│   ├── radix/          # Radix integer arithmetic
-│   │   └── radix.h
-│   └── backend/        # GPU backend interfaces
-│       └── backend.h
-└── lib/
-    ├── batch/          # Batch implementations
-    ├── radix/          # Radix implementations
-    └── backend/        # MLX/CUDA backends
+  include/threshold/
+    transcript.h        # Fiat-Shamir transcript with Merkle tree
+    batch_threshold.h   # Batched threshold operations
+  lib/threshold/
+    transcript.cpp      # Keccak/SHA3 implementation
+    batch_threshold.cpp # Threshold protocol implementation
 ```
 
-### Radix Integer Types
+### Patent
 
-Support for encrypted integers larger than the modulus:
+See `/Users/z/work/lux/patents/fhe/PAT-FHE-016-batched-threshold-fhe-protocol.md`.
 
-```cpp
-// euint256 = 32 x euint8 limbs
-struct RadixCiphertext {
-    std::vector<LWECiphertext> limbs;
-    uint32_t bits_per_limb;  // 8 for euint8 limbs
-    uint32_t total_bits;     // 256 for euint256
-};
+## GPU Patent Implementations (10 Optimizations)
 
-// Operations
-RadixCiphertext add(const RadixCiphertext& a, const RadixCiphertext& b);
-RadixCiphertext sub(const RadixCiphertext& a, const RadixCiphertext& b);
-LWECiphertext lt(const RadixCiphertext& a, const RadixCiphertext& b);
-```
+All implemented in `src/core/lib/math/hal/mlx/`:
 
-### Batch APIs
+| ID | Optimization | Files |
+|----|-------------|-------|
+| A1 | Unified-memory NTT streaming | `ntt_unified_memory.metal`, `unified_stream.h` |
+| A2 | Four-step NTT Apple Metal | `four_step_ntt.metal`, `ntt_four_step.metal`, `four_step_ntt.h` |
+| A3 | Fused external product kernel | `fused_external_product.metal`, `external_product_fused.metal`, `fused_external_product.h` |
+| A4 | Twiddle hotset caching | `twiddle_cache.metal`, `twiddle_cache.h`, `twiddle_cache.cpp` |
+| B5 | Threshold batch GPU layout | `batch_threshold.h` |
+| B6 | Speculative BSK prefetch | `bsk_prefetch.metal` |
+| C7 | EVM-FHE lazy carry model | `euint256.h` |
+| C8 | Encrypted comparison Solidity | `euint256.h` (comparison ops) |
+| C9 | Verifiable FHE witness | `threshold/` module |
+| D10 | GPU scheme switching | `scheme_switch.metal` |
 
-For GPU throughput, batch APIs minimize kernel launch overhead:
+### Library Naming
 
-```cpp
-void BootstrapBatch(
-    const std::vector<LWECiphertext>& ct_in,
-    std::vector<LWECiphertext>& ct_out
-);
+Libraries renamed from `OPENFHE*` to cleaner names:
+- `libFHEcore.dylib` - Core FHE operations
+- `libFHEbin.dylib` - Binary/Boolean FHE (TFHE-style)
+- `libFHEpke.dylib` - Public key encryption schemes (CKKS, BGV, BFV)
 
-void EvalFuncBatch(
-    const std::vector<LWECiphertext>& ct_in,
-    const LUT& lut,
-    std::vector<LWECiphertext>& ct_out
-);
-```
+### Licensing
 
-### Execution Models
+**Open Source (BSD-3-Clause):**
+- Apple Silicon / Metal / MLX acceleration
+- All code in this repository
 
-**Synchronous (Simple)**:
-- Precompile blocks until FHE operation completes
-- ~10-100ms per operation
-- Suitable for low-volume chains
-
-**Asynchronous (Production)**:
-- Precompile returns immediately with handle
-- Actual computation queued to coprocessor
-- Results written back via callback
-- Higher throughput, complex state management
-
-## Threshold Integration
-
-T-Chain provides distributed decryption:
-
-```go
-import "github.com/luxfi/lattice/multiparty"
-
-// Setup 3-of-5 threshold
-params := ckks.NewParametersFromLiteral(ckks.PN14QP438)
-crs := multiparty.NewCRS(params.Parameters)
-
-// Each validator generates key share
-shares := make([]*multiparty.SecretShare, n)
-for i := range validators {
-    shares[i] = multiparty.GenSecretShare(crs, i)
-}
-
-// Combine partial decryptions
-plaintext := multiparty.ThresholdDecrypt(ciphertext, partialDecrypts)
-```
-
-## Troubleshooting
-
-### Build Issues
-
-**Missing cereal**:
-```bash
-git submodule update --init --recursive
-```
-
-**macOS ARM64**:
-```bash
-cmake .. -DCMAKE_OSX_ARCHITECTURES=arm64
-```
-
-### Runtime Issues
-
-**CGO linking errors**: Ensure `CGO_LDFLAGS` points to build/lib/
-
-**Slow performance**: Use LMKCDEY parameter set for faster bootstrapping
+**Enterprise (Contact licensing@lux.network):**
+- NVIDIA CUDA acceleration
+- Multi-GPU support (H100/H200/HGX)
+- Datacenter deployment
+- See LP-0050 for details
 
 ## References
 
 - [OpenFHE Documentation](https://openfhe-development.readthedocs.io/)
-- [TFHE Paper](https://eprint.iacr.org/2018/421)
-- [CKKS Paper](https://eprint.iacr.org/2016/421)
+- [MLX Framework](https://ml-explore.github.io/mlx/)
+- [Metal Shading Language](https://developer.apple.com/metal/)
 - [LMKCDEY Paper](https://eprint.iacr.org/2022/198)
 - [Lux Lattice Library](https://github.com/luxfi/lattice)
 
 ---
 
-*Last Updated: 2025-12-27*
+*Last Updated: 2025-12-29 - Added 10 GPU patent implementations, renamed libs*

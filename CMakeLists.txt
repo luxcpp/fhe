@@ -80,6 +80,7 @@ option(WITH_NOISE_DEBUG "Use only when running lattice estimator; not for produc
 option(WITH_REDUCED_NOISE "Enable reduced noise within HKS and BFV HPSPOVERQ modes"    OFF )
 option(USE_MACPORTS "Use MacPorts installed packages"                                  OFF )
 option(WITH_MLX "Enable MLX GPU acceleration on Apple Silicon"                         OFF )
+# CUDA/NVIDIA support moved to luxnext (proprietary)
 
 # Set required number of bits for native integer in build by setting NATIVE_SIZE to 64 or 128
 if(NOT NATIVE_SIZE)
@@ -212,11 +213,11 @@ if(UNIX AND NOT APPLE AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 if(BUILD_STATIC)
-    set(OpenFHE_STATIC_LIBS OPENFHEcore_static OPENFHEpke_static OPENFHEbinfhe_static)
+    set(OpenFHE_STATIC_LIBS FHEcore_static FHEpke_static FHEbinfhe_static)
 endif()
 
 if(BUILD_SHARED)
-    set(OpenFHE_SHARED_LIBS OPENFHEcore OPENFHEpke OPENFHEbinfhe)
+    set(OpenFHE_SHARED_LIBS FHEcore FHEpke FHEbinfhe)
 endif()
 
 set(OpenFHE_PACKAGE_LIBS ${OpenFHE_STATIC_LIBS} ${OpenFHE_SHARED_LIBS})
@@ -721,6 +722,9 @@ if(BUILD_BENCHMARKS)
     set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Enable testing of the benchmark library." FORCE)
     set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Enable installation of benchmark. (Projects embedding benchmark may want to turn this OFF.)" FORCE)
     set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable building the unit tests which depend on gtest" FORCE)
+    set(BENCHMARK_ENABLE_WERROR OFF CACHE BOOL "Build Release candidates with -Werror." FORCE)
+    # Preset regex backend to avoid feature detection issues with parent project flags
+    set(HAVE_STD_REGEX 1 CACHE INTERNAL "")
     add_subdirectory(third-party/google-benchmark EXCLUDE_FROM_ALL)
     add_subdirectory(benchmark)
 endif()

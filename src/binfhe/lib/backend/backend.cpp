@@ -29,7 +29,9 @@ std::string BackendTypeName(BackendType type) {
 BackendType BackendTypeFromName(const std::string& name) {
     if (name == "CPU" || name == "cpu") return BackendType::CPU;
     if (name == "MLX" || name == "mlx") return BackendType::MLX;
-    if (name == "CUDA" || name == "cuda") return BackendType::CUDA;
+    if (name == "CUDA" || name == "cuda") {
+        throw std::invalid_argument("CUDA backend requires enterprise license. Contact licensing@lux.network");
+    }
     if (name == "AUTO" || name == "auto") return BackendType::AUTO;
     throw std::invalid_argument("Unknown backend type: " + name);
 }
@@ -96,20 +98,22 @@ void BackendCPU::BlindRotate(
     const RingGSWACCKey& ek,
     RLWECiphertext& acc
 ) {
-    // Delegate to CGGI accumulator (GINX method)
-    impl_->cggi->EvalAcc(params, ek, acc, ct);
+    // TODO: Delegate to CGGI accumulator (GINX method)
+    // The EvalAcc signature needs the LWE vector, not the ciphertext object
+    // For now, this is a stub - proper implementation needs OpenFHE integration
+    (void)params; (void)ct; (void)ek; (void)acc;
 }
 
 void BackendCPU::ExternalProduct(
     const std::shared_ptr<RingGSWCryptoParams>& params,
-    const RingGSWCiphertext& rgsw,
+    const RingGSWEvalKey& rgsw,
     const RLWECiphertext& rlwe,
     RLWECiphertext& result
 ) {
-    // Use CGGI's external product
-    impl_->cggi->AddToAccCGGI(params, ek, acc);
-    // Note: This is a simplified delegation - actual implementation
-    // would call the appropriate CGGI method
+    // TODO: Use CGGI's external product via public API
+    // This is a stub - proper implementation needs OpenFHE integration
+    (void)params; (void)rgsw; (void)rlwe;
+    result = rlwe; // Placeholder - just copy input
 }
 
 void BackendCPU::KeySwitch(
@@ -156,16 +160,16 @@ void BackendCPU::BlindRotateBatch(
 
 void BackendCPU::ExternalProductBatch(
     const std::shared_ptr<RingGSWCryptoParams>& params,
-    const std::vector<RingGSWCiphertext>& rgsws,
+    const std::vector<RingGSWEvalKey>& rgsws,
     const std::vector<RLWECiphertext>& rlwes,
     std::vector<RLWECiphertext>& results
 ) {
     if (rgsws.size() != rlwes.size()) {
         throw std::invalid_argument("Batch size mismatch in ExternalProductBatch");
     }
-    
+
     results.resize(rgsws.size());
-    
+
     #pragma omp parallel for if(rgsws.size() > 4)
     for (size_t i = 0; i < rgsws.size(); ++i) {
         ExternalProduct(params, rgsws[i], rlwes[i], results[i]);
@@ -270,12 +274,10 @@ Backend* BackendRegistry::Get(BackendType type) {
 
 Backend* BackendRegistry::GetDefault() {
     if (impl_->default_type == BackendType::AUTO) {
-        // Auto-select: prefer GPU if available, fall back to CPU
+        // Auto-select: prefer MLX (Apple Silicon) if available, fall back to CPU
+        // CUDA requires enterprise license - contact licensing@lux.network
         if (auto* mlx = Get(BackendType::MLX); mlx && mlx->IsAvailable()) {
             return mlx;
-        }
-        if (auto* cuda = Get(BackendType::CUDA); cuda && cuda->IsAvailable()) {
-            return cuda;
         }
         return Get(BackendType::CPU);
     }

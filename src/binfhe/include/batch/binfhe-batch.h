@@ -182,19 +182,23 @@ class BatchFuture {
 public:
     BatchFuture() = default;
     ~BatchFuture();
-    
+
     // Block until operation completes
     BatchResult Wait();
-    
+
     // Check if operation is complete
     bool IsReady() const;
-    
+
     // Cancel operation (if not yet started)
     bool Cancel();
 
 private:
     struct Impl;
     std::shared_ptr<Impl> impl_;
+
+    // Allow async functions to construct futures
+    friend BatchFuture BootstrapBatchAsync(BinFHEContext&, const std::vector<LWECiphertext>&, std::vector<LWECiphertext>&);
+    friend BatchFuture EvalFuncBatchAsync(BinFHEContext&, const std::vector<LWECiphertext>&, const std::vector<NativeInteger>&, std::vector<LWECiphertext>&);
 };
 
 /**
