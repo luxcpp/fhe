@@ -281,6 +281,36 @@ private:
 
 #endif // WITH_MLX
 
+// =============================================================================
+// C-style API for Go CGO (all platforms)
+// =============================================================================
+
+/**
+ * @brief Forward NTT on flat data array
+ * @param data Flat array [batch * N] (modified in-place)
+ * @param N Ring dimension
+ * @param Q Modulus
+ * @param batch Number of polynomials
+ * @return 0 on success, -1 on error
+ */
+int ntt_forward(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch);
+
+/**
+ * @brief Inverse NTT on flat data array
+ */
+int ntt_inverse(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch);
+
+/**
+ * @brief Pointwise modular multiplication
+ */
+int pointwise_mul(uint64_t* result, const uint64_t* a, const uint64_t* b,
+                  uint32_t N, uint64_t Q, uint32_t batch);
+
+/**
+ * @brief Clear internal caches
+ */
+void clear_cache();
+
 } // namespace mlx_backend
 } // namespace lbcrypto
 

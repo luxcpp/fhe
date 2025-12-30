@@ -482,5 +482,82 @@ void MLXBlindRotation::EvaluateBatch(const std::vector<std::vector<std::vector<u
 
 #endif // WITH_MLX
 
+// =============================================================================
+// C-style API for Go CGO (all platforms)
+// =============================================================================
+
+namespace {
+    // Cache for NTT contexts
+    std::unordered_map<uint64_t, std::unique_ptr<MLXNTT>> g_ntt_cache;
+    std::mutex g_ntt_cache_mutex;
+
+    uint64_t make_ntt_key(uint32_t N, uint64_t Q) {
+        return (static_cast<uint64_t>(N) << 32) | (Q & 0xFFFFFFFF);
+    }
+
+    MLXNTT* get_or_create_ntt(uint32_t N, uint64_t Q) {
+        uint64_t key = make_ntt_key(N, Q);
+        std::lock_guard<std::mutex> lock(g_ntt_cache_mutex);
+        auto it = g_ntt_cache.find(key);
+        if (it != g_ntt_cache.end()) return it->second.get();
+        auto ntt = std::make_unique<MLXNTT>(N, Q);
+        auto* ptr = ntt.get();
+        g_ntt_cache[key] = std::move(ntt);
+        return ptr;
+    }
+}
+
+int ntt_forward(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
+    try {
+        auto* ntt = get_or_create_ntt(N, Q);
+        for (uint32_t b = 0; b < batch; b++) {
+            std::vector<uint64_t> poly(data + b * N, data + (b + 1) * N);
+            std::vector<uint64_t> result;
+            ntt->ForwardTransform(poly, result);
+            std::copy(result.begin(), result.end(), data + b * N);
+        }
+        return 0;
+    } catch (...) {
+        return -1;
+    }
+}
+
+int ntt_inverse(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
+    try {
+        auto* ntt = get_or_create_ntt(N, Q);
+        for (uint32_t b = 0; b < batch; b++) {
+            std::vector<uint64_t> poly(data + b * N, data + (b + 1) * N);
+            std::vector<uint64_t> result;
+            ntt->InverseTransform(poly, result);
+            std::copy(result.begin(), result.end(), data + b * N);
+        }
+        return 0;
+    } catch (...) {
+        return -1;
+    }
+}
+
+int pointwise_mul(uint64_t* result, const uint64_t* a, const uint64_t* b,
+                  uint32_t N, uint64_t Q, uint32_t batch) {
+    try {
+        auto* ntt = get_or_create_ntt(N, Q);
+        for (uint32_t i = 0; i < batch; i++) {
+            std::vector<uint64_t> va(a + i * N, a + (i + 1) * N);
+            std::vector<uint64_t> vb(b + i * N, b + (i + 1) * N);
+            std::vector<uint64_t> vr;
+            ntt->ElementwiseMultMod(va, vb, vr);
+            std::copy(vr.begin(), vr.end(), result + i * N);
+        }
+        return 0;
+    } catch (...) {
+        return -1;
+    }
+}
+
+void clear_cache() {
+    std::lock_guard<std::mutex> lock(g_ntt_cache_mutex);
+    g_ntt_cache.clear();
+}
+
 } // namespace mlx_backend
 } // namespace lbcrypto
