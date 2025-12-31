@@ -10,6 +10,18 @@ This is a fork of [OpenFHE](https://github.com/openfheorg/openfhe-development) p
 - **Multi-scheme** - TFHE, FHEW, CKKS, BGV, BFV all supported
 - **Production-ready** - Used by DARPA DPRIVE program
 
+## Architecture Position
+
+```
+luxcpp/gpu      ← Foundation (Metal/CUDA)
+    ▲
+luxcpp/lattice  ← NTT, polynomial arithmetic
+    ▲
+luxcpp/fhe      ← YOU ARE HERE (TFHE/CKKS/BGV)
+```
+
+**Depends on:** `luxcpp/lattice` (which depends on `luxcpp/gpu`)
+
 ## Stack Architecture
 
 ```
@@ -19,15 +31,11 @@ luxd node
         └── luxfi/lattice     ← CKKS multiparty (pure Go)
 
 lux/fhe                       ← Go FHE library (boolean/binary)
-    └── CGO bindings
+    └── CGO bindings → luxcpp/fhe
 
-luxcpp/fhe                    ← C++ OpenFHE + MLX acceleration
-    └── src/core/lib/math/hal/mlx/
-        ├── fhe.cpp           ← Main FHE engine
-        ├── ntt.h             ← NTT operations
-        ├── blind_rotate.h    ← Blind rotation (CMux)
-        ├── key_switch.h      ← Key switching
-        └── *.metal           ← Metal GPU shaders
+luxcpp/fhe                    ← C++ OpenFHE (this repo)
+    └── luxcpp/lattice        ← NTT acceleration
+        └── luxcpp/gpu        ← Metal/CUDA foundation
 ```
 
 ### Naming Convention
@@ -36,9 +44,9 @@ luxcpp/fhe                    ← C++ OpenFHE + MLX acceleration
 - **Threshold FHE** - Distributed key MPC (thresholdvm only)
 - ~~TFHE~~ - Reserved for Torus FHE scheme (avoid confusion)
 
-## MLX Backend
+## GPU Backend (via luxcpp/gpu)
 
-The MLX backend provides GPU acceleration on Apple Silicon via Metal shaders.
+GPU acceleration via `luxcpp/gpu` (Metal on Apple Silicon, CUDA on NVIDIA).
 
 ### Directory Structure
 
@@ -395,4 +403,4 @@ Libraries renamed from `OPENFHE*` to cleaner names:
 
 ---
 
-*Last Updated: 2025-12-29 - Added 10 GPU patent implementations, renamed libs*
+*Last Updated: 2025-12-30 - Updated architecture to use luxcpp/gpu foundation*

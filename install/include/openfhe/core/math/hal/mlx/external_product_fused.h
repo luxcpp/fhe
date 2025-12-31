@@ -400,8 +400,10 @@ inline void TwiddleCache::compute_twiddles() {
     inv_tw_ = std::make_shared<mx::array>(mx::array(inv_tw.data(), {n}, mx::int64));
     inv_precon_ = std::make_shared<mx::array>(mx::array(inv_tw_precon.data(), {n}, mx::int64));
 
-    // Combined eval for twiddle cache init - one-time setup
-    mx::eval(*fwd_tw_, *fwd_precon_, *inv_tw_, *inv_precon_);
+    mx::eval(*fwd_tw_);
+    mx::eval(*fwd_precon_);
+    mx::eval(*inv_tw_);
+    mx::eval(*inv_precon_);
 }
 
 // =============================================================================
@@ -489,8 +491,8 @@ inline mx::array FusedExternalProduct::executeBatch(const mx::array& rlwe_batch,
         int L = static_cast<int>(params_.L);
         uint64_t Q = params_.Q;
 
-        // Combined eval for inputs
-        mx::eval(rlwe_batch, rgsw_batch);
+        mx::eval(rlwe_batch);
+        mx::eval(rgsw_batch);
 
         auto Q_arr = mx::array(static_cast<int64_t>(Q));
         auto mask = mx::array(static_cast<int64_t>(params_.base_mask));
@@ -533,7 +535,6 @@ inline mx::array FusedExternalProduct::executeBatch(const mx::array& rlwe_batch,
         auto result = mx::stack({mx::reshape(acc_0, {B, 1, N}),
                             mx::reshape(acc_1, {B, 1, N})}, 1);
         result = mx::reshape(result, {B, 2, N});
-        // eval() at end of public API - batch boundary
         mx::eval(result);
 
         return recordTime(result);
@@ -546,7 +547,6 @@ inline void FusedExternalProduct::executeAccumulate(mx::array& acc,
     auto ext_prod = executeBatch(rlwe, rgsw);
     auto Q_arr = mx::array(static_cast<int64_t>(params_.Q));
     acc = mx::remainder(mx::add(acc, ext_prod), Q_arr);
-    // eval() at end of public API
     mx::eval(acc);
 }
 
@@ -558,8 +558,8 @@ inline mx::array FusedExternalProduct::cmux(const mx::array& d0,
     int N = static_cast<int>(params_.N);
     uint64_t Q = params_.Q;
 
-    // Materialize inputs before computation (single eval)
-    mx::eval(d0, d1);
+    mx::eval(d0);
+    mx::eval(d1);
 
     // Compute diff = d1 - d0
     auto Q_arr = mx::array(static_cast<int64_t>(Q));
@@ -593,8 +593,8 @@ inline mx::array FusedExternalProduct::executeCPU(const mx::array& rlwe,
     int L = static_cast<int>(params_.L);
     uint64_t Q = params_.Q;
 
-    // CPU fallback: materialize for pointer access (required)
-    mx::eval(rlwe, rgsw);
+    mx::eval(rlwe);
+    mx::eval(rgsw);
 
     auto rlwe_ptr = rlwe.data<int64_t>();
     auto rgsw_ptr = rgsw.data<int64_t>();
@@ -681,304 +681,6 @@ private:
 
     // Inverse NTT using MLX operations
     void inverseNTT(mx::array& data);
-};
-
-// =============================================================================
-// Batched External Product Engine
-// =============================================================================
-//
-// Optimized kernel wrapper for batched external products.
-// Fuses decompose + multiply + accumulate into single kernel dispatch.
-//
-// Key optimizations:
-// - Single RGSW shared across all batch elements (CMux pattern)
-// - Eliminates 2 kernel launches per external product
-// - Shared memory for decomposed digits
-// - Barrett reduction throughout
-//
-// Expected speedup: 2-3x for external product operations
-
-struct BatchedExtProdParams {
-    uint64_t Q;              // Prime modulus
-    uint64_t barrett_mu;     // Barrett constant: floor(2^64 / Q)
-    uint64_t N_inv;          // N^{-1} mod Q
-    uint64_t N_inv_precon;   // Barrett precomputation for N_inv
-    uint32_t N;              // Ring dimension
-    uint32_t log_N;          // log2(N)
-    uint32_t L;              // Decomposition levels
-    uint32_t base_log;       // Bits per digit
-    uint64_t base_mask;      // (1 << base_log) - 1
-    uint32_t batch_size;     // Number of elements in batch
-
-    static BatchedExtProdParams create(uint32_t N, uint32_t L,
-                                        uint32_t baseLog, uint64_t Q) {
-        BatchedExtProdParams p;
-        p.N = N;
-        p.L = L;
-        p.base_log = baseLog;
-        p.Q = Q;
-        p.base_mask = (1ULL << baseLog) - 1;
-
-        // Compute log_N
-        p.log_N = 0;
-        while ((1u << p.log_N) < N) ++p.log_N;
-
-        // Barrett constant
-        p.barrett_mu = static_cast<uint64_t>((__uint128_t)1 << 64) / Q;
-
-        // N^{-1} mod Q via extended Euclidean
-        auto mod_inverse = [](uint64_t a, uint64_t m) -> uint64_t {
-            int64_t t = 0, newt = 1;
-            int64_t r = static_cast<int64_t>(m), newr = static_cast<int64_t>(a);
-            while (newr != 0) {
-                int64_t quotient = r / newr;
-                int64_t tmp_t = t - quotient * newt;
-                t = newt;
-                newt = tmp_t;
-                int64_t tmp_r = r - quotient * newr;
-                r = newr;
-                newr = tmp_r;
-            }
-            return static_cast<uint64_t>((t < 0) ? t + static_cast<int64_t>(m) : t);
-        };
-
-        p.N_inv = mod_inverse(N, Q);
-        p.N_inv_precon = static_cast<uint64_t>(((__uint128_t)p.N_inv << 64) / Q);
-        p.batch_size = 0;  // Set at dispatch time
-
-        return p;
-    }
-};
-
-class BatchedExternalProduct {
-public:
-    // Kernel dispatch configuration
-    struct DispatchConfig {
-        uint32_t threads_per_group;    // Threadgroup size
-        size_t shared_memory_bytes;    // Shared memory per threadgroup
-        bool use_ntt_domain;           // Whether to use NTT-domain kernel
-
-        static DispatchConfig optimal(uint32_t N, uint32_t L) {
-            DispatchConfig cfg;
-            cfg.threads_per_group = (N <= 512) ? N : 256;
-
-            // Shared memory: 2*L*N (decomposed) + 2*N (accumulators)
-            cfg.shared_memory_bytes = (2 * L * N + 2 * N) * sizeof(uint64_t);
-
-            cfg.use_ntt_domain = false;
-            return cfg;
-        }
-    };
-
-    BatchedExternalProduct(uint32_t N, uint32_t L, uint64_t base, uint64_t Q)
-        : params_(BatchedExtProdParams::create(N, L,
-                  static_cast<uint32_t>(__builtin_ctzll(base)), Q)),
-          config_(DispatchConfig::optimal(N, L)),
-          gpu_enabled_(mx::metal::is_available()) {
-
-        if (gpu_enabled_) {
-            mx::set_default_device(mx::Device::gpu);
-        }
-    }
-
-    ~BatchedExternalProduct() = default;
-
-    // Non-copyable, movable
-    BatchedExternalProduct(const BatchedExternalProduct&) = delete;
-    BatchedExternalProduct& operator=(const BatchedExternalProduct&) = delete;
-    BatchedExternalProduct(BatchedExternalProduct&&) = default;
-    BatchedExternalProduct& operator=(BatchedExternalProduct&&) = default;
-
-    // =========================================================================
-    // Core API
-    // =========================================================================
-
-    /**
-     * @brief Execute batched external product: RLWE[i] x RGSW -> RLWE[i]
-     *
-     * @param out_c0    Output component 0 [batch, N]
-     * @param out_c1    Output component 1 [batch, N]
-     * @param rlwe_c0   Input RLWE component 0 [batch, N]
-     * @param rlwe_c1   Input RLWE component 1 [batch, N]
-     * @param rgsw      Single RGSW ciphertext [2, L, 2, N]
-     * @param batch_size Number of RLWE ciphertexts
-     *
-     * Single kernel dispatch fusing:
-     *   1. Gadget decomposition into L digits
-     *   2. Pointwise multiply with RGSW
-     *   3. Accumulation across all L*2 products
-     */
-    void execute(
-        mx::array& out_c0, mx::array& out_c1,
-        const mx::array& rlwe_c0, const mx::array& rlwe_c1,
-        const mx::array& rgsw,
-        size_t batch_size) {
-
-        if (!gpu_enabled_) {
-            executeCPU(out_c0, out_c1, rlwe_c0, rlwe_c1, rgsw, batch_size);
-            return;
-        }
-
-        // Materialize inputs
-        mx::eval(rlwe_c0, rlwe_c1, rgsw);
-
-        int N = static_cast<int>(params_.N);
-        int L = static_cast<int>(params_.L);
-        int B = static_cast<int>(batch_size);
-        uint64_t Q = params_.Q;
-        uint64_t mu = params_.barrett_mu;
-
-        // CPU fallback using MLX operations
-        // (True Metal dispatch would require direct Metal API)
-        auto mask = mx::array(static_cast<int64_t>(params_.base_mask));
-
-        out_c0 = mx::zeros({B, N}, mx::int64);
-        out_c1 = mx::zeros({B, N}, mx::int64);
-
-        auto Q_arr = mx::array(static_cast<int64_t>(Q));
-
-        // Process each input component and level
-        for (int in_c = 0; in_c < 2; ++in_c) {
-            const mx::array& rlwe_comp = (in_c == 0) ? rlwe_c0 : rlwe_c1;
-
-            for (int l = 0; l < L; ++l) {
-                // Decompose
-                auto shift = mx::array(static_cast<int64_t>(l * params_.base_log));
-                auto digits = mx::bitwise_and(mx::right_shift(rlwe_comp, shift), mask);
-
-                // RGSW indices for this (in_c, l) pair
-                int rgsw_offset_0 = in_c * L * 2 * N + l * 2 * N;
-                int rgsw_offset_1 = rgsw_offset_0 + N;
-
-                auto rgsw_flat = mx::reshape(rgsw, {2 * L * 2 * N});
-                auto rgsw_0 = mx::slice(rgsw_flat, {rgsw_offset_0}, {rgsw_offset_0 + N});
-                auto rgsw_1 = mx::slice(rgsw_flat, {rgsw_offset_1}, {rgsw_offset_1 + N});
-
-                rgsw_0 = mx::reshape(rgsw_0, {1, N});
-                rgsw_1 = mx::reshape(rgsw_1, {1, N});
-
-                // Broadcast multiply
-                auto prod_0 = mx::remainder(mx::multiply(digits, rgsw_0), Q_arr);
-                auto prod_1 = mx::remainder(mx::multiply(digits, rgsw_1), Q_arr);
-
-                // Accumulate
-                out_c0 = mx::remainder(mx::add(out_c0, prod_0), Q_arr);
-                out_c1 = mx::remainder(mx::add(out_c1, prod_1), Q_arr);
-            }
-        }
-
-        mx::eval(out_c0, out_c1);
-    }
-
-    /**
-     * @brief Execute CMux gate: result = d0 + ExternalProduct(d1 - d0, rgsw_bit)
-     */
-    void cmux(
-        mx::array& out_c0, mx::array& out_c1,
-        const mx::array& d0_c0, const mx::array& d0_c1,
-        const mx::array& d1_c0, const mx::array& d1_c1,
-        const mx::array& rgsw_bit,
-        size_t batch_size) {
-
-        mx::eval(d0_c0, d0_c1, d1_c0, d1_c1);
-
-        auto Q_arr = mx::array(static_cast<int64_t>(params_.Q));
-
-        // diff = d1 - d0
-        auto diff_c0 = mx::remainder(mx::add(mx::subtract(d1_c0, d0_c0), Q_arr), Q_arr);
-        auto diff_c1 = mx::remainder(mx::add(mx::subtract(d1_c1, d0_c1), Q_arr), Q_arr);
-
-        // ext_prod = ExternalProduct(diff, rgsw_bit)
-        mx::array ext_c0, ext_c1;
-        execute(ext_c0, ext_c1, diff_c0, diff_c1, rgsw_bit, batch_size);
-
-        // result = d0 + ext_prod
-        out_c0 = mx::remainder(mx::add(d0_c0, ext_c0), Q_arr);
-        out_c1 = mx::remainder(mx::add(d0_c1, ext_c1), Q_arr);
-
-        mx::eval(out_c0, out_c1);
-    }
-
-    // =========================================================================
-    // Accessors
-    // =========================================================================
-
-    const BatchedExtProdParams& params() const { return params_; }
-    const DispatchConfig& config() const { return config_; }
-    bool isGpuEnabled() const { return gpu_enabled_; }
-
-    // Shared memory requirement for kernel dispatch
-    size_t sharedMemoryBytes() const { return config_.shared_memory_bytes; }
-
-private:
-    BatchedExtProdParams params_;
-    DispatchConfig config_;
-    bool gpu_enabled_;
-
-    // CPU fallback implementation
-    void executeCPU(
-        mx::array& out_c0, mx::array& out_c1,
-        const mx::array& rlwe_c0, const mx::array& rlwe_c1,
-        const mx::array& rgsw,
-        size_t batch_size) {
-
-        mx::eval(rlwe_c0, rlwe_c1, rgsw);
-
-        int N = static_cast<int>(params_.N);
-        int L = static_cast<int>(params_.L);
-        int B = static_cast<int>(batch_size);
-        uint64_t Q = params_.Q;
-
-        auto c0_ptr = rlwe_c0.data<int64_t>();
-        auto c1_ptr = rlwe_c1.data<int64_t>();
-        auto rgsw_ptr = rgsw.data<int64_t>();
-
-        std::vector<int64_t> result_c0(B * N, 0);
-        std::vector<int64_t> result_c1(B * N, 0);
-
-        auto mulmod = [Q](uint64_t a, uint64_t b) -> uint64_t {
-            return static_cast<uint64_t>((__uint128_t)a * b % Q);
-        };
-
-        auto addmod = [Q](uint64_t a, uint64_t b) -> uint64_t {
-            uint64_t sum = a + b;
-            return (sum >= Q) ? sum - Q : sum;
-        };
-
-        for (int b = 0; b < B; ++b) {
-            for (int in_c = 0; in_c < 2; ++in_c) {
-                const int64_t* rlwe_comp = (in_c == 0)
-                    ? c0_ptr + b * N
-                    : c1_ptr + b * N;
-
-                for (int l = 0; l < L; ++l) {
-                    for (int i = 0; i < N; ++i) {
-                        uint64_t val = static_cast<uint64_t>(rlwe_comp[i]);
-                        uint64_t digit = (val >> (l * params_.base_log)) & params_.base_mask;
-
-                        // RGSW indices
-                        int rgsw_idx_0 = in_c * L * 2 * N + l * 2 * N + i;
-                        int rgsw_idx_1 = in_c * L * 2 * N + l * 2 * N + N + i;
-
-                        uint64_t rgsw_0 = static_cast<uint64_t>(rgsw_ptr[rgsw_idx_0]) % Q;
-                        uint64_t rgsw_1 = static_cast<uint64_t>(rgsw_ptr[rgsw_idx_1]) % Q;
-
-                        uint64_t prod_0 = mulmod(digit, rgsw_0);
-                        uint64_t prod_1 = mulmod(digit, rgsw_1);
-
-                        int out_idx = b * N + i;
-                        result_c0[out_idx] = static_cast<int64_t>(
-                            addmod(static_cast<uint64_t>(result_c0[out_idx]) % Q, prod_0));
-                        result_c1[out_idx] = static_cast<int64_t>(
-                            addmod(static_cast<uint64_t>(result_c1[out_idx]) % Q, prod_1));
-                    }
-                }
-            }
-        }
-
-        out_c0 = mx::array(result_c0.data(), {B, N}, mx::int64);
-        out_c1 = mx::array(result_c1.data(), {B, N}, mx::int64);
-    }
 };
 
 #endif // WITH_MLX

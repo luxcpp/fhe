@@ -19,7 +19,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set(_cmake_targets_defined "")
 set(_cmake_targets_not_defined "")
 set(_cmake_expected_targets "")
-foreach(_cmake_expected_target IN ITEMS OPENFHEcore OPENFHEpke OPENFHEbinfhe)
+foreach(_cmake_expected_target IN ITEMS FHEcore FHEpke FHEbin)
   list(APPEND _cmake_expected_targets "${_cmake_expected_target}")
   if(TARGET "${_cmake_expected_target}")
     list(APPEND _cmake_targets_defined "${_cmake_expected_target}")
@@ -47,27 +47,27 @@ unset(_cmake_expected_targets)
 
 
 # The installation prefix configured by this project.
-set(_IMPORT_PREFIX "/Users/z/work/lux/fhe/install")
+set(_IMPORT_PREFIX "/Users/z/work/luxcpp/fhe/install")
 
-# Create imported target OPENFHEcore
-add_library(OPENFHEcore SHARED IMPORTED)
+# Create imported target FHEcore
+add_library(FHEcore SHARED IMPORTED)
 
-set_target_properties(OPENFHEcore PROPERTIES
-  INTERFACE_LINK_LIBRARIES "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument"
+set_target_properties(FHEcore PROPERTIES
+  INTERFACE_LINK_LIBRARIES "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument;/Users/z/work/luxcpp/fhe/.venv/lib/python3.12/site-packages/mlx/lib/libmlx.dylib;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework"
 )
 
-# Create imported target OPENFHEpke
-add_library(OPENFHEpke SHARED IMPORTED)
+# Create imported target FHEpke
+add_library(FHEpke SHARED IMPORTED)
 
-set_target_properties(OPENFHEpke PROPERTIES
-  INTERFACE_LINK_LIBRARIES "OPENFHEcore;OPENFHEbinfhe;-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument"
+set_target_properties(FHEpke PROPERTIES
+  INTERFACE_LINK_LIBRARIES "FHEcore;FHEbin;-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument"
 )
 
-# Create imported target OPENFHEbinfhe
-add_library(OPENFHEbinfhe SHARED IMPORTED)
+# Create imported target FHEbin
+add_library(FHEbin SHARED IMPORTED)
 
-set_target_properties(OPENFHEbinfhe PROPERTIES
-  INTERFACE_LINK_LIBRARIES "OPENFHEcore;-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument"
+set_target_properties(FHEbin PROPERTIES
+  INTERFACE_LINK_LIBRARIES "FHEcore;-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument"
 )
 
 # Load information for each installed configuration.
