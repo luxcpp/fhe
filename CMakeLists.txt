@@ -82,6 +82,18 @@ option(USE_MACPORTS "Use MacPorts installed packages"                           
 option(WITH_MLX "Enable MLX GPU acceleration on Apple Silicon"                         OFF )
 # CUDA/NVIDIA support moved to luxnext (proprietary)
 
+# Find lux-gpu at top level when WITH_MLX is enabled (makes IMPORTED target globally visible)
+if(WITH_MLX AND APPLE)
+    find_package(lux-gpu CONFIG QUIET
+        HINTS
+            ${CMAKE_INSTALL_PREFIX}
+            ${CMAKE_SOURCE_DIR}/../install
+    )
+    if(lux-gpu_FOUND)
+        message(STATUS "Found lux-gpu for MLX acceleration")
+    endif()
+endif()
+
 # Set required number of bits for native integer in build by setting NATIVE_SIZE to 64 or 128
 if(NOT NATIVE_SIZE)
     set(NATIVE_SIZE 64)
@@ -136,17 +148,17 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 # (but later on when installing)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-set(CMAKE_INSTALL_RPATH "${LIBINSTALL}")
+# Use @loader_path for relocatable dylibs on macOS, $ORIGIN on Linux
+if(APPLE)
+    set(CMAKE_INSTALL_RPATH "@loader_path")
+    set(CMAKE_MACOSX_RPATH ON)
+else()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIBINSTALL}" isSystemDir)
-if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${LIBINSTALL}")
-endif("${isSystemDir}" STREQUAL "-1")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
 # Compiler flags
 set(C_COMPILE_FLAGS "-Wall -Werror -DOPENFHE_VERSION=${OPENFHE_VERSION}")
@@ -782,3 +794,53 @@ install(FILES
 # Install the export set for use with the install-tree
 install(EXPORT OpenFHETargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 # install(EXPORT OpenFHETargets DESTINATION "${INSTALL_CMAKE_DIR}" NAMESPACE OpenFHE:: COMPONENT dev)
+
+# Generate and install pkg-config file for CGO bindings
+configure_file(
+  "${CMAKE_SOURCE_DIR}/cmake/lux-fhe.pc.in"
+  "${CMAKE_BINARY_DIR}/lux-fhe.pc"
+  @ONLY
+)
+install(FILES "${CMAKE_BINARY_DIR}/lux-fhe.pc"
+  DESTINATION "${INSTALL_LIB_DIR}/pkgconfig"
+  COMPONENT dev
+)
+
+# ============================================================================
+# Lux Library Contract - Namespace Aliases
+# ============================================================================
+# Create lux:: namespace aliases for consistency with other lux libraries.
+# Consumers can use either OpenFHE naming (FHEcore, FHEpke, FHEbin) or
+# lux naming (lux::fhe_core, lux::fhe_pke, lux::fhe_bin, lux::fhe).
+
+# Individual library aliases
+if(TARGET FHEcore)
+    add_library(lux::fhe_core ALIAS FHEcore)
+endif()
+if(TARGET FHEpke)
+    add_library(lux::fhe_pke ALIAS FHEpke)
+endif()
+if(TARGET FHEbin)
+    add_library(lux::fhe_bin ALIAS FHEbin)
+endif()
+
+# Static library aliases
+if(TARGET FHEcore_static)
+    add_library(lux::fhe_core_static ALIAS FHEcore_static)
+endif()
+if(TARGET FHEpke_static)
+    add_library(lux::fhe_pke_static ALIAS FHEpke_static)
+endif()
+if(TARGET FHEbin_static)
+    add_library(lux::fhe_bin_static ALIAS FHEbin_static)
+endif()
+
+# Combined lux::fhe interface library for convenience
+# Usage: target_link_libraries(myapp PRIVATE lux::fhe)
+add_library(lux_fhe_interface INTERFACE)
+if(BUILD_SHARED)
+    target_link_libraries(lux_fhe_interface INTERFACE FHEbin FHEpke FHEcore)
+else()
+    target_link_libraries(lux_fhe_interface INTERFACE FHEbin_static FHEpke_static FHEcore_static)
+endif()
+add_library(lux::fhe ALIAS lux_fhe_interface)

@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: lux-fhe
+Description: Fully Homomorphic Encryption for Lux crypto stack (TFHE/CKKS/BGV)
+Version: @OPENFHE_VERSION@
+Requires: lux-gpu
+Libs: -L${libdir} -lFHEbin -lFHEpke -lFHEcore
+Libs.private: -framework Accelerate
+Cflags: -I${includedir}/openfhe -I${includedir}/openfhe/core -I${includedir}/openfhe/binfhe -I${includedir}/openfhe/pke

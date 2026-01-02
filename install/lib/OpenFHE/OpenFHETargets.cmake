@@ -53,7 +53,7 @@ set(_IMPORT_PREFIX "/Users/z/work/luxcpp/fhe/install")
 add_library(FHEcore SHARED IMPORTED)
 
 set_target_properties(FHEcore PROPERTIES
-  INTERFACE_LINK_LIBRARIES "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument;/Users/z/work/luxcpp/fhe/.venv/lib/python3.12/site-packages/mlx/lib/libmlx.dylib;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework"
+  INTERFACE_LINK_LIBRARIES "-Xpreprocessor -fopenmp -lomp -Wno-unused-command-line-argument;/Users/z/work/luxcpp/gpu/install/lib/libmlx.dylib;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework;/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework"
 )
 
 # Create imported target FHEpke

@@ -22,31 +22,40 @@ if(WITH_MLX)
     find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
     message(STATUS "Found Metal framework: ${METAL_FRAMEWORK}")
 
-    # Find MLX
-    find_package(MLX CONFIG QUIET)
+    # Find lux-gpu (provides MLX/Metal GPU acceleration)
+    # Priority: CMAKE_INSTALL_PREFIX > luxcpp/install > system
+    find_package(lux-gpu CONFIG QUIET
+        HINTS
+            ${CMAKE_INSTALL_PREFIX}
+            ${CMAKE_SOURCE_DIR}/../install
+    )
 
-    if(NOT MLX_FOUND)
-        # Try to find MLX in common locations
+    if(lux-gpu_FOUND)
+        set(MLX_FOUND TRUE)
+        set(MLX_LIBRARY lux::gpu)
+        set(MLX_USE_TARGET TRUE)  # Use target for includes instead of MLX_INCLUDE_DIR
+        message(STATUS "Found lux-gpu via CMake config")
+    else()
+        # Fallback: manual search for liblux_gpu or libmlx
         find_path(MLX_INCLUDE_DIR
-            NAMES mlx/mlx.h
+            NAMES mlx/mlx.h lux/gpu/mlx.h
             PATHS
-                ${CMAKE_SOURCE_DIR}/.venv/lib/python3.12/site-packages/mlx/include
-                ${CMAKE_SOURCE_DIR}/.venv/lib/python3.11/site-packages/mlx/include
+                ${CMAKE_INSTALL_PREFIX}/include
+                ${CMAKE_SOURCE_DIR}/../install/include/lux/gpu
+                ${CMAKE_SOURCE_DIR}/../gpu/mlx
                 /opt/homebrew/include
                 /usr/local/include
-                $ENV{HOME}/mlx/include
                 $ENV{MLX_ROOT}/include
             NO_DEFAULT_PATH
         )
 
         find_library(MLX_LIBRARY
-            NAMES mlx libmlx
+            NAMES lux_gpu mlx
             PATHS
-                ${CMAKE_SOURCE_DIR}/.venv/lib/python3.12/site-packages/mlx/lib
-                ${CMAKE_SOURCE_DIR}/.venv/lib/python3.11/site-packages/mlx/lib
+                ${CMAKE_INSTALL_PREFIX}/lib
+                ${CMAKE_SOURCE_DIR}/../install/lib
                 /opt/homebrew/lib
                 /usr/local/lib
-                $ENV{HOME}/mlx/lib
                 $ENV{MLX_ROOT}/lib
             NO_DEFAULT_PATH
         )
@@ -56,8 +65,8 @@ if(WITH_MLX)
             message(STATUS "Found MLX: ${MLX_LIBRARY}")
             message(STATUS "MLX include: ${MLX_INCLUDE_DIR}")
         else()
-            message(STATUS "MLX not found. To install: pip install mlx")
-            message(STATUS "Or build from source: https://github.com/ml-explore/mlx")
+            message(STATUS "lux-gpu not found. Build luxcpp/gpu first:")
+            message(STATUS "  cd ../gpu && cmake -B build -DCMAKE_INSTALL_PREFIX=../install && cmake --build build && cmake --install build")
             message(WARNING "Disabling MLX backend.")
             set(WITH_MLX OFF PARENT_SCOPE)
             return()
@@ -87,24 +96,26 @@ if(WITH_MLX)
     target_include_directories(FHEmetal PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../include
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${MLX_INCLUDE_DIR}
     )
-    target_link_libraries(FHEmetal PUBLIC
-        ${METAL_FRAMEWORK}
-        ${FOUNDATION_FRAMEWORK}
-    )
+    if(MLX_USE_TARGET)
+        target_link_libraries(FHEmetal PUBLIC lux::gpu ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+    else()
+        target_include_directories(FHEmetal PUBLIC ${MLX_INCLUDE_DIR})
+        target_link_libraries(FHEmetal PUBLIC ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+    endif()
     target_compile_definitions(FHEmetal PUBLIC WITH_MLX WITH_NATIVE_METAL)
     target_compile_features(FHEmetal PUBLIC cxx_std_17)
     
     target_include_directories(FHEmlx PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../include
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${MLX_INCLUDE_DIR}
     )
-    
-    target_link_libraries(FHEmlx PUBLIC
-        ${MLX_LIBRARY}
-    )
+    if(MLX_USE_TARGET)
+        target_link_libraries(FHEmlx PUBLIC lux::gpu)
+    else()
+        target_include_directories(FHEmlx PUBLIC ${MLX_INCLUDE_DIR})
+        target_link_libraries(FHEmlx PUBLIC ${MLX_LIBRARY})
+    endif()
     
     # Add compile definitions
     target_compile_definitions(FHEmlx PUBLIC WITH_MLX)

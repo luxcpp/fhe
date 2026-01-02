@@ -1,0 +1,20 @@
+@PACKAGE_INIT@
+
+# lux-fhe CMake Config
+# Provides FHE (Fully Homomorphic Encryption) for Lux crypto stack
+#
+# Usage:
+#   find_package(lux-fhe CONFIG REQUIRED)
+#   target_link_libraries(app PRIVATE lux::fhe)
+
+include(CMakeFindDependencyMacro)
+
+# Find lux-gpu dependency
+find_dependency(lux-gpu CONFIG REQUIRED)
+
+# Find OpenMP if available
+find_package(OpenMP)
+
+include("${CMAKE_CURRENT_LIST_DIR}/lux-fheTargets.cmake")
+
+check_required_components(lux-fhe)
