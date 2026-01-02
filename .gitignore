@@ -73,3 +73,9 @@ test_detail.xml
 # Visual Studio Code
 .vscode
 install/
+
+# AI assistant files (keep only LLM.md)
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+QWEN.md
