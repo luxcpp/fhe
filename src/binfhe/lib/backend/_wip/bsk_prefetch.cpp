@@ -20,7 +20,7 @@
 #include <numa.h>
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -702,4 +702,4 @@ const void* PrefetchingAccumulator::ExtractFromTile(
 }
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe

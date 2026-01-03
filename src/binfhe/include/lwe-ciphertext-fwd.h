@@ -33,13 +33,13 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class LWECiphertextImpl;
 
 using LWECiphertext      = std::shared_ptr<LWECiphertextImpl>;
 using ConstLWECiphertext = const std::shared_ptr<const LWECiphertextImpl>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __LWE_CIPHERTEXT_FWD_H__

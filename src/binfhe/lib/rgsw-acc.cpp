@@ -49,7 +49,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void RingGSWAccumulator::SignedDigitDecompose(const std::shared_ptr<RingGSWCryptoParams>& params,
                                               const std::vector<NativePoly>& input,
@@ -118,4 +118,4 @@ void RingGSWAccumulator::SignedDigitDecompose(const std::shared_ptr<RingGSWCrypt
     }
 }
 
-};  // namespace lbcrypto
+};  // namespace lux::fhe

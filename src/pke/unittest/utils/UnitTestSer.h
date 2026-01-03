@@ -43,7 +43,7 @@
 #include <iostream>
 #include "globals.h"  // for SERIALIZE_PRECOMPUTE
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <typename Element, typename ST>
 void UnitTestContextWithSertype(CryptoContext<Element> cc, const ST& sertype,

@@ -35,7 +35,7 @@
 #include <ostream>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 SecretKeyDist convertToSecretKeyDist(const std::string& str) {
     if (str == "GAUSSIAN")
@@ -48,7 +48,7 @@ SecretKeyDist convertToSecretKeyDist(const std::string& str) {
         return SPARSE_ENCAPSULATED;
     // if (str == "BINARY")
     //     return BINARY;
-    OPENFHE_THROW("Unknown SecretKeyDist: " + str);
+    LUX_FHE_THROW("Unknown SecretKeyDist: " + str);
 }
 
 SecretKeyDist convertToSecretKeyDist(uint32_t num) {
@@ -63,7 +63,7 @@ SecretKeyDist convertToSecretKeyDist(uint32_t num) {
         default:
             break;
     }
-    OPENFHE_THROW("Unknown value for SecretKeyDist " + std::to_string(num));
+    LUX_FHE_THROW("Unknown value for SecretKeyDist " + std::to_string(num));
 }
 
 std::ostream& operator<<(std::ostream& s, SecretKeyDist m) {
@@ -90,4 +90,4 @@ std::ostream& operator<<(std::ostream& s, SecretKeyDist m) {
     return s;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

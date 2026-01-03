@@ -41,7 +41,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class SchemeBase;
@@ -88,6 +88,6 @@ public:
 template <>
 std::vector<CryptoContext<DCRTPoly>> CryptoContextFactory<DCRTPoly>::AllContexts;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

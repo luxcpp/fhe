@@ -33,8 +33,8 @@
   Represents and defines plaintext objects in OpenFHE
  */
 
-#ifndef LBCRYPTO_UTILS_PLAINTEXT_H
-#define LBCRYPTO_UTILS_PLAINTEXT_H
+#ifndef LUX_FHE_UTILS_PLAINTEXT_H
+#define LUX_FHE_UTILS_PLAINTEXT_H
 
 #include "constants.h"
 #include "encoding/encodingparams.h"
@@ -49,7 +49,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @class PlaintextImpl
@@ -216,7 +216,7 @@ public:
    */
     virtual bool Decode() = 0;
     virtual bool Decode(size_t depth, double scalingFactor, ScalingTechnique scalTech, ExecutionMode executionMode) {
-        OPENFHE_THROW("Not implemented");
+        LUX_FHE_THROW("Not implemented");
     }
 
     /**
@@ -258,12 +258,12 @@ public:
    */
     template <typename Element>
     Element& GetElement() {
-        OPENFHE_THROW("Generic GetElement() is not implemented");
+        LUX_FHE_THROW("Generic GetElement() is not implemented");
     }
 
     template <typename Element>
     const Element& GetElement() const {
-        OPENFHE_THROW("Generic GetElement() is not implemented");
+        LUX_FHE_THROW("Generic GetElement() is not implemented");
     }
 
     /**
@@ -299,7 +299,7 @@ public:
    * @param newSize
    */
     virtual void SetLength(size_t newSize) {
-        OPENFHE_THROW("resize not supported");
+        LUX_FHE_THROW("resize not supported");
     }
 
     /*
@@ -351,33 +351,33 @@ public:
     }
 
     virtual double GetLogError() const {
-        OPENFHE_THROW("no estimate of noise available for the current scheme");
+        LUX_FHE_THROW("no estimate of noise available for the current scheme");
     }
 
     virtual double GetLogPrecision() const {
-        OPENFHE_THROW("no estimate of precision available for the current scheme");
+        LUX_FHE_THROW("no estimate of precision available for the current scheme");
     }
 
     virtual const std::string& GetStringValue() const {
-        OPENFHE_THROW("not a string");
+        LUX_FHE_THROW("not a string");
     }
     virtual const std::vector<int64_t>& GetCoefPackedValue() const {
-        OPENFHE_THROW("not a packed coefficient vector");
+        LUX_FHE_THROW("not a packed coefficient vector");
     }
     virtual const std::vector<int64_t>& GetPackedValue() const {
-        OPENFHE_THROW("not a packed vector");
+        LUX_FHE_THROW("not a packed vector");
     }
     virtual const std::vector<std::complex<double>>& GetCKKSPackedValue() const {
-        OPENFHE_THROW("not a packed vector of complex numbers");
+        LUX_FHE_THROW("not a packed vector of complex numbers");
     }
     virtual std::vector<double> GetRealPackedValue() const {
-        OPENFHE_THROW("not a packed vector of real numbers");
+        LUX_FHE_THROW("not a packed vector of real numbers");
     }
     virtual void SetStringValue(const std::string&) {
-        OPENFHE_THROW("does not support a string");
+        LUX_FHE_THROW("does not support a string");
     }
     virtual void SetIntVectorValue(const std::vector<int64_t>&) {
-        OPENFHE_THROW("does not support an int vector");
+        LUX_FHE_THROW("does not support an int vector");
     }
 
     /**
@@ -408,7 +408,7 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const Plaintext& item) {
         if (item)
             return out << *item;  // Call the non-pointer version
-        OPENFHE_THROW("Cannot de-reference nullptr for printing");
+        LUX_FHE_THROW("Cannot de-reference nullptr for printing");
     }
 
     /**
@@ -417,7 +417,7 @@ public:
     * @return string with all values
     */
     virtual std::string GetFormattedValues(int64_t precision) const {
-        OPENFHE_THROW("not implemented");
+        LUX_FHE_THROW("not implemented");
     }
 };
 
@@ -471,6 +471,6 @@ inline DCRTPoly& PlaintextImpl::GetElement<DCRTPoly>() {
     return encodedVectorDCRT;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -43,7 +43,7 @@ the number of participating parties.
 #include "openfhe.h"
 
 using namespace std;
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 static void checkApproximateEquality(const std::vector<std::complex<double>>& a,
                                      const std::vector<std::complex<double>>& b, int vectorSize, double epsilon) {
@@ -86,7 +86,7 @@ void TCKKSCollectiveBoot(enum ScalingTechnique scaleTech) {
     if (scaleTech != ScalingTechnique::FIXEDMANUAL && scaleTech != ScalingTechnique::FIXEDAUTO &&
         scaleTech != ScalingTechnique::FLEXIBLEAUTO && scaleTech != ScalingTechnique::FLEXIBLEAUTOEXT) {
         std::string errMsg = "ERROR: Scaling technique is not supported!";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     CCParams<CryptoContextCKKSRNS> parameters;

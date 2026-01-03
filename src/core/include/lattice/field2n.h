@@ -33,8 +33,8 @@
   Represents and defines power-of-2 fields
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_FIELD2N_H
-#define LBCRYPTO_INC_LATTICE_FIELD2N_H
+#ifndef LUX_FHE_INC_LATTICE_FIELD2N_H
+#define LUX_FHE_INC_LATTICE_FIELD2N_H
 
 #include "lattice/lat-hal.h"
 
@@ -49,7 +49,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @class Field2n
  * @brief A class to represent field elements with power-of-2 dimension.
@@ -338,7 +338,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::base_class<std::vector<std::complex<double>>>(this));
@@ -368,6 +368,6 @@ inline std::ostream& operator<<(std::ostream& os, const Field2n& m) {
     return os;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

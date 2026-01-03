@@ -76,7 +76,7 @@ Allocator::~Allocator() {
 //------------------------------------------------------------------------------
 void* Allocator::Allocate(size_t size) {
     if (size > m_blockSize)
-        OPENFHE_THROW("Exceeded max block size " + std::to_string(size));
+        LUX_FHE_THROW("Exceeded max block size " + std::to_string(size));
 
     void* pBlock = Pop();
     if (!pBlock) {
@@ -88,7 +88,7 @@ void* Allocator::Allocate(size_t size) {
                 pBlock = reinterpret_cast<void*>(m_pPool + (m_blockCnt++ * m_blockSize));
             }
             else {
-                OPENFHE_THROW("Exceeded max block count " + std::to_string(size));
+                LUX_FHE_THROW("Exceeded max block count " + std::to_string(size));
             }
         }
         else {

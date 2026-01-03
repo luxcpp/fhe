@@ -22,8 +22,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 // =============================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_TWIDDLE_CACHE_H
-#define LBCRYPTO_MATH_HAL_MLX_TWIDDLE_CACHE_H
+#ifndef LUX_FHE_MATH_HAL_MLX_TWIDDLE_CACHE_H
+#define LUX_FHE_MATH_HAL_MLX_TWIDDLE_CACHE_H
 
 #include <cstdint>
 #include <vector>
@@ -39,7 +39,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace mlx_backend {
 
 // =============================================================================
@@ -432,6 +432,6 @@ struct HotsetMemoryEstimate {
 };
 
 }  // namespace mlx_backend
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_MATH_HAL_MLX_TWIDDLE_CACHE_H
+#endif  // LUX_FHE_MATH_HAL_MLX_TWIDDLE_CACHE_H

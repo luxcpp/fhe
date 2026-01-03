@@ -37,7 +37,7 @@
 #include "UnitTestUtils.h"
 #include "include/gtest/gtest.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTGENERAL_CRYPTOCONTEXTS : public ::testing::Test {
 protected:
@@ -63,11 +63,11 @@ TEST_F(UTGENERAL_CRYPTOCONTEXTS, coexisting_ckks_cryptocontexts) {
     parameters1.SetRingDim(4096 * 4);
     parameters1.SetBatchSize(32);
 
-    CryptoContext<lbcrypto::DCRTPoly> cc1 = GenCryptoContext(parameters1);
+    CryptoContext<lux::fhe::DCRTPoly> cc1 = GenCryptoContext(parameters1);
     cc1->Enable(PKE);
     cc1->Enable(KEYSWITCH);
     cc1->Enable(LEVELEDSHE);
-    lbcrypto::KeyPair<lbcrypto::DCRTPoly> key1 = cc1->KeyGen();
+    lux::fhe::KeyPair<lux::fhe::DCRTPoly> key1 = cc1->KeyGen();
 
     // Setup crypto context 2 for testing (not used)
     CCParams<CryptoContextCKKSRNS> parameters2;
@@ -77,11 +77,11 @@ TEST_F(UTGENERAL_CRYPTOCONTEXTS, coexisting_ckks_cryptocontexts) {
     parameters2.SetBatchSize(4);
     parameters2.SetSecurityLevel(HEStd_NotSet);
 
-    CryptoContext<lbcrypto::DCRTPoly> cc2 = GenCryptoContext(parameters2);
+    CryptoContext<lux::fhe::DCRTPoly> cc2 = GenCryptoContext(parameters2);
     cc2->Enable(PKE);
     cc2->Enable(KEYSWITCH);
     cc2->Enable(LEVELEDSHE);
-    lbcrypto::KeyPair<lbcrypto::DCRTPoly> key2 = cc2->KeyGen();
+    lux::fhe::KeyPair<lux::fhe::DCRTPoly> key2 = cc2->KeyGen();
 
     // Setup crypto context 3 for testing (not used)
     CCParams<CryptoContextCKKSRNS> parameters3;
@@ -94,11 +94,11 @@ TEST_F(UTGENERAL_CRYPTOCONTEXTS, coexisting_ckks_cryptocontexts) {
     parameters3.SetKeySwitchTechnique(BV);
     parameters3.SetScalingTechnique(FIXEDMANUAL);
 
-    CryptoContext<lbcrypto::DCRTPoly> cc3 = GenCryptoContext(parameters3);
+    CryptoContext<lux::fhe::DCRTPoly> cc3 = GenCryptoContext(parameters3);
     cc3->Enable(PKE);
     cc3->Enable(KEYSWITCH);
     cc3->Enable(LEVELEDSHE);
-    lbcrypto::KeyPair<lbcrypto::DCRTPoly> key3 = cc3->KeyGen();
+    lux::fhe::KeyPair<lux::fhe::DCRTPoly> key3 = cc3->KeyGen();
 
     // Encrypt
     std::vector<double> values = {1.0, 1.1, 1.2};

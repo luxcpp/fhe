@@ -47,7 +47,7 @@
 
 #include "testdefs.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 //////////////////////////////////////////////////////////////////
 // Testing Methods of BigInteger DiscreteUniformGenerator
@@ -248,7 +248,7 @@ void testParallelDiscreteUniformGenerator(typename V::Integer& modulus, std::str
     usint size                  = 50000;
     // usint size = omp_get_max_threads() * 4;
 
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     std::vector<typename V::Integer> randBigVector;
     #pragma omp parallel  // this is executed in parallel
     {
@@ -269,10 +269,10 @@ void testParallelDiscreteUniformGenerator(typename V::Integer& modulus, std::str
         for (int i = 0; i < omp_get_num_threads(); i++) {
     #pragma omp ordered
             {
-                OPENFHE_DEBUG("thread #" << omp_get_thread_num() << " moving " << (int)randBigVectorPvt.size()
+                LUX_FHE_DEBUG("thread #" << omp_get_thread_num() << " moving " << (int)randBigVectorPvt.size()
                                          << " to starting point " << (int)randBigVector.size());
                 randBigVector.insert(randBigVector.end(), randBigVectorPvt.begin(), randBigVectorPvt.end());
-                OPENFHE_DEBUG("thread #" << omp_get_thread_num() << " moved");
+                LUX_FHE_DEBUG("thread #" << omp_get_thread_num() << " moved");
             }
         }
     }
@@ -322,7 +322,7 @@ void testParallelDiscreteUniformGenerator(typename V::Integer& modulus, std::str
 //   usint size = 10;
 //   {
 //     DiscreteUniformGenerator distrUniGen =
-//     lbcrypto::DiscreteUniformGenerator(modulus, 12345);
+//     lux::fhe::DiscreteUniformGenerator(modulus, 12345);
 
 //     V randBigVector1 = distrUniGen.GenerateVector(size);
 
@@ -331,7 +331,7 @@ void testParallelDiscreteUniformGenerator(typename V::Integer& modulus, std::str
 //     }
 //   }
 //   DiscreteUniformGenerator distrUniGen =
-//   lbcrypto::DiscreteUniformGenerator(modulus, 12345); V randBigVector2 =
+//   lux::fhe::DiscreteUniformGenerator(modulus, 12345); V randBigVector2 =
 //   distrUniGen.GenerateVector(size); double sum2=0;
 
 //   for(usint index=0; index<size; index++) {
@@ -481,7 +481,7 @@ TEST(UTDistrGen, DiscreteGaussianGenerator) {
 template <typename V>
 void ParallelDiscreteGaussianGenerator_VERY_LONG(const std::string& msg) {
     // mean test
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
 
     {
         int stdev  = 5;
@@ -508,7 +508,7 @@ void ParallelDiscreteGaussianGenerator_VERY_LONG(const std::string& msg) {
             for (int i = 0; i < omp_get_num_threads(); i++) {
     #pragma omp ordered
                 {
-                    OPENFHE_DEBUG("thread #" << omp_get_thread_num() << " "
+                    LUX_FHE_DEBUG("thread #" << omp_get_thread_num() << " "
                                              << "moving " << (int)dggCharVectorPvt.size() << " to starting point"
                                              << (int)dggCharVector.size());
                     dggCharVector.insert(dggCharVector.end(), dggCharVectorPvt.begin(), dggCharVectorPvt.end());
@@ -552,7 +552,7 @@ void ParallelDiscreteGaussianGenerator_VERY_LONG(const std::string& msg) {
             for (int i = 0; i < omp_get_num_threads(); i++) {
     #pragma omp ordered
                 {
-                    OPENFHE_DEBUG("thread #" << omp_get_thread_num() << " "
+                    LUX_FHE_DEBUG("thread #" << omp_get_thread_num() << " "
                                              << "moving " << (int)dggBigVectorPvt.size() << " to starting point"
                                              << (int)dggBigVector.size());
                     dggBigVector.insert(dggBigVector.end(), dggBigVectorPvt.begin(), dggBigVectorPvt.end());

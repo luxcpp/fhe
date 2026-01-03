@@ -33,8 +33,8 @@
   Wraps parameters for integer lattice operations using double-CRT representation. Inherits from ElemParams
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_ILDCRTPARAMS_H
-#define LBCRYPTO_INC_LATTICE_ILDCRTPARAMS_H
+#ifndef LUX_FHE_INC_LATTICE_ILDCRTPARAMS_H
+#define LUX_FHE_INC_LATTICE_ILDCRTPARAMS_H
 
 #include "lattice/hal/elemparams.h"
 #include "lattice/hal/default/ilparams.h"
@@ -52,7 +52,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Parameters for array of ideal lattices (used for Double-CRT).
@@ -102,7 +102,7 @@ public:
         if (corder == 0)
             return;
         if (bits > MAX_MODULUS_SIZE)
-            OPENFHE_THROW("Invalid bits for ILDCRTParams");
+            LUX_FHE_THROW("Invalid bits for ILDCRTParams");
 
         auto q{LastPrime<NativeInteger>(bits, corder)};
         m_params.reserve(depth);
@@ -133,7 +133,7 @@ public:
         : ElemParams<IntType>(corder, 0) {
         size_t limbs{moduli.size()};
         if (limbs != rootsOfUnity.size())
-            OPENFHE_THROW("sizes of moduli and roots of unity do not match 1");
+            LUX_FHE_THROW("sizes of moduli and roots of unity do not match 1");
 
         m_params.reserve(limbs);
         IntType compositeModulus(1);
@@ -150,7 +150,7 @@ public:
         : ElemParams<IntType>(corder, 0) {
         size_t limbs{moduli.size()};
         if (limbs != rootsOfUnity.size() || limbs != moduliBig.size() || limbs != rootsOfUnityBig.size())
-            OPENFHE_THROW("sizes of moduli and roots of unity do not match 2");
+            LUX_FHE_THROW("sizes of moduli and roots of unity do not match 2");
 
         m_params.reserve(limbs);
         IntType compositeModulus(1);
@@ -235,7 +235,7 @@ public:
    */
     std::vector<std::shared_ptr<ILNativeParams>> GetParamPartition(uint32_t start, uint32_t end) const {
         if (end < start || end >= m_params.size())
-            OPENFHE_THROW("Incorrect parameters for GetParamPartition - (start: " + std::to_string(start) +
+            LUX_FHE_THROW("Incorrect parameters for GetParamPartition - (start: " + std::to_string(start) +
                           ", end:" + std::to_string(end) + ")");
         return std::vector<std::shared_ptr<ILNativeParams>>(m_params.begin() + start, m_params.begin() + end + 1);
     }
@@ -338,7 +338,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::base_class<ElemParams<IntType>>(this));
@@ -367,6 +367,6 @@ private:
     std::vector<std::shared_ptr<ILNativeParams>> m_params;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -37,7 +37,7 @@
 #include "openfhe.h"
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <class T>
 T plainInnerProduct(std::vector<T> vec) {
@@ -56,14 +56,14 @@ bool innerProductBFV(std::vector<int64_t>& incomingVector) {
     CCParams<CryptoContextBFVRNS> parameters;
     parameters.SetPlaintextModulus(65537);
     parameters.SetMultiplicativeDepth(20);
-    parameters.SetSecurityLevel(lbcrypto::HEStd_NotSet);
+    parameters.SetSecurityLevel(lux::fhe::HEStd_NotSet);
     parameters.SetRingDim(1 << 7);
     uint32_t batchSize = parameters.GetRingDim() / 2;
 
     /////////////////////////////////////////////////////////
     // Set crypto params and create context
     /////////////////////////////////////////////////////////
-    lbcrypto::CryptoContext<lbcrypto::DCRTPoly> cc;
+    lux::fhe::CryptoContext<lux::fhe::DCRTPoly> cc;
     cc = GenCryptoContext(parameters);
 
     // Enable the features that you wish to use.
@@ -78,7 +78,7 @@ bool innerProductBFV(std::vector<int64_t>& incomingVector) {
     Plaintext plaintext1 = cc->MakePackedPlaintext(incomingVector);
     auto ct1             = cc->Encrypt(keys.publicKey, plaintext1);
     auto finalResult     = cc->EvalInnerProduct(ct1, ct1, batchSize);
-    lbcrypto::Plaintext res;
+    lux::fhe::Plaintext res;
     cc->Decrypt(keys.secretKey, finalResult, &res);
     auto final = res->GetPackedValue()[0];
 
@@ -88,11 +88,11 @@ bool innerProductBFV(std::vector<int64_t>& incomingVector) {
 
 bool innerProductCKKS(const std::vector<double>& incomingVector) {
     double expectedResult                 = plainInnerProduct(incomingVector);
-    lbcrypto::SecurityLevel securityLevel = lbcrypto::HEStd_NotSet;
+    lux::fhe::SecurityLevel securityLevel = lux::fhe::HEStd_NotSet;
     uint32_t dcrtBits                     = 59;
     uint32_t ringDim                      = 1 << 8;
     uint32_t batchSize                    = ringDim / 2;
-    lbcrypto::CCParams<lbcrypto::CryptoContextCKKSRNS> parameters;
+    lux::fhe::CCParams<lux::fhe::CryptoContextCKKSRNS> parameters;
     uint32_t multDepth = 10;
 
     parameters.SetMultiplicativeDepth(multDepth);
@@ -101,7 +101,7 @@ bool innerProductCKKS(const std::vector<double>& incomingVector) {
     parameters.SetSecurityLevel(securityLevel);
     parameters.SetRingDim(ringDim);
 
-    lbcrypto::CryptoContext<lbcrypto::DCRTPoly> cc;
+    lux::fhe::CryptoContext<lux::fhe::DCRTPoly> cc;
     cc = GenCryptoContext(parameters);
 
     cc->Enable(PKE);
@@ -115,7 +115,7 @@ bool innerProductCKKS(const std::vector<double>& incomingVector) {
     Plaintext plaintext1 = cc->MakeCKKSPackedPlaintext(incomingVector);
     auto ct1             = cc->Encrypt(keys.publicKey, plaintext1);
     auto finalResult     = cc->EvalInnerProduct(ct1, ct1, batchSize);
-    lbcrypto::Plaintext res;
+    lux::fhe::Plaintext res;
     cc->Decrypt(keys.secretKey, finalResult, &res);
     res->SetLength(incomingVector.size());
     auto final = res->GetCKKSPackedValue()[0].real();

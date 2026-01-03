@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_KEY_EVALKEY_H
-#define LBCRYPTO_CRYPTO_KEY_EVALKEY_H
+#ifndef LUX_FHE_CRYPTO_KEY_EVALKEY_H
+#define LUX_FHE_CRYPTO_KEY_EVALKEY_H
 
 #include "key/evalkey-fwd.h"
 #include "key/key.h"
@@ -40,10 +40,10 @@
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract interface for evaluation/proxy keys
@@ -71,7 +71,7 @@ public:
    */
 
     virtual void SetAVector(const std::vector<Element>& a) {
-        OPENFHE_THROW("SetAVector copy operation not supported");
+        LUX_FHE_THROW("SetAVector copy operation not supported");
     }
 
     /**
@@ -82,7 +82,7 @@ public:
    */
 
     virtual void SetAVector(std::vector<Element>&& a) {
-        OPENFHE_THROW("SetAVector move operation not supported");
+        LUX_FHE_THROW("SetAVector move operation not supported");
     }
 
     /**
@@ -93,7 +93,7 @@ public:
    */
 
     virtual const std::vector<Element>& GetAVector() const {
-        OPENFHE_THROW("GetAVector operation not supported");
+        LUX_FHE_THROW("GetAVector operation not supported");
     }
 
     /**
@@ -104,7 +104,7 @@ public:
    */
 
     virtual void SetBVector(const std::vector<Element>& b) {
-        OPENFHE_THROW("SetBVector copy operation not supported");
+        LUX_FHE_THROW("SetBVector copy operation not supported");
     }
 
     /**
@@ -115,7 +115,7 @@ public:
    */
 
     virtual void SetBVector(std::vector<Element>&& b) {
-        OPENFHE_THROW("SetBVector move operation not supported");
+        LUX_FHE_THROW("SetBVector move operation not supported");
     }
 
     /**
@@ -126,11 +126,11 @@ public:
    */
 
     virtual const std::vector<Element>& GetBVector() const {
-        OPENFHE_THROW("GetBVector operation not supported");
+        LUX_FHE_THROW("GetBVector operation not supported");
     }
 
     virtual void ClearKeys() {
-        OPENFHE_THROW("ClearKeys operation is not supported");
+        LUX_FHE_THROW("ClearKeys operation is not supported");
     }
 
     friend bool operator==(const EvalKeyImpl& a, const EvalKeyImpl& b) {
@@ -160,6 +160,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

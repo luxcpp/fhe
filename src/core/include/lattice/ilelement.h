@@ -33,8 +33,8 @@
   Represents and defines integer lattice element objects in OpenFHE
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_ILELEMENT_H
-#define LBCRYPTO_INC_LATTICE_ILELEMENT_H
+#ifndef LUX_FHE_INC_LATTICE_ILELEMENT_H
+#define LUX_FHE_INC_LATTICE_ILELEMENT_H
 
 #include "math/discretegaussiangenerator.h"
 #include "math/nbtheory.h"
@@ -45,7 +45,7 @@
 
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Interface for ideal lattices
@@ -153,16 +153,16 @@ public:
    * @return will throw an error.
    */
     virtual IntType& at(usint i) {
-        OPENFHE_THROW("at() not implemented");
+        LUX_FHE_THROW("at() not implemented");
     }
     virtual const IntType& at(usint i) const {
-        OPENFHE_THROW("const at() not implemented");
+        LUX_FHE_THROW("const at() not implemented");
     }
     virtual IntType& operator[](usint i) {
-        OPENFHE_THROW("[] not implemented");
+        LUX_FHE_THROW("[] not implemented");
     }
     virtual const IntType& operator[](usint i) const {
-        OPENFHE_THROW("const [] not implemented");
+        LUX_FHE_THROW("const [] not implemented");
     }
 
     //  virtual NativePoly DecryptionCRTInterpolate(PlaintextModulus ptm) const
@@ -451,6 +451,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

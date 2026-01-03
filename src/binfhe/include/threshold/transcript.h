@@ -21,7 +21,7 @@
 #include <string>
 #include <array>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace threshold {
 
 // ============================================================================
@@ -457,6 +457,6 @@ NativeInteger HashToFieldElement(const Hash256& h, const NativeInteger& q);
 } // namespace hash
 
 } // namespace threshold
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // THRESHOLD_TRANSCRIPT_H

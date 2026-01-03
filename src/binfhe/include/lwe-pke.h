@@ -42,7 +42,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Additive public-key LWE scheme
@@ -225,6 +225,6 @@ public:
     LWECiphertext NoiselessEmbedding(const std::shared_ptr<LWECryptoParams>& params, LWEPlaintext m) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

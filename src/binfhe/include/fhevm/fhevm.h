@@ -24,7 +24,7 @@
 #include <string>
 #include <optional>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace fhevm {
 
 // ============================================================================
@@ -569,6 +569,6 @@ uint64_t EstimateGas(const std::string& op, FheType type);
 std::string Version();
 
 } // namespace fhevm
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // FHEVM_FHEVM_H

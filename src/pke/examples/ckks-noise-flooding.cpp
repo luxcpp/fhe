@@ -51,7 +51,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // Demo function for NOISE_FLOODING_DECRYPT mode in CKKS
 void CKKSNoiseFloodingDemo();

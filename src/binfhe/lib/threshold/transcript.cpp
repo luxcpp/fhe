@@ -14,7 +14,7 @@
 // In production, this would use OpenSSL or a hardware-accelerated library
 #include <array>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace threshold {
 
 // ============================================================================
@@ -725,4 +725,4 @@ void BatchTranscript::Reset() {
 }
 
 } // namespace threshold
-} // namespace lbcrypto
+} // namespace lux::fhe

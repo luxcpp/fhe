@@ -39,7 +39,7 @@ BGV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include "scheme/bgvrns/bgvrns-cryptoparameters.h"
 #include "scheme/bgvrns/bgvrns-pke.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 DecryptResult PKEBGVRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const PrivateKey<DCRTPoly> privateKey,
                                  NativePoly* plaintext) const {
@@ -98,4 +98,4 @@ DecryptResult PKEBGVRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const Pri
     return DecryptResult(plaintext->GetLength(), scalingFactorInt);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

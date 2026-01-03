@@ -44,7 +44,7 @@
     #include "math/nbtheory-impl.h"
     #include "math/ternaryuniformgenerator-impl.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class DiscreteGaussianGeneratorImpl<M2Vector>;
 template class BinaryUniformGeneratorImpl<M2Vector>;
@@ -76,7 +76,7 @@ template std::shared_ptr<std::vector<int64_t>> GetDigits(const M2Integer& u, uin
 template class Matrix<M2Integer>;
 template class Matrix<M2Vector>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 CEREAL_CLASS_VERSION(M2Integer, M2Integer::SerializedVersion());
 CEREAL_CLASS_VERSION(M2Vector, M2Vector::SerializedVersion());

@@ -39,7 +39,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTBFVRNS_DECRYPT : public ::testing::TestWithParam<std::tuple<usint, usint>> {
 protected:

@@ -33,8 +33,8 @@
   Represents integer lattice elements with double-CRT
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_H
-#define LBCRYPTO_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_H
+#ifndef LUX_FHE_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_H
+#define LUX_FHE_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_H
 
 #include "lattice/hal/default/ildcrtparams.h"
 #include "lattice/hal/default/poly.h"
@@ -53,7 +53,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecType>
 class DCRTPolyImpl final : public DCRTPolyInterface<DCRTPolyImpl<VecType>, VecType, NativeVector, PolyImpl> {
@@ -152,14 +152,14 @@ public:
     DCRTPolyType Plus(const std::vector<Integer>& rhs) const;
     DCRTPolyType Plus(const DCRTPolyType& rhs) const override {
         if (m_params->GetRingDimension() != rhs.m_params->GetRingDimension())
-            OPENFHE_THROW("RingDimension missmatch");
+            LUX_FHE_THROW("RingDimension missmatch");
         if (m_format != rhs.m_format)
-            OPENFHE_THROW("Format missmatch");
+            LUX_FHE_THROW("Format missmatch");
         size_t size{m_vectors.size()};
         if (size != rhs.m_vectors.size())
-            OPENFHE_THROW("tower size mismatch; cannot add");
+            LUX_FHE_THROW("tower size mismatch; cannot add");
         if (m_vectors[0].GetModulus() != rhs.m_vectors[0].GetModulus())
-            OPENFHE_THROW("Modulus missmatch");
+            LUX_FHE_THROW("Modulus missmatch");
         DCRTPolyType tmp(m_params, m_format);
 #pragma omp parallel for num_threads(OpenFHEParallelControls.GetThreadLimit(size))
         for (size_t i = 0; i < size; ++i)
@@ -173,14 +173,14 @@ public:
 
     DCRTPolyType Times(const DCRTPolyType& rhs) const override {
         if (m_params->GetRingDimension() != rhs.m_params->GetRingDimension())
-            OPENFHE_THROW("RingDimension missmatch");
+            LUX_FHE_THROW("RingDimension missmatch");
         if (m_format != Format::EVALUATION || rhs.m_format != Format::EVALUATION)
-            OPENFHE_THROW("operator* for DCRTPolyImpl supported only in Format::EVALUATION");
+            LUX_FHE_THROW("operator* for DCRTPolyImpl supported only in Format::EVALUATION");
         size_t size{m_vectors.size()};
         if (size != rhs.m_vectors.size())
-            OPENFHE_THROW("tower size mismatch; cannot multiply");
+            LUX_FHE_THROW("tower size mismatch; cannot multiply");
         if (m_vectors[0].GetModulus() != rhs.m_vectors[0].GetModulus())
-            OPENFHE_THROW("Modulus missmatch");
+            LUX_FHE_THROW("Modulus missmatch");
         DCRTPolyType tmp(m_params, m_format);
 #pragma omp parallel for num_threads(OpenFHEParallelControls.GetThreadLimit(size))
         for (size_t i = 0; i < size; ++i)
@@ -343,7 +343,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_vectors));
@@ -397,6 +397,6 @@ protected:
     std::vector<PolyType> m_vectors;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

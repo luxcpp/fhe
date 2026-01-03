@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace security {
 
 // ============================================================================
@@ -460,4 +460,4 @@ uint64_t ct_sample_update(uint64_t current, uint64_t current_valid,
 }
 
 } // namespace security
-} // namespace lbcrypto
+} // namespace lux::fhe

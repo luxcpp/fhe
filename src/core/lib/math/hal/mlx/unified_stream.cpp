@@ -22,7 +22,7 @@
 #include <mach/mach.h>
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace unified {
 
@@ -1261,4 +1261,4 @@ double get_unified_memory_bandwidth_gbps() {
 
 }  // namespace unified
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe

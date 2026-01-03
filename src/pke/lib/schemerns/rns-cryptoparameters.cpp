@@ -40,7 +40,7 @@
 #include <utility>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void CryptoParametersRNS::PrecomputeCRTTables(KeySwitchTechnique ksTech, ScalingTechnique scalTech,
                                               EncryptionTechnique encTech, MultiplicationTechnique multTech,
@@ -77,7 +77,7 @@ void CryptoParametersRNS::PrecomputeCRTTables(KeySwitchTechnique ksTech, Scaling
     if (m_ksTechnique == HYBRID) {
         // numPartQ can not be zero as there is a division by numPartQ
         if (numPartQ == 0)
-            OPENFHE_THROW("numPartQ is zero");
+            LUX_FHE_THROW("numPartQ is zero");
 
         // Compute ceil(sizeQ/numPartQ), the # of towers per digit
         uint32_t a = static_cast<uint32_t>(std::ceil(static_cast<double>(sizeQ) / numPartQ));
@@ -85,7 +85,7 @@ void CryptoParametersRNS::PrecomputeCRTTables(KeySwitchTechnique ksTech, Scaling
             auto str = "HYBRID key switching parameters: Can't appropriately distribute " + std::to_string(sizeQ) +
                        " towers into " + std::to_string(numPartQ) +
                        " digits. Please select different number of digits.";
-            OPENFHE_THROW(str);
+            LUX_FHE_THROW(str);
         }
 
         m_numPerPartQ = a;
@@ -397,7 +397,7 @@ std::pair<double, uint32_t> CryptoParametersRNS::EstimateLogP(uint32_t numPartQ,
                                                               ScalingTechnique scalTech, bool addOne) {
     // numPartQ can not be zero as there is a division by numPartQ
     if (numPartQ == 0)
-        OPENFHE_THROW("numPartQ is zero");
+        LUX_FHE_THROW("numPartQ is zero");
 
     size_t sizeQ = numPrimes;
     if (extraModulusSize > 0)
@@ -412,7 +412,7 @@ std::pair<double, uint32_t> CryptoParametersRNS::EstimateLogP(uint32_t numPartQ,
     if (sizeQ <= (numPerPartQ * (numPartQ - 1))) {
         auto str = "HYBRID key switching parameters: Can't appropriately distribute " + std::to_string(sizeQ) +
                    " towers into " + std::to_string(numPartQ) + " digits. Please select different number of digits.";
-        OPENFHE_THROW(str);
+        LUX_FHE_THROW(str);
     }
 
     // create a vector with the same value of bit sizes
@@ -445,4 +445,4 @@ std::pair<double, uint32_t> CryptoParametersRNS::EstimateLogP(uint32_t numPartQ,
     return std::make_pair(sizeP * auxBits, sizeP);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

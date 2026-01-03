@@ -33,10 +33,10 @@
   Definition of serialization type
  */
 
-#ifndef LBCRYPTO_SERTYPE_H
-#define LBCRYPTO_SERTYPE_H
+#ifndef LUX_FHE_SERTYPE_H
+#define LUX_FHE_SERTYPE_H
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 namespace SerType {
 
@@ -48,6 +48,6 @@ static const SERBINARY BINARY;  // should be const static to avoid compilation f
 
 }  // namespace SerType
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

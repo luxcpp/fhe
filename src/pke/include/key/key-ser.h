@@ -33,16 +33,16 @@
   serialize keys; include this in any app that needs to serialize these objects
  */
 
-#ifndef LBCRYPTO_CRYPTO_KEY_KEY_SER_H
-#define LBCRYPTO_CRYPTO_KEY_KEY_SER_H
+#ifndef LUX_FHE_CRYPTO_KEY_KEY_SER_H
+#define LUX_FHE_CRYPTO_KEY_KEY_SER_H
 
 #include "key/evalkeyrelin.h"
 #include "utils/serial.h"
 
-CEREAL_REGISTER_TYPE(lbcrypto::EvalKeyImpl<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::EvalKeyRelinImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lux::fhe::EvalKeyImpl<lux::fhe::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lux::fhe::EvalKeyRelinImpl<lux::fhe::DCRTPoly>);
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::EvalKeyImpl<lbcrypto::DCRTPoly>,
-                                     lbcrypto::EvalKeyRelinImpl<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::EvalKeyImpl<lux::fhe::DCRTPoly>,
+                                     lux::fhe::EvalKeyRelinImpl<lux::fhe::DCRTPoly>);
 
 #endif

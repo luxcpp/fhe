@@ -32,7 +32,7 @@
 
 #include "cryptocontext.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 const std::shared_ptr<CryptoParametersBase<Element>> CryptoObject<Element>::GetCryptoParameters() const {
@@ -46,4 +46,4 @@ const EncodingParams CryptoObject<Element>::GetEncodingParameters() const {
 
 template class CryptoObject<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -33,8 +33,8 @@
   This code provides generation of a uniform distribution of binary values (modulus 2)
  */
 
-#ifndef LBCRYPTO_INC_MATH_TERNARYUNIFORMGENERATOR_IMPL_H_
-#define LBCRYPTO_INC_MATH_TERNARYUNIFORMGENERATOR_IMPL_H_
+#ifndef LUX_FHE_INC_MATH_TERNARYUNIFORMGENERATOR_IMPL_H_
+#define LUX_FHE_INC_MATH_TERNARYUNIFORMGENERATOR_IMPL_H_
 
 #include "math/binaryuniformgenerator.h"
 #include "math/ternaryuniformgenerator.h"
@@ -44,7 +44,7 @@
 #include <memory>
 #include <random>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecType>
 std::uniform_int_distribution<int> TernaryUniformGeneratorImpl<VecType>::m_distribution =
@@ -156,6 +156,6 @@ std::shared_ptr<int32_t> TernaryUniformGeneratorImpl<VecType>::GenerateIntVector
     return ans;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

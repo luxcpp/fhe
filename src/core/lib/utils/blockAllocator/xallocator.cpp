@@ -291,7 +291,7 @@ Allocator* xallocator_get_allocator(size_t size) {
     auto it = _allocators.lower_bound(blockSize);
     if (it != _allocators.end())
         return it->second;
-    OPENFHE_THROW("Exceeded max block size");
+    LUX_FHE_THROW("Exceeded max block size");
 }
 
 /// Allocates a memory block of the requested size. The blocks are created from

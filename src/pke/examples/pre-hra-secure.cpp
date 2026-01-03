@@ -36,7 +36,7 @@
 #define PROFILE  // for TIC TOC
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 using CT = Ciphertext<DCRTPoly>;  // ciphertext
 using PT = Plaintext;             // plaintext

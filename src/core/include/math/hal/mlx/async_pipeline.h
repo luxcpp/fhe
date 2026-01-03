@@ -20,8 +20,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // =============================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_ASYNC_PIPELINE_H
-#define LBCRYPTO_MATH_HAL_MLX_ASYNC_PIPELINE_H
+#ifndef LUX_FHE_MATH_HAL_MLX_ASYNC_PIPELINE_H
+#define LUX_FHE_MATH_HAL_MLX_ASYNC_PIPELINE_H
 
 #include <cstdint>
 #include <vector>
@@ -40,7 +40,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 #ifdef WITH_MLX
@@ -669,6 +669,6 @@ private:
 #endif // WITH_MLX
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_ASYNC_PIPELINE_H
+#endif // LUX_FHE_MATH_HAL_MLX_ASYNC_PIPELINE_H

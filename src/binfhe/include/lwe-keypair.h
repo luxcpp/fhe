@@ -45,7 +45,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief Class that stores the LWE scheme secret key, public key pair; ((A, b), s)
  */
@@ -62,6 +62,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _LWE_KEYPAIR_H_

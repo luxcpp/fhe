@@ -19,7 +19,7 @@
 #include <unordered_map>
 #include <mutex>
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace metal {
 
@@ -63,7 +63,7 @@ void clear_cache() {
 
 } // namespace metal
 } // namespace gpu
-} // namespace lbcrypto
+} // namespace lux
 #endif // __APPLE__
 
 // =============================================================================
@@ -74,7 +74,7 @@ extern "C" {
 
 bool fhe_gpu_available(void) {
 #ifdef WITH_MLX
-    return lbcrypto::mlx_backend::IsMLXAvailable();
+    return lux::mlx_backend::IsMLXAvailable();
 #else
     return false;
 #endif
@@ -82,14 +82,14 @@ bool fhe_gpu_available(void) {
 
 const char* fhe_get_backend(void) {
 #ifdef __APPLE__
-    if (lbcrypto::gpu::metal::is_native_metal_available()) {
+    if (lux::gpu::metal::is_native_metal_available()) {
         return "Metal (Native)";
     }
 #endif
 #ifdef WITH_MLX
-    if (lbcrypto::mlx_backend::IsMLXAvailable()) {
+    if (lux::mlx_backend::IsMLXAvailable()) {
         static std::string device_name;
-        device_name = lbcrypto::mlx_backend::GetDeviceName();
+        device_name = lux::mlx_backend::GetDeviceName();
         return device_name.c_str();
     }
 #endif
@@ -99,9 +99,9 @@ const char* fhe_get_backend(void) {
 int fhe_ntt_forward(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
 #ifdef __APPLE__
     // Try native Metal first (13x faster)
-    if (lbcrypto::gpu::metal::is_native_metal_available()) {
+    if (lux::gpu::metal::is_native_metal_available()) {
         try {
-            auto* d = lbcrypto::gpu::metal::get_dispatcher(N, Q);
+            auto* d = lux::gpu::metal::get_dispatcher(N, Q);
             if (d && d->is_available()) {
                 d->forward(data, batch);
                 return 0;
@@ -111,7 +111,7 @@ int fhe_ntt_forward(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
 #endif
     // Fall back to MLX (handles Metal/CUDA/CPU)
 #ifdef WITH_MLX
-    return lbcrypto::mlx_backend::ntt_forward(data, N, Q, batch);
+    return lux::mlx_backend::ntt_forward(data, N, Q, batch);
 #else
     return -1;
 #endif
@@ -119,9 +119,9 @@ int fhe_ntt_forward(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
 
 int fhe_ntt_inverse(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
 #ifdef __APPLE__
-    if (lbcrypto::gpu::metal::is_native_metal_available()) {
+    if (lux::gpu::metal::is_native_metal_available()) {
         try {
-            auto* d = lbcrypto::gpu::metal::get_dispatcher(N, Q);
+            auto* d = lux::gpu::metal::get_dispatcher(N, Q);
             if (d && d->is_available()) {
                 d->inverse(data, batch);
                 return 0;
@@ -130,7 +130,7 @@ int fhe_ntt_inverse(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
     }
 #endif
 #ifdef WITH_MLX
-    return lbcrypto::mlx_backend::ntt_inverse(data, N, Q, batch);
+    return lux::mlx_backend::ntt_inverse(data, N, Q, batch);
 #else
     return -1;
 #endif
@@ -139,9 +139,9 @@ int fhe_ntt_inverse(uint64_t* data, uint32_t N, uint64_t Q, uint32_t batch) {
 int fhe_pointwise_mul(uint64_t* result, const uint64_t* a, const uint64_t* b,
                       uint32_t N, uint64_t Q, uint32_t batch) {
 #ifdef __APPLE__
-    if (lbcrypto::gpu::metal::is_native_metal_available()) {
+    if (lux::gpu::metal::is_native_metal_available()) {
         try {
-            auto* d = lbcrypto::gpu::metal::get_dispatcher(N, Q);
+            auto* d = lux::gpu::metal::get_dispatcher(N, Q);
             if (d && d->is_available()) {
                 d->pointwise_mul(result, a, b, batch);
                 return 0;
@@ -150,7 +150,7 @@ int fhe_pointwise_mul(uint64_t* result, const uint64_t* a, const uint64_t* b,
     }
 #endif
 #ifdef WITH_MLX
-    return lbcrypto::mlx_backend::pointwise_mul(result, a, b, N, Q, batch);
+    return lux::mlx_backend::pointwise_mul(result, a, b, N, Q, batch);
 #else
     return -1;
 #endif
@@ -158,17 +158,17 @@ int fhe_pointwise_mul(uint64_t* result, const uint64_t* a, const uint64_t* b,
 
 void fhe_clear_cache(void) {
 #ifdef __APPLE__
-    lbcrypto::gpu::metal::clear_cache();
+    lux::gpu::metal::clear_cache();
 #endif
 #ifdef WITH_MLX
-    lbcrypto::mlx_backend::clear_cache();
+    lux::mlx_backend::clear_cache();
 #endif
 }
 
 // Legacy Metal-specific API (for backwards compatibility)
 bool metal_ntt_available(void) {
 #ifdef __APPLE__
-    return lbcrypto::gpu::metal::is_native_metal_available();
+    return lux::gpu::metal::is_native_metal_available();
 #else
     return false;
 #endif

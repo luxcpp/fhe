@@ -19,8 +19,8 @@
 //
 // =============================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_UNIFIED_STREAM_H
-#define LBCRYPTO_MATH_HAL_MLX_UNIFIED_STREAM_H
+#ifndef LUX_FHE_MATH_HAL_MLX_UNIFIED_STREAM_H
+#define LUX_FHE_MATH_HAL_MLX_UNIFIED_STREAM_H
 
 #include <cstdint>
 #include <memory>
@@ -41,7 +41,7 @@ namespace mx = mlx::core;
 #endif
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace unified {
 
@@ -531,6 +531,6 @@ double get_unified_memory_bandwidth_gbps();
 
 }  // namespace unified
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_UNIFIED_STREAM_H
+#endif // LUX_FHE_MATH_HAL_MLX_UNIFIED_STREAM_H

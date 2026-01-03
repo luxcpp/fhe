@@ -34,7 +34,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class SchemeletRLWEMP {
     using DggType = typename DCRTPoly::DggType;
@@ -67,4 +67,4 @@ public:
     static BigInteger GetQPrime(const PublicKey<DCRTPoly>& pubKey, uint32_t lvls);
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

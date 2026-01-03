@@ -35,8 +35,8 @@
 
 #include "utils/openfhebase64.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 const char to_base64_char[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */

@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <typename V>
 static void add_BigVec(const V& a, const V& b) {

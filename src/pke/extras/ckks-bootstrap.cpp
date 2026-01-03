@@ -40,7 +40,7 @@ Example for CKKS bootstrapping
 #include "openfhe.h"
 
 using namespace std;
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void BootstrapExample(SecretKeyDist secretKeyDist, uint32_t n, uint32_t slots, uint32_t levelsRemaining);
 // same example with verbose console output removed

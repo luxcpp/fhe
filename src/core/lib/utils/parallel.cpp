@@ -35,7 +35,7 @@
 
 #include "utils/parallel.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 ParallelControls OpenFHEParallelControls;
 

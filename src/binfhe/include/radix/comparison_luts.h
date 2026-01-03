@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace radix {
 
 /**
@@ -287,6 +287,6 @@ static_assert(KoggeStoneLevels(64) == 6, "euint128: 64 limbs -> 6 levels");
 static_assert(KoggeStoneLevels(128) == 7, "euint256: 128 limbs -> 7 levels");
 
 } // namespace radix
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // RADIX_COMPARISON_LUTS_H

@@ -45,7 +45,7 @@
 #include "time.h"
 #include "math/math-hal.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // define the main sections of the test
 void test_NTT(const usint level, const usint nloop);  // test code

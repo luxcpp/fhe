@@ -44,7 +44,7 @@
 
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <typename T>
 void bigint(const std::string& msg) {
@@ -103,17 +103,17 @@ TEST(UTSer, hugeint) {
 
 template <typename V>
 void vector_of_bigint(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     const int vecsize = 100;
 
-    OPENFHE_DEBUG("step 0");
+    LUX_FHE_DEBUG("step 0");
     typename V::Integer mod((uint64_t)1 << 40);
 
-    OPENFHE_DEBUG("step 1");
+    LUX_FHE_DEBUG("step 1");
     V testvec(vecsize, mod);
-    OPENFHE_DEBUG("step 2");
+    LUX_FHE_DEBUG("step 2");
     DiscreteUniformGeneratorImpl<V> dug;
-    OPENFHE_DEBUG("step 3");
+    LUX_FHE_DEBUG("step 3");
     dug.SetModulus(mod);
     typename V::Integer ranval;
 
@@ -246,21 +246,21 @@ TEST(UTSer, ildcrtpoly_test) {
 ////////////////////////////////////////////////////////////
 template <typename V>
 void serialize_matrix_bigint(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     // dimensions of matrix.
     const int nrows = 4;
     const int ncols = 8;
 
-    OPENFHE_DEBUG("step 0");
+    LUX_FHE_DEBUG("step 0");
     const typename V::Integer mod((uint64_t)1 << 40);
 
-    OPENFHE_DEBUG("step 1");
+    LUX_FHE_DEBUG("step 1");
     Matrix<typename V::Integer> testmat(V::Integer::Allocator, nrows, ncols);
 
-    OPENFHE_DEBUG("step 2");
+    LUX_FHE_DEBUG("step 2");
     DiscreteUniformGeneratorImpl<V> dug;
 
-    OPENFHE_DEBUG("step 3");
+    LUX_FHE_DEBUG("step 3");
     dug.SetModulus(mod);
     typename V::Integer ranval;
 
@@ -272,7 +272,7 @@ void serialize_matrix_bigint(const std::string& msg) {
         }
     }
 
-    OPENFHE_DEBUG("step 4");
+    LUX_FHE_DEBUG("step 4");
     // serialize the Matrix
 
     std::stringstream ss;
@@ -283,17 +283,17 @@ void serialize_matrix_bigint(const std::string& msg) {
         std::cout << Serial::SerializeToString(testmat) << std::endl;
     }
 #endif
-    OPENFHE_DEBUG("step 5");
+    LUX_FHE_DEBUG("step 5");
 
     // empty matrix
     Matrix<typename V::Integer> newmat(V::Integer::Allocator, 0, 0);
 
     Serial::Deserialize(newmat, ss, SerType::BINARY);
 
-    OPENFHE_DEBUG("step 9");
+    LUX_FHE_DEBUG("step 9");
     EXPECT_EQ(testmat, newmat) << msg << " Mismatch after ser/deser";
-    OPENFHE_DEBUGEXP(testmat);
-    OPENFHE_DEBUGEXP(newmat);
+    LUX_FHE_DEBUGEXP(testmat);
+    LUX_FHE_DEBUGEXP(newmat);
 }
 
 TEST(UTSer, serialize_matrix_bigint) {

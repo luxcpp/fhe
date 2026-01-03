@@ -33,8 +33,8 @@
   Header for the standard values for Lattice Parms, as determined by homomorphicencryption.org
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_STDLATTICEPARMS_H
-#define LBCRYPTO_INC_LATTICE_STDLATTICEPARMS_H
+#ifndef LUX_FHE_INC_LATTICE_STDLATTICEPARMS_H
+#define LUX_FHE_INC_LATTICE_STDLATTICEPARMS_H
 
 //  #include "math/math-hal.h"
 
@@ -46,7 +46,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // this is the representation of the standard lattice parameters defined in the
 // Homomorphic Encryption Standard, as defined by
@@ -157,6 +157,6 @@ public:
     }
 };
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */
 
 #endif

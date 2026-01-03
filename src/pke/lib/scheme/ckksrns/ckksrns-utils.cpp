@@ -39,7 +39,7 @@
 #include <functional>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 namespace {  // this namespace should stay unnamed
 
@@ -108,7 +108,7 @@ uint32_t GetDepthByDegree(size_t d) {
         return std::upper_bound(rangemap.begin(), rangemap.end(), d,
                                 [](uint32_t v, const std::pair<uint32_t, uint32_t>& r) { return v <= r.first; })
             ->second;
-    OPENFHE_THROW("degree " + std::to_string(d) + " not in range [" + std::to_string(LOWER_BOUND_DEGREE) + ", " +
+    LUX_FHE_THROW("degree " + std::to_string(d) + " not in range [" + std::to_string(LOWER_BOUND_DEGREE) + ", " +
                   std::to_string(UPPER_BOUND_DEGREE) + "].");
 }
 template struct longDiv<int64_t>;
@@ -124,10 +124,10 @@ std::shared_ptr<longDiv<VectorDataType>> LongDivisionPoly(const std::vector<Vect
                                                           const std::vector<VectorDataType>& g) {
     auto n = Degree(f);
     if (n != f.size() - 1)
-        OPENFHE_THROW("The dominant coefficient of the divident is zero");
+        LUX_FHE_THROW("The dominant coefficient of the divident is zero");
     auto k = Degree(g);
     if (k != g.size() - 1)
-        OPENFHE_THROW("The dominant coefficient of the divisor is zero");
+        LUX_FHE_THROW("The dominant coefficient of the divisor is zero");
     if (n < k)
         return std::make_shared<longDiv<VectorDataType>>(std::vector<VectorDataType>(1), f);
 
@@ -181,10 +181,10 @@ std::shared_ptr<longDiv<VectorDataType>> LongDivisionChebyshev(const std::vector
                                                                const std::vector<VectorDataType>& g) {
     auto n = Degree(f);
     if (n != f.size() - 1)
-        OPENFHE_THROW("The dominant coefficient of the divident is zero");
+        LUX_FHE_THROW("The dominant coefficient of the divident is zero");
     auto k = Degree(g);
     if (k != g.size() - 1)
-        OPENFHE_THROW("The dominant coefficient of the divisor is zero");
+        LUX_FHE_THROW("The dominant coefficient of the divisor is zero");
     if (n < k)
         return std::make_shared<longDiv<VectorDataType>>(std::vector<VectorDataType>(1), f);
 
@@ -295,7 +295,7 @@ template std::shared_ptr<longDiv<std::complex<double>>> LongDivisionChebyshev(
  */
 std::vector<uint32_t> ComputeDegreesPS(uint32_t n) {
     if (n == 0)
-        OPENFHE_THROW("ComputeDegreesPS: The degree is zero. There is no need to evaluate the polynomial.");
+        LUX_FHE_THROW("ComputeDegreesPS: The degree is zero. There is no need to evaluate the polynomial.");
 
     // clang-format off
     constexpr uint32_t UPPER_BOUND_PS = 2204;
@@ -520,9 +520,9 @@ std::vector<std::vector<std::vector<std::complex<double>>>> CoeffEncodingCollaps
     bool flag_i) {
     const uint32_t slots = rotGroup.size();
     if (!slots)
-        OPENFHE_THROW("rotGroup can not be empty");
+        LUX_FHE_THROW("rotGroup can not be empty");
     if (!levelBudget)
-        OPENFHE_THROW("levelBudget can not be 0");
+        LUX_FHE_THROW("levelBudget can not be 0");
 
     const uint32_t log2slots = static_cast<uint32_t>(std::log2(slots));
     // Need to compute how many layers are collapsed in each of the level from the budget.
@@ -557,7 +557,7 @@ std::vector<std::vector<std::vector<std::complex<double>>>> CoeffEncodingCollaps
         for (int32_t s = dimCollapse - 1; s >= static_cast<int32_t>(flagRem); --s) {
             // top is an index, so it can't be negative. let's check that
             if (log2slots < (dimCollapse - 1 - s) * layersCollapse + 1)
-                OPENFHE_THROW("top can not be negative");
+                LUX_FHE_THROW("top can not be negative");
             uint32_t top = log2slots - (dimCollapse - 1 - s) * layersCollapse - 1;
 
             coeff[s][0] = coeff1[top];
@@ -586,7 +586,7 @@ std::vector<std::vector<std::vector<std::complex<double>>>> CoeffEncodingCollaps
         uint32_t s = 0;
         // top is an index, so it can't be negative. let's check that
         if (log2slots < (dimCollapse - 1 - s) * layersCollapse - 1)
-            OPENFHE_THROW("top can not be negative");
+            LUX_FHE_THROW("top can not be negative");
         uint32_t top = log2slots - (dimCollapse - 1 - s) * layersCollapse - 1;
 
         coeff[s][0] = coeff1[top];
@@ -615,9 +615,9 @@ std::vector<std::vector<std::vector<std::complex<double>>>> CoeffDecodingCollaps
     bool flag_i) {
     const uint32_t slots = rotGroup.size();
     if (!slots)
-        OPENFHE_THROW("rotGroup can not be empty");
+        LUX_FHE_THROW("rotGroup can not be empty");
     if (!levelBudget)
-        OPENFHE_THROW("levelBudget can not be 0");
+        LUX_FHE_THROW("levelBudget can not be 0");
 
     const uint32_t log2slots = static_cast<uint32_t>(std::log2(slots));
 
@@ -699,9 +699,9 @@ std::vector<std::vector<std::vector<std::complex<double>>>> CoeffDecodingCollaps
 
 std::vector<int32_t> GetCollapsedFFTParams(uint32_t slots, uint32_t levelBudget, uint32_t dim1) {
     if (slots == 0)
-        OPENFHE_THROW("slots can not be 0");
+        LUX_FHE_THROW("slots can not be 0");
     if (levelBudget == 0)
-        OPENFHE_THROW("levelBudget can not be 0");
+        LUX_FHE_THROW("levelBudget can not be 0");
 
     // even for the case of (slots = 1) we need one level for rescaling as (std::log2(1) = 0)
     uint32_t logSlots = (slots < 3) ? 1 : std::log2(slots);
@@ -821,4 +821,4 @@ std::vector<int32_t> FindLTRotationIndicesSwitchArgmin(uint32_t m, uint32_t bloc
     return indexList;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

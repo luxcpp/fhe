@@ -36,7 +36,7 @@
 #include <iosfwd>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Lists all modes for RLWE schemes, such as BGV and BFV, and for LWE schemes, such as DM and TFHE
@@ -55,6 +55,6 @@ SecretKeyDist convertToSecretKeyDist(uint32_t num);
 
 std::ostream& operator<<(std::ostream& s, SecretKeyDist m);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _CONSTANTS_LATTICE_H_

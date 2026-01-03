@@ -33,7 +33,7 @@
 
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Key generation as described in https://eprint.iacr.org/2022/198
 RingGSWACCKey RingGSWAccumulatorLMKCDEY::KeyGenAcc(const std::shared_ptr<RingGSWCryptoParams>& params,
@@ -286,4 +286,4 @@ void RingGSWAccumulatorLMKCDEY::Automorphism(const std::shared_ptr<RingGSWCrypto
         acc->GetElements()[1] += (dcta[d] *= ev[d][1]);
 }
 
-};  // namespace lbcrypto
+};  // namespace lux::fhe

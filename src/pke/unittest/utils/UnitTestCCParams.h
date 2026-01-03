@@ -41,7 +41,7 @@ enum { DFLT = -999 };  // enum for test cases if you want to use the default val
 
 //===========================================================================================================
 struct UnitTestCCParams {
-    lbcrypto::SCHEME schemeId = lbcrypto::INVALID_SCHEME;  // mandatory field indicating what scheme is used
+    lux::fhe::SCHEME schemeId = lux::fhe::INVALID_SCHEME;  // mandatory field indicating what scheme is used
 
     // all double values are just data holders. Having them we can use parameters' default values
     double ringDimension           = DFLT;  // CKKSRNS, BFVRNS, BGVRNS

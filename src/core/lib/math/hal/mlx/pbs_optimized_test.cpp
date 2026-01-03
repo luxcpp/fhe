@@ -26,7 +26,7 @@
 #include "euint256_pbs_integration.h"
 namespace mx = mlx::core;
 
-using namespace lbcrypto::gpu;
+using namespace lux::fhe::gpu;
 
 // =============================================================================
 // Test Helpers

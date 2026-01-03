@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_CKKSRNS_SCHEMESWITCH_H
-#define LBCRYPTO_CRYPTO_CKKSRNS_SCHEMESWITCH_H
+#ifndef LUX_FHE_CRYPTO_CKKSRNS_SCHEMESWITCH_H
+#define LUX_FHE_CRYPTO_CKKSRNS_SCHEMESWITCH_H
 
 #include "binfhecontext.h"
 #include "constants.h"
@@ -46,10 +46,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class SWITCHCKKSRNS : public FHERNS {
     using ParmType = typename DCRTPoly::Params;
@@ -116,10 +116,10 @@ public:
                                                                 uint32_t numSlots, uint32_t pLWE,
                                                                 double scaleSign) override;
 
-    std::shared_ptr<lbcrypto::BinFHEContext> GetBinCCForSchemeSwitch() override {
+    std::shared_ptr<lux::fhe::BinFHEContext> GetBinCCForSchemeSwitch() override {
         return m_ccLWE;
     }
-    void SetBinCCForSchemeSwitch(std::shared_ptr<lbcrypto::BinFHEContext> ccLWE) override {
+    void SetBinCCForSchemeSwitch(std::shared_ptr<lux::fhe::BinFHEContext> ccLWE) override {
         m_ccLWE = ccLWE;
     }
     Ciphertext<DCRTPoly> GetSwkFC() override {
@@ -290,6 +290,6 @@ private:
     std::vector<ReadOnlyPlaintext> m_U0Pre;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

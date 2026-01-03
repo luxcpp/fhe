@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BFVRNS_LEVELEDSHE_H
-#define LBCRYPTO_CRYPTO_BFVRNS_LEVELEDSHE_H
+#ifndef LUX_FHE_CRYPTO_BFVRNS_LEVELEDSHE_H
+#define LUX_FHE_CRYPTO_BFVRNS_LEVELEDSHE_H
 
 #include "schemerns/rns-leveledshe.h"
 
@@ -40,10 +40,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class LeveledSHEBFVRNS : public LeveledSHERNS {
 public:
@@ -166,6 +166,6 @@ public:
 private:
     void RelinearizeCore(Ciphertext<DCRTPoly>& ciphertext, const EvalKey<DCRTPoly> evalKey) const;
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

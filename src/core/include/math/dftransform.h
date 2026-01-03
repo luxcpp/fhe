@@ -33,8 +33,8 @@
   This code contains the discrete fourier transform definitions
  */
 
-#ifndef LBCRYPTO_INC_MATH_DFTRANSFORM_H
-#define LBCRYPTO_INC_MATH_DFTRANSFORM_H
+#ifndef LUX_FHE_INC_MATH_DFTRANSFORM_H
+#define LUX_FHE_INC_MATH_DFTRANSFORM_H
 
 #include <complex>
 #include <cstdint>
@@ -45,7 +45,7 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Discrete Fourier Transform FFT implementation.
@@ -130,6 +130,6 @@ private:
     static void BitReverse(std::vector<std::complex<double>>& vals);
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

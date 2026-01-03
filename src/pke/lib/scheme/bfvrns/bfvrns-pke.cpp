@@ -41,7 +41,7 @@ BFV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include "scheme/bfvrns/bfvrns-cryptoparameters.h"
 #include "scheme/bfvrns/bfvrns-pke.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 KeyPair<DCRTPoly> PKEBFVRNS::KeyGenInternal(CryptoContext<DCRTPoly> cc, bool makeSparse) const {
     KeyPair<DCRTPoly> keyPair(std::make_shared<PublicKeyImpl<DCRTPoly>>(cc),
@@ -270,4 +270,4 @@ DecryptResult PKEBFVRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const Pri
     return DecryptResult(plaintext->GetLength());
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

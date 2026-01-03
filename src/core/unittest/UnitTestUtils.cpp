@@ -39,7 +39,7 @@
 
 #include "utils/utilities.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 TEST(Utilities, IsPowerOfTwo) {
     std::vector<usint> powers_of_two{1, 2, 4, 8, 16, 32, 512, 1024, 2048, 4096, 16384, 32768};

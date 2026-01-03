@@ -30,7 +30,7 @@ namespace mx = mlx::core;
 #include "ntt.h"
 #include "ntt_fourstep.h"
 
-using namespace lbcrypto::gpu;
+using namespace lux::fhe::gpu;
 
 // Benchmark result structure
 struct BenchResult {

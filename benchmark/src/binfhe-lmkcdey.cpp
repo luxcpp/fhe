@@ -36,7 +36,7 @@
 #include "benchmark/benchmark.h"
 #include "binfhecontext.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /*
  * Context setup utility methods

@@ -39,8 +39,8 @@
                Cons : need to double dimension,N, or reduce size of ciphertext modulus, Q, by a factor of 2
 
 */
-#ifndef LBCRYPTO_CRYPTO_KEYSWITCH_HYBRID_H
-#define LBCRYPTO_CRYPTO_KEYSWITCH_HYBRID_H
+#ifndef LUX_FHE_CRYPTO_KEYSWITCH_HYBRID_H
+#define LUX_FHE_CRYPTO_KEYSWITCH_HYBRID_H
 
 #include "keyswitch/keyswitch-rns.h"
 #include "schemebase/rlwe-cryptoparameters.h"
@@ -50,10 +50,10 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Hybrid Keyswitching as described in [
@@ -127,6 +127,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

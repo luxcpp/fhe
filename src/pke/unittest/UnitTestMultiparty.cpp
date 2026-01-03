@@ -39,7 +39,7 @@
 #include <sstream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 //===========================================================================================================
 enum TEST_CASE_TYPE : int {
@@ -419,7 +419,7 @@ protected:
             std::vector<PrivateKey<Element>> secretKeys{kp1.secretKey, kp2.secretKey};
             KeyPair<Element> kpMultiparty = cc->MultipartyKeyGen(secretKeys);
             if (!kpMultiparty.good())
-                OPENFHE_THROW("Key generation failed");
+                LUX_FHE_THROW("Key generation failed");
 
             ////////////////////////////////////////////////////////////
             // Encode source data

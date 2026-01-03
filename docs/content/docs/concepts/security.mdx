@@ -1,0 +1,285 @@
+---
+title: Security
+description: Security foundations and parameter selection for FHE
+---
+
+# Security
+
+lux-fhe security is based on the hardness of lattice problems, which are believed to be resistant to both classical and quantum attacks.
+
+## Lattice-Based Security
+
+### Learning With Errors (LWE)
+
+The fundamental hard problem underlying FHE security:
+
+```
+Given: (A, b = A·s + e) where
+  - A is an m×n random matrix
+  - s is an n-dimensional secret vector
+  - e is a small error vector
+
+Task: Find s
+
+This is computationally hard when:
+  - n is sufficiently large
+  - Error distribution is appropriate
+  - Modulus q is chosen correctly
+```
+
+### Ring-LWE
+
+lux-fhe uses Ring-LWE, which operates over polynomial rings for efficiency:
+
+```
+Ring: R = Z[X]/(X^n + 1) where n is a power of 2
+
+Given: (a, b = a·s + e) in R_q
+Task: Find s
+
+Hardness: Related to worst-case hardness of ideal lattice problems
+```
+
+## Security Levels
+
+lux-fhe supports standard security levels:
+
+| Security Level | Bits | Quantum Resistance | Ring Dimension |
+|---------------|------|-------------------|----------------|
+| Standard | 128 | 64-bit post-quantum | 4096-8192 |
+| High | 192 | 96-bit post-quantum | 8192-16384 |
+| Very High | 256 | 128-bit post-quantum | 16384-32768 |
+
+### Parameter Selection
+
+```cpp
+// 128-bit security (recommended default)
+auto ctx = lux::fhe::BGVContext::Create({
+    .security = 128,  // Automatic parameter selection
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537
+});
+
+// Or explicit parameters
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .coeff_modulus_bits = {60, 40, 40, 40, 60},  // Total ~240 bits
+    // Security estimated at 128 bits for these parameters
+});
+```
+
+## Security Estimation
+
+### Lattice Estimator
+
+lux-fhe uses the Lattice Estimator for security analysis:
+
+```cpp
+// Get security estimate for current parameters
+auto security = ctx->EstimateSecurity();
+std::cout << "Classical security: " << security.classical << " bits\n";
+std::cout << "Quantum security: " << security.quantum << " bits\n";
+
+// Output:
+// Classical security: 134 bits
+// Quantum security: 121 bits
+```
+
+### Attack Costs
+
+| Attack | Complexity | Status |
+|--------|-----------|--------|
+| LLL/BKZ | 2^(0.292·β) | Classical |
+| Quantum BKZ | 2^(0.265·β) | Quantum |
+| Dual attack | Similar | Classical |
+| Arora-Ge | Subexponential | Requires large error |
+
+## Key Security
+
+### Secret Key Protection
+
+```cpp
+// Generate and protect secret key
+auto sk = ctx->GenerateSecretKey();
+
+// Secure key storage
+ctx->SaveSecretKey(sk, "secret.key", {
+    .encryption = true,             // Encrypt with password
+    .key_derivation = "argon2id",   // Strong KDF
+    .memory_cost = 65536,           // 64 MB
+    .iterations = 3
+});
+
+// Secure key loading
+auto sk = ctx->LoadSecretKey("secret.key", password);
+```
+
+### Key Rotation
+
+```cpp
+// Periodic key rotation
+auto new_sk = ctx->GenerateSecretKey();
+auto new_pk = ctx->GeneratePublicKey(new_sk);
+
+// Re-encrypt under new key (requires decryption)
+// Or use key switching (homomorphic)
+auto ksk = ctx->GenerateKeySwitchingKey(old_sk, new_sk);
+auto new_ct = ctx->KeySwitch(old_ct, ksk);
+```
+
+## Operational Security
+
+### Memory Protection
+
+```cpp
+// Secure memory handling
+lux::fhe::SecureContext ctx({
+    .lock_memory = true,      // Prevent swapping
+    .zero_on_free = true,     // Wipe deallocated memory
+    .guard_pages = true       // Detect buffer overflows
+});
+
+// Manual secure wipe
+lux::fhe::SecureWipe(sensitive_data.data(), sensitive_data.size());
+```
+
+### Side-Channel Protection
+
+```cpp
+// Constant-time operations (default)
+auto ctx = lux::fhe::BGVContext::Create({
+    .constant_time = true  // Prevent timing attacks
+});
+
+// Operations are constant-time regardless of:
+// - Plaintext values
+// - Secret key bits
+// - Noise magnitude
+```
+
+## Threat Model
+
+### What FHE Protects Against
+
+✅ **Protected:**
+- Server learning plaintext data
+- Malicious cloud providers
+- Database breaches
+- Network eavesdropping
+
+### What FHE Does NOT Protect Against
+
+❌ **Not protected:**
+- Access pattern leakage (requires ORAM)
+- Ciphertext size leakage
+- Computation pattern leakage
+- Client-side compromises
+
+### Circuit Privacy
+
+Standard FHE reveals the computation structure:
+
+```cpp
+// Server learns that you computed: result = a + b * c
+auto ct_a = receive_from_client();
+auto ct_b = receive_from_client();
+auto ct_c = receive_from_client();
+
+auto temp = ctx->Mul(ct_b, ct_c);  // Server knows mult happened
+auto result = ctx->Add(ct_a, temp); // Server knows add happened
+```
+
+For circuit privacy, use additional techniques:
+- Garbled circuits
+- Oblivious RAM (ORAM)
+- Private function evaluation
+
+## Cryptographic Assumptions
+
+### Primary Assumptions
+
+1. **Ring-LWE Hardness**: Finding s from (a, a·s + e) is hard
+2. **NTRU Assumption**: For key generation in some schemes
+3. **Circular Security**: Encrypting key under itself is safe
+
+### Assumption Strength
+
+| Assumption | Classical | Post-Quantum | Notes |
+|------------|-----------|--------------|-------|
+| Ring-LWE | Strong | Strong | Worst-case reduction |
+| NTRU | Strong | Strong | Long history |
+| Circular | Moderate | Moderate | Heuristic only |
+
+## Compliance and Standards
+
+### Relevant Standards
+
+- **NIST Post-Quantum**: lux-fhe parameters align with NIST recommendations
+- **HomomorphicEncryption.org**: Security standards compliance
+- **ISO/IEC 18033**: Encryption algorithm standards
+
+### Security Certifications
+
+```cpp
+// FIPS-compatible mode
+auto ctx = lux::fhe::BGVContext::Create({
+    .fips_mode = true,
+    // Uses NIST-approved random number generation
+    // Enforces minimum security levels
+});
+```
+
+## Best Practices
+
+### 1. Use Recommended Parameters
+
+```cpp
+// Let the library choose secure parameters
+auto ctx = lux::fhe::CreateSecureContext({
+    .security_level = 128,
+    .scheme = lux::fhe::Scheme::BGV
+});
+// Parameters automatically selected for security level
+```
+
+### 2. Verify Parameter Security
+
+```cpp
+// Always verify before deployment
+auto params = ctx->GetParameters();
+auto security = ctx->EstimateSecurity();
+
+assert(security.classical >= 128);
+assert(security.quantum >= 64);
+```
+
+### 3. Protect Keys
+
+```cpp
+// Never log or expose secret keys
+// Use hardware security modules when possible
+auto sk = hsm->GenerateSecretKey();
+
+// Minimize key lifetime in memory
+{
+    auto sk = ctx->LoadSecretKey(path);
+    auto result = ctx->Decrypt(sk, ct);
+}  // sk wiped on scope exit
+```
+
+### 4. Regular Security Audits
+
+```cpp
+// Log security-relevant events
+ctx->SetSecurityCallback([](const SecurityEvent& e) {
+    if (e.type == SecurityEvent::ParameterWarning) {
+        log_warning(e.message);
+    }
+});
+```
+
+## Further Reading
+
+- [Parameter Selection Guide](/docs/api/parameters) - Detailed parameter guidance
+- [Homomorphic Encryption Standard](https://homomorphicencryption.org/) - Community standards
+- [NIST Post-Quantum Cryptography](https://csrc.nist.gov/projects/post-quantum-cryptography) - Quantum resistance

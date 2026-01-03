@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_RNS_PKE_H
-#define LBCRYPTO_CRYPTO_RNS_PKE_H
+#ifndef LUX_FHE_CRYPTO_RNS_PKE_H
+#define LUX_FHE_CRYPTO_RNS_PKE_H
 
 #include "lattice/lat-hal.h"
 
@@ -41,10 +41,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract interface for encryption algorithm
@@ -137,6 +137,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

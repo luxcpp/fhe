@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <cmath>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace radix {
 
 // ============================================================================
@@ -441,4 +441,4 @@ void BatchBootstrap(std::vector<ShortInt>& values) {
 }
 
 } // namespace radix
-} // namespace lbcrypto
+} // namespace lux::fhe

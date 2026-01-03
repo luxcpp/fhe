@@ -39,7 +39,7 @@
 #include <vector>
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 int main(int argc, char* argv[]) {
     // Step 1: Setup CryptoContext

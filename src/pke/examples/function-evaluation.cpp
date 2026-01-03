@@ -36,7 +36,7 @@
 #include "openfhe.h"
 #include "math/chebyshev.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void EvalLogisticExample();
 

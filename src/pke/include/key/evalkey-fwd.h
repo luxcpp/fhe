@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class EvalKeyImpl;
@@ -45,6 +45,6 @@ class EvalKeyImpl;
 template <typename Element>
 using EvalKey = std::shared_ptr<EvalKeyImpl<Element>>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __EVALKEY_FWD_H__

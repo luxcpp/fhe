@@ -33,14 +33,14 @@
   This file contains the interfaces for the math integer data types
  */
 
-#ifndef LBCRYPTO_MATH_INTEGER_INTERFACE_H
-#define LBCRYPTO_MATH_INTEGER_INTERFACE_H
+#ifndef LUX_FHE_MATH_INTEGER_INTERFACE_H
+#define LUX_FHE_MATH_INTEGER_INTERFACE_H
 
 #include "utils/inttypes.h"
 
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename T>
 class BigIntegerInterface {
@@ -464,6 +464,6 @@ protected:
 
 // TODO
 class BigMatrixInterface {};
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_UTILS_CKKSPACKEDEXTENCODING_H
-#define LBCRYPTO_UTILS_CKKSPACKEDEXTENCODING_H
+#ifndef LUX_FHE_UTILS_CKKSPACKEDEXTENCODING_H
+#define LUX_FHE_UTILS_CKKSPACKEDEXTENCODING_H
 
 #include "constants.h"
 
@@ -48,7 +48,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @class CKKSPackedEncoding
@@ -135,7 +135,7 @@ public:
     bool Encode() override;
 
     bool Decode() override {
-        OPENFHE_THROW("CKKSPackedEncoding::Decode() is not implemented. Use CKKSPackedEncoding::Decode(...) instead.");
+        LUX_FHE_THROW("CKKSPackedEncoding::Decode() is not implemented. Use CKKSPackedEncoding::Decode(...) instead.");
     }
 
     bool Decode(size_t depth, double scalingFactor, ScalingTechnique scalTech, ExecutionMode executionMode) override;
@@ -196,7 +196,7 @@ public:
    */
     double GetLogPrecision() const override {
         if (ckksDataType == COMPLEX)
-            OPENFHE_THROW("GetLogPrecision for complex numbers is not implemented.");
+            LUX_FHE_THROW("GetLogPrecision for complex numbers is not implemented.");
         return encodingParams->GetPlaintextModulus() - m_logError;
     }
 
@@ -257,11 +257,11 @@ protected:
             slots              = (batchSize == 0) ? GetElementRingDimension() >> 1 : batchSize;
         }
         if ((slots & (slots - 1)) != 0)
-            OPENFHE_THROW("The number of slots should be a power of two");
+            LUX_FHE_THROW("The number of slots should be a power of two");
         if (slots > GetElementRingDimension() >> 1)
-            OPENFHE_THROW("The number of slots cannot be larger than half of ring dimension");
+            LUX_FHE_THROW("The number of slots cannot be larger than half of ring dimension");
         if (slots < vlen)
-            OPENFHE_THROW("The number of slots cannot be smaller than value vector size");
+            LUX_FHE_THROW("The number of slots cannot be smaller than value vector size");
         return slots;
     }
 
@@ -301,6 +301,6 @@ protected:
 #endif
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

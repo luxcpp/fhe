@@ -53,7 +53,7 @@
 #include <random>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // const double DG_ERROR = 8.27181e-25;
 // const int32_t N_MAX = 16384;
@@ -266,7 +266,7 @@ usint BaseSampler::FindInVector(const std::vector<double>& S, double search) con
     if (lower != S.end())
         return lower - S.begin();
 
-    OPENFHE_THROW("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
+    LUX_FHE_THROW("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
 }
 
 DiscreteGaussianGeneratorGeneric::DiscreteGaussianGeneratorGeneric(BaseSampler** samplers, const double std,
@@ -355,4 +355,4 @@ int64_t DiscreteGaussianGeneratorGeneric::SampleC(int64_t center) {
     return c;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

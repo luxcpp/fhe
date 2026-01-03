@@ -46,7 +46,7 @@
 #include <memory>
 #include <string>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 #if NATIVEINT == 64
 //===========================================================================================================
@@ -435,7 +435,7 @@ class UTCKKSRNSCS : public ::testing::TestWithParam<TEST_CASE_UTCKKSRNS_CS> {
     template <typename T>
     double CalculateApproximationError(const std::vector<std::complex<double>>& result,
                                        const std::vector<std::complex<double>>& expectedResult) {
-        OPENFHE_THROW("CalculateApproximationError() is not implemented for this datatype");
+        LUX_FHE_THROW("CalculateApproximationError() is not implemented for this datatype");
     }
 
 protected:
@@ -1907,7 +1907,7 @@ template <>
 double UTCKKSRNSCS::CalculateApproximationError<double>(const std::vector<std::complex<double>>& result,
                                                         const std::vector<std::complex<double>>& expectedResult) {
     if (result.size() != expectedResult.size())
-        OPENFHE_THROW("Cannot compare vectors with different numbers of elements");
+        LUX_FHE_THROW("Cannot compare vectors with different numbers of elements");
 
     // using the Euclidean norm
     double avrg = 0;

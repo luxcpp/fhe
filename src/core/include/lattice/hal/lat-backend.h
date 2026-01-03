@@ -33,8 +33,8 @@
   Defines aliases for the lattice default backend
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_HAL_LAT_BACKEND_H
-#define LBCRYPTO_INC_LATTICE_HAL_LAT_BACKEND_H
+#ifndef LUX_FHE_INC_LATTICE_HAL_LAT_BACKEND_H
+#define LUX_FHE_INC_LATTICE_HAL_LAT_BACKEND_H
 
 #define ILPARAMS_IMPLEMENTATION     "lattice/hal/default/ilparams.h"
 #define ILDCRTPARAMS_IMPLEMENTATION "lattice/hal/default/ildcrtparams.h"
@@ -51,7 +51,7 @@
 #include "lattice/hal/default/poly.h"
 #include "lattice/hal/default/dcrtpoly.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 using ILNativeParams = ILParamsImpl<NativeInteger>;
 using ILParams       = ILParamsImpl<BigInteger>;
@@ -95,6 +95,6 @@ using M6Poly       = void;
 using M6DCRTPoly   = void;
 #endif
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

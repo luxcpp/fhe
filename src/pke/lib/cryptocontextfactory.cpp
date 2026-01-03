@@ -33,7 +33,7 @@
 #include "schemebase/base-scheme.h"
 #include "scheme/scheme-id.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <>
 std::vector<CryptoContext<DCRTPoly>> CryptoContextFactory<DCRTPoly>::AllContexts = {};
@@ -83,10 +83,10 @@ CryptoContext<Element> CryptoContextFactory<Element>::GetFullContextByDeserializ
                                                      context->getSchemeId());
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 // the code below is from pke/lib/cryptocontextfactory-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class CryptoContextFactory<DCRTPoly>;
 

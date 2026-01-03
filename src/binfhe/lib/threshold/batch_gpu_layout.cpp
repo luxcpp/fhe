@@ -15,7 +15,7 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace threshold {
 
 // ============================================================================
@@ -848,4 +848,4 @@ uint64_t BenchmarkTranspose(
 }
 
 } // namespace threshold
-} // namespace lbcrypto
+} // namespace lux::fhe

@@ -22,7 +22,7 @@
 #include <mlx/mlx.h>
 namespace mx = mlx::core;
 
-using namespace lbcrypto::gpu;
+using namespace lux::fhe::gpu;
 
 // =============================================================================
 // Test Utilities

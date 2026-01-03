@@ -41,7 +41,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /////////////////////////////////////////
 // SHE NEGATION
@@ -350,7 +350,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> LeveledSHEBase<Element>::E
     // we already have checks on higher level?
     //  auto it = std::find(indexList.begin(), indexList.end(), 2 * n - 1);
     //  if (it != indexList.end())
-    //    OPENFHE_THROW("conjugation is disabled");
+    //    LUX_FHE_THROW("conjugation is disabled");
 
     const auto cc = privateKey->GetCryptoContext();
     const auto& s = privateKey->GetPrivateElement();
@@ -360,7 +360,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> LeveledSHEBase<Element>::E
 
     // we already have checks on higher level?
     //  if (indexList.size() > N - 1)
-    //    OPENFHE_THROW("size exceeds the ring dimension");
+    //    LUX_FHE_THROW("size exceeds the ring dimension");
 
     // create and initialize the key map (key is a value from indexList, EvalKey is nullptr). in this case
     // we should be able to assign values to the map without using "omp critical" as all evalKeys' elements would
@@ -391,29 +391,29 @@ Ciphertext<Element> LeveledSHEBase<Element>::EvalAutomorphism(ConstCiphertext<El
                                                               CALLER_INFO_ARGS_CPP) const {
     // this operation can be performed on 2-element ciphertexts only
     if (ciphertext->NumberCiphertextElements() != 2)
-        OPENFHE_THROW("Ciphertext should be relinearized before.");
+        LUX_FHE_THROW("Ciphertext should be relinearized before.");
 
     // verify if the key i exists in the evalKeyMap
     auto evalKeyIterator = evalKeyMap.find(i);
     if (evalKeyIterator == evalKeyMap.end())
-        OPENFHE_THROW("EvalKey for index [" + std::to_string(i) + "] is not found." + CALLER_INFO);
+        LUX_FHE_THROW("EvalKey for index [" + std::to_string(i) + "] is not found." + CALLER_INFO);
 
     // we already have checks on higher level?
     //  if (cv.size() < 2) {
     //    std::string errorMsg(
     //        std::string("Insufficient number of elements in ciphertext: ") +
     //        std::to_string(cv.size()) + CALLER_INFO);
-    //    OPENFHE_THROW( errorMsg);
+    //    LUX_FHE_THROW( errorMsg);
     //  }
 
     uint32_t N = ciphertext->GetElements()[0].GetRingDimension();
 
     //  if (i == 2 * N - 1)
-    //    OPENFHE_THROW(
+    //    LUX_FHE_THROW(
     //                   "conjugation is disabled " + CALLER_INFO);
 
     //  if (i > 2 * N - 1)
-    //    OPENFHE_THROW(
+    //    LUX_FHE_THROW(
     //        "automorphism indices higher than 2*n are not allowed " + CALLER_INFO);
 
     auto result = ciphertext->Clone();
@@ -448,7 +448,7 @@ Ciphertext<Element> LeveledSHEBase<Element>::EvalFastRotation(
     auto evalKeyMap      = cc->GetEvalAutomorphismKeyMap(ciphertext->GetKeyTag());
     auto evalKeyIterator = evalKeyMap.find(autoIndex);
     if (evalKeyIterator == evalKeyMap.end())
-        OPENFHE_THROW("EvalKey for index [" + std::to_string(autoIndex) + "] is not found.");
+        LUX_FHE_THROW("EvalKey for index [" + std::to_string(autoIndex) + "] is not found.");
     auto evalKey = evalKeyIterator->second;
 
     const auto cryptoParams = ciphertext->GetCryptoParameters();
@@ -542,7 +542,7 @@ void LeveledSHEBase<Element>::VerifyNumOfTowers(ConstCiphertext<Element>& cipher
         std::string errorMsg(std::string("Number of towers is not the same for ciphertext1 [") +
                              std::to_string(numTowers1) + "] and for ciphertext2 [" + std::to_string(numTowers2) +
                              "] " + CALLER_INFO);
-        OPENFHE_THROW(errorMsg);
+        LUX_FHE_THROW(errorMsg);
     }
 }
 template <class Element>
@@ -554,7 +554,7 @@ void LeveledSHEBase<Element>::VerifyNumOfTowers(ConstCiphertext<Element>& cipher
         std::string errorMsg(std::string("Number of towers is not the same for ciphertext[") +
                              std::to_string(numTowersCtxt) + "] and for plaintext[" + std::to_string(numTowersPtxt) +
                              "]" + CALLER_INFO);
-        OPENFHE_THROW(errorMsg);
+        LUX_FHE_THROW(errorMsg);
     }
 }
 
@@ -752,13 +752,13 @@ void LeveledSHEBase<Element>::EvalMultCoreInPlace(Ciphertext<Element>& ciphertex
         c *= pt;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 // the code below is from base-leveledshe-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 // template class LeveledSHEBase<Poly>;
 // template class LeveledSHEBase<NativePoly>;
 template class LeveledSHEBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

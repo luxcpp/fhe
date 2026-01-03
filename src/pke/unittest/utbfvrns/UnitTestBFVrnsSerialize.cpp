@@ -36,7 +36,7 @@
 #include "scheme/bfvrns/gen-cryptocontext-bfvrns.h"
 #include "gen-cryptocontext.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTBFVRNS_SER : public ::testing::Test {
 protected:

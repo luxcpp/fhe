@@ -43,7 +43,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // forward declarations (don't include headers as compilation fails when you do)
 template <typename T>
@@ -105,6 +105,6 @@ typename ContextGeneratorType::ContextType genCryptoContextBFVRNSInternal(
     return cc;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _GEN_CRYPTOCONTEXT_BFVRNS_INTERNAL_H_

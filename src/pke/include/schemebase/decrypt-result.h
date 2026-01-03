@@ -34,7 +34,7 @@
 #include "utils/inttypes.h"
 #include "lattice/lat-hal.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 struct EncryptResult {
     EncryptResult() = default;
@@ -84,6 +84,6 @@ struct DecryptResult {
     NativeInteger scalingFactorInt{1}; /**< Scaling factor for BGV FlexibleAuto mode. */
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __DECRYPT_RESULT_H__

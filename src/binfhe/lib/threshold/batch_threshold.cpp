@@ -17,7 +17,7 @@
 #include <cmath>
 #include <map>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace threshold {
 
 namespace {
@@ -845,4 +845,4 @@ void ThresholdDecryptPipeline::Reset() {
 }
 
 } // namespace threshold
-} // namespace lbcrypto
+} // namespace lux::fhe

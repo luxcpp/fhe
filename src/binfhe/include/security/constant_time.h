@@ -51,7 +51,7 @@
     #define CT_VOLATILE_STORE(ptr, val) (*(ptr) = (val))
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace security {
 
 // ============================================================================
@@ -600,6 +600,6 @@ void VerifyAllConstantTimeOps();
 uint8_t ct_radix_compare(const uint64_t* a, const uint64_t* b, size_t num_limbs);
 
 } // namespace security
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // LUX_FHE_SECURITY_CONSTANT_TIME_H

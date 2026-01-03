@@ -7,24 +7,29 @@
 file(GLOB_RECURSE CORE_SRC_FILES CONFIGURE_DEPENDS lib/*.c lib/*.cpp lib/utils/*.cpp)
 list(FILTER CORE_SRC_FILES EXCLUDE REGEX ".*/mlx/.*")
 
-# MLX GPU Backend (optional, Apple Silicon only)
-if(WITH_MLX)
-    add_subdirectory(lib/math/hal/mlx)
-    if(MLX_BACKEND_TARGET)
-        # Note: MLX objects are added directly to FHEcore/FHEcore_static below
-        # Add MLX include directories (set via PARENT_SCOPE in subdirectory)
-        if(MLX_INCLUDE_DIRS)
-            list(APPEND CORE_INCLUDE_DIRS ${MLX_INCLUDE_DIRS})
-        endif()
-        add_compile_definitions(WITH_MLX)
-        message(STATUS "MLX GPU Backend included in core library")
-    endif()
-endif()
+# GPU Backend (optional) - uses lux::gpu (MLX/Metal/CUDA/CPU)
+if(WITH_GPU OR WITH_MLX)
+    set(WITH_GPU ON)  # Normalize to WITH_GPU
 
-# GPU Backend: MLX for Apple Silicon (Metal)
-# CUDA/NVIDIA moved to luxnext (proprietary)
-if(WITH_MLX)
-    message(STATUS "GPU Backend: MLX (Metal)")
+    # Find lux-gpu at parent scope so imported target is visible
+    find_package(lux-gpu CONFIG QUIET
+        HINTS
+            ${CMAKE_INSTALL_PREFIX}/share/cmake/lux-gpu
+            ${CMAKE_SOURCE_DIR}/../install/share/cmake/lux-gpu
+    )
+    if(lux-gpu_FOUND)
+        message(STATUS "Found lux::gpu via CMake config")
+    endif()
+
+    add_subdirectory(lib/math/hal/mlx)
+    if(GPU_BACKEND_TARGET)
+        # Note: GPU objects are added directly to FHEcore/FHEcore_static below
+        if(GPU_INCLUDE_DIRS)
+            list(APPEND CORE_INCLUDE_DIRS ${GPU_INCLUDE_DIRS})
+        endif()
+        add_compile_definitions(WITH_GPU)
+        message(STATUS "GPU Backend included in core library")
+    endif()
 endif()
 
 list(APPEND CORE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -45,13 +50,9 @@ set_property(TARGET coreobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 if(BUILD_SHARED)
     # Build shared library with core objects
     set(CORE_OBJECT_LIBS $<TARGET_OBJECTS:coreobj>)
-    # Add MLX objects if enabled
-    if(WITH_MLX AND MLX_BACKEND_TARGET)
-        list(APPEND CORE_OBJECT_LIBS $<TARGET_OBJECTS:${MLX_BACKEND_TARGET}>)
-    endif()
-    # Add native Metal objects if enabled
-    if(WITH_MLX AND MLX_METAL_TARGET)
-        list(APPEND CORE_OBJECT_LIBS $<TARGET_OBJECTS:${MLX_METAL_TARGET}>)
+    # Add GPU objects if enabled (unified FHEgpu target)
+    if(WITH_GPU AND GPU_BACKEND_TARGET)
+        list(APPEND CORE_OBJECT_LIBS $<TARGET_OBJECTS:${GPU_BACKEND_TARGET}>)
     endif()
     add_library(FHEcore SHARED ${CORE_OBJECT_LIBS})
     set_property(TARGET FHEcore PROPERTY VERSION ${CORE_VERSION})
@@ -63,13 +64,9 @@ endif()
 if(BUILD_STATIC)
     # Build static library with core objects
     set(CORE_STATIC_OBJECT_LIBS $<TARGET_OBJECTS:coreobj>)
-    # Add MLX objects if enabled
-    if(WITH_MLX AND MLX_BACKEND_TARGET)
-        list(APPEND CORE_STATIC_OBJECT_LIBS $<TARGET_OBJECTS:${MLX_BACKEND_TARGET}>)
-    endif()
-    # Add native Metal objects if enabled
-    if(WITH_MLX AND MLX_METAL_TARGET)
-        list(APPEND CORE_STATIC_OBJECT_LIBS $<TARGET_OBJECTS:${MLX_METAL_TARGET}>)
+    # Add GPU objects if enabled (unified FHEgpu target)
+    if(WITH_GPU AND GPU_BACKEND_TARGET)
+        list(APPEND CORE_STATIC_OBJECT_LIBS $<TARGET_OBJECTS:${GPU_BACKEND_TARGET}>)
     endif()
     add_library(FHEcore_static STATIC ${CORE_STATIC_OBJECT_LIBS})
     set_property(TARGET FHEcore_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -83,9 +80,19 @@ add_custom_target(allcore)
 if(BUILD_SHARED)
     set(CORELIBS PUBLIC FHEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS})
     target_link_libraries(FHEcore ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS} ${ADDITIONAL_LIBS})
-    # Link MLX library if enabled
-    if(WITH_MLX AND MLX_LIBS)
-        target_link_libraries(FHEcore ${MLX_LIBS})
+    # Link GPU library if enabled
+    if(WITH_GPU AND TARGET lux::gpu)
+        target_link_libraries(FHEcore lux::gpu)
+        if(APPLE)
+            find_library(METAL_FRAMEWORK Metal)
+            find_library(FOUNDATION_FRAMEWORK Foundation)
+            if(METAL_FRAMEWORK AND FOUNDATION_FRAMEWORK)
+                target_link_libraries(FHEcore ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+            endif()
+        endif()
+    elseif(WITH_GPU AND GPU_LIBS)
+        # Fallback to library path
+        target_link_libraries(FHEcore ${GPU_LIBS})
     endif()
     add_dependencies(allcore FHEcore)
 endif()

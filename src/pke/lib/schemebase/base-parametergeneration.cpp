@@ -32,6 +32,6 @@
 #include "schemebase/base-parametergeneration.h"
 
 // the code below is from base-parametergeneration-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 template class ParameterGenerationBase<DCRTPoly>;
-}  // namespace lbcrypto
+}  // namespace lux::fhe

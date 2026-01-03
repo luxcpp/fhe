@@ -41,7 +41,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 static uint64_t smallva(10403), smallvb(103), smallvm(101101);
 static std::string smalla("10403"), smallb("103"), smallm("101101");

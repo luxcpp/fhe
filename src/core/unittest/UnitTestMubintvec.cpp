@@ -48,13 +48,13 @@
     #include "math/distrgen.h"
     #include "utils/utilities.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /************************************************
  *  TESTING BASIC METHODS OF mubintvec CLASS
  ************************************************/
 TEST(UTmubintvec, ctor_access_eq_neq) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     // a bigger number
     bigintdyn::xubint q("1234567");
 
@@ -79,7 +79,7 @@ TEST(UTmubintvec, ctor_access_eq_neq) {
     m.at(3) = "2343";
     m.at(4) = "4624";
 
-    OPENFHE_DEBUG("m " << m);
+    LUX_FHE_DEBUG("m " << m);
     EXPECT_EQ(9868U, m.at(0).ConvertToInt<uint32_t>()) << "Failure in at(0)";
 
     // old fashioned way of expect
@@ -212,7 +212,7 @@ TEST(UTmubintvec, ctor_access_eq_neq) {
 }
 
 TEST(UTmubintvec, constructorTest) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     bigintdyn::xmubintvec m(10);
 
     m.at(0) = "48";
@@ -226,14 +226,14 @@ TEST(UTmubintvec, constructorTest) {
     m.at(8) = "60";
     m.at(9) = "12";
 
-    OPENFHE_DEBUG("m: " << m);
+    LUX_FHE_DEBUG("m: " << m);
 
     uint64_t expectedResult[10] = {48,  53, 7,   178, 190,
                                    120, 79, 108, 60,  12};  // the expected values are stored as one dimensional
                                                             // integer array
 
     for (usint i = 0; i < 10; i++) {
-        OPENFHE_DEBUG("val " << i << " is " << m.at(i));
+        LUX_FHE_DEBUG("val " << i << " is " << m.at(i));
         EXPECT_EQ(expectedResult[i], (m.at(i)).ConvertToInt());
     }
 
@@ -274,13 +274,13 @@ TEST(UTmubintvec, mod) {
 }
 
 TEST(UTmubintvec, basic_vector_vector_mod_math_1_limb) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
 
     // q1 modulus 1:
     bigintdyn::xubint q1("163841");
     // a1:
     bigintdyn::xmubintvec a1(16, q1);
-    OPENFHE_DEBUG("a1.modulus " << a1.GetModulus());
+    LUX_FHE_DEBUG("a1.modulus " << a1.GetModulus());
     a1 = {
         "127753", "077706", "017133", "022582", "112132", "027625", "126773", "008924",
         "125972", "002551", "113837", "112045", "100953", "077352", "132013", "057029",
@@ -289,7 +289,7 @@ TEST(UTmubintvec, basic_vector_vector_mod_math_1_limb) {
     // b1:
     bigintdyn::xmubintvec b1;
     b1.SetModulus(q1);
-    OPENFHE_DEBUG("b1.modulus " << b1.GetModulus());
+    LUX_FHE_DEBUG("b1.modulus " << b1.GetModulus());
 
     b1 = {
         "066773", "069572", "142134", "141115", "123182", "155822", "128147", "094818",
@@ -304,7 +304,7 @@ TEST(UTmubintvec, basic_vector_vector_mod_math_1_limb) {
     };
 
     modadd1.SetModulus(a1);  // sets modadd1.modulus to the same as a1
-    OPENFHE_DEBUG("modadd1.modulus " << modadd1.GetModulus());
+    LUX_FHE_DEBUG("modadd1.modulus " << modadd1.GetModulus());
 
     // modsub1:
     std::vector<std::string> modsub1sv = {
@@ -327,9 +327,9 @@ TEST(UTmubintvec, basic_vector_vector_mod_math_1_limb) {
     c1 = a1.ModAdd(b1);
     EXPECT_EQ(c1, modadd1) << "Failure 1 limb vector vector ModAdd()";
 
-    OPENFHE_DEBUG("modadd1 modulus" << modadd1.GetModulus());
-    OPENFHE_DEBUG("c1 modulus" << c1.GetModulus());
-    OPENFHE_DEBUG("c1 " << c1 << " modadd " << modadd1);
+    LUX_FHE_DEBUG("modadd1 modulus" << modadd1.GetModulus());
+    LUX_FHE_DEBUG("c1 modulus" << c1.GetModulus());
+    LUX_FHE_DEBUG("c1 " << c1 << " modadd " << modadd1);
 
     c1 = a1 + b1;
     EXPECT_EQ(c1, modadd1) << "Failure 1 limb vector vector +";

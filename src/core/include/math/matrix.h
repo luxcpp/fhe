@@ -33,8 +33,8 @@
   This code provide a templated matrix implementation
  */
 
-#ifndef LBCRYPTO_MATH_MATRIX_H
-#define LBCRYPTO_MATH_MATRIX_H
+#ifndef LUX_FHE_MATH_MATRIX_H
+#define LUX_FHE_MATH_MATRIX_H
 
 #include "lattice/lat-hal.h"
 
@@ -56,7 +56,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Forward declaration
 class Field2n;
@@ -119,7 +119,7 @@ public:
 
     void SetSize(size_t rows, size_t cols) {
         if (this->rows != 0 || this->cols != 0) {
-            OPENFHE_THROW("You cannot SetSize on a non-empty matrix");
+            LUX_FHE_THROW("You cannot SetSize on a non-empty matrix");
         }
 
         this->rows = rows;
@@ -286,7 +286,7 @@ public:
                                           std::is_same<T, int64_t>::value || std::is_same<T, Field2n>::value,
                                       bool>::type = true>
     double Norm() const {
-        OPENFHE_THROW("Norm not defined for this type");
+        LUX_FHE_THROW("Norm not defined for this type");
     }
 
     template <typename T                          = Element,
@@ -447,7 +447,7 @@ public:
    */
     Matrix<Element> Add(Matrix<Element> const& other) const {
         if (rows != other.rows || cols != other.cols) {
-            OPENFHE_THROW("Addition operands have incompatible dimensions");
+            LUX_FHE_THROW("Addition operands have incompatible dimensions");
         }
         Matrix<Element> result(*this);
 #pragma omp parallel for
@@ -485,7 +485,7 @@ public:
    */
     Matrix<Element> Sub(Matrix<Element> const& other) const {
         if (rows != other.rows || cols != other.cols) {
-            OPENFHE_THROW("Subtraction operands have incompatible dimensions");
+            LUX_FHE_THROW("Subtraction operands have incompatible dimensions");
         }
         Matrix<Element> result(allocZero, rows, other.cols);
 #pragma omp parallel for
@@ -653,7 +653,7 @@ public:
 #define NOT_AN_ELEMENT_MATRIX(T)                   \
     template <>                                    \
     void Matrix<T>::SwitchFormat() {               \
-        OPENFHE_THROW("Not a matrix of Elements"); \
+        LUX_FHE_THROW("Not a matrix of Elements"); \
     }
 
     /*
@@ -680,7 +680,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("d", data));
@@ -881,5 +881,5 @@ Matrix<Element> SplitInt64AltIntoElements(Matrix<int64_t> const& other, size_t n
         return result;                                                                      \
     }
 
-}  // namespace lbcrypto
-#endif  // LBCRYPTO_MATH_MATRIX_H
+}  // namespace lux::fhe
+#endif  // LUX_FHE_MATH_MATRIX_H

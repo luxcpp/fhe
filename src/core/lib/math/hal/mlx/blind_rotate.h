@@ -29,8 +29,8 @@
 // - CPU fallback: ~50ms per bootstrapping
 // - GPU accelerated: ~5ms per bootstrapping (10x speedup)
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_BLIND_ROTATE_GPU_H
-#define LBCRYPTO_MATH_HAL_MLX_BLIND_ROTATE_GPU_H
+#ifndef LUX_FHE_MATH_HAL_MLX_BLIND_ROTATE_GPU_H
+#define LUX_FHE_MATH_HAL_MLX_BLIND_ROTATE_GPU_H
 
 #include <cstdint>
 #include <vector>
@@ -46,7 +46,7 @@ namespace mx = mlx::core;
 #include "external_product_fused.h"
 #include "metal_dispatch.h"
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 #ifdef WITH_MLX
@@ -689,6 +689,6 @@ inline void BlindRotate::fromNTT(mx::array& data) {
 #endif // WITH_MLX
 
 } // namespace gpu
-} // namespace lbcrypto
+} // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_BLIND_ROTATE_GPU_H
+#endif // LUX_FHE_MATH_HAL_MLX_BLIND_ROTATE_GPU_H

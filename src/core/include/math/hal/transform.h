@@ -33,8 +33,8 @@
   This file contains the interface for the transforms in each math backend
  */
 
-#ifndef LBCRYPTO_MATH_TRANSFORM_H
-#define LBCRYPTO_MATH_TRANSFORM_H
+#ifndef LUX_FHE_MATH_TRANSFORM_H
+#define LUX_FHE_MATH_TRANSFORM_H
 
 #include "utils/inttypes.h"
 
@@ -48,10 +48,10 @@
 #endif
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Golden Chinese Remainder Transform FFT implementation.
@@ -278,6 +278,6 @@ private:
     virtual VecType Drop(const VecType& element, const usint cycloOrder, bool forward, const IntType& bigMod,
                          const IntType& bigRoot) = 0;
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

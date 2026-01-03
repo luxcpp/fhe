@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <functional>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Batch processing flags
 enum BatchFlags : uint32_t {
@@ -278,6 +278,6 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // BINFHE_BATCH_H

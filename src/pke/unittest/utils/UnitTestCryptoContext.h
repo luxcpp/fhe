@@ -37,9 +37,9 @@
 #include "cryptocontext.h"
 #include "schemebase/base-scheme.h"
 
-using Element = lbcrypto::DCRTPoly;
+using Element = lux::fhe::DCRTPoly;
 
-lbcrypto::CryptoContext<Element> UnitTestGenerateContext(const UnitTestCCParams& testData);
-lbcrypto::CryptoContext<Element> UnitTestGenerateContext(const BaseTestCase& testCase);
+lux::fhe::CryptoContext<Element> UnitTestGenerateContext(const UnitTestCCParams& testData);
+lux::fhe::CryptoContext<Element> UnitTestGenerateContext(const BaseTestCase& testCase);
 
 #endif  // __UNITTESTCRYPTOCONTEXT_H__

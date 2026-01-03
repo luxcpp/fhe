@@ -35,7 +35,7 @@
 
 #include "encoding/stringencoding.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 static const size_t charPtm      = (1 << 8);
 static const uint32_t CHARMARKER = (1 << 7);
@@ -46,7 +46,7 @@ bool StringEncoding::Encode() {
     auto mod = this->encodingParams->GetPlaintextModulus();
 
     if (mod != 256) {
-        OPENFHE_THROW("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
+        LUX_FHE_THROW("Plaintext modulus must be " + std::to_string(charPtm) + " for string encoding");
     }
 
     if (this->typeFlag == IsNativePoly) {
@@ -107,4 +107,4 @@ bool StringEncoding::Decode() {
     return true;
 }
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */

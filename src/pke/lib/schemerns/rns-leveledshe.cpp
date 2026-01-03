@@ -37,7 +37,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /////////////////////////////////////////
 // SHE ADDITION
@@ -337,7 +337,7 @@ void LeveledSHERNS::LevelReduceInPlace(Ciphertext<DCRTPoly>& ciphertext, const E
                                        size_t levels) const {
     auto st = std::dynamic_pointer_cast<CryptoParametersRNS>(ciphertext->GetCryptoParameters())->GetScalingTechnique();
     if (st == NORESCALE)
-        OPENFHE_THROW("LevelReduceInPlace is not implemented for NORESCALE rescaling technique");
+        LUX_FHE_THROW("LevelReduceInPlace is not implemented for NORESCALE rescaling technique");
     if (st == FIXEDMANUAL && levels > 0)
         LevelReduceInternalInPlace(ciphertext, levels);
 }
@@ -360,7 +360,7 @@ Ciphertext<DCRTPoly> LeveledSHERNS::Compress(ConstCiphertext<DCRTPoly>& cipherte
         uint32_t compositeDegree = cryptoParams->GetCompositeDegree();
         levelsToDrop             = compositeDegree;
         if (towersLeft % compositeDegree != 0)
-            OPENFHE_THROW("Number of towers to drop must be a multiple of composite degree.");
+            LUX_FHE_THROW("Number of towers to drop must be a multiple of composite degree.");
     }
 
     auto result = std::make_shared<CiphertextImpl<DCRTPoly>>(*ciphertext);
@@ -468,7 +468,7 @@ void LeveledSHERNS::AdjustForAddOrSubInPlace(Ciphertext<DCRTPoly>& ciphertext1,
             }
         }
         else if (ptxtDepth > ctxtDepth) {
-            OPENFHE_THROW("plaintext cannot be encoded at a larger depth than that of the ciphertext.");
+            LUX_FHE_THROW("plaintext cannot be encoded at a larger depth than that of the ciphertext.");
         }
     }
     else if (cryptoParams->GetScalingTechnique() != NORESCALE) {
@@ -499,4 +499,4 @@ Ciphertext<DCRTPoly> LeveledSHERNS::ComposedEvalMult(ConstCiphertext<DCRTPoly>& 
     return ciphertext;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

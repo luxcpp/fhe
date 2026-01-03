@@ -32,8 +32,8 @@
 #include "cryptocontext.h"
 #include "schemebase/base-fhe.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class FHEBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

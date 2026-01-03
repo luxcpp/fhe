@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_KEY_KEY_H
-#define LBCRYPTO_CRYPTO_KEY_KEY_H
+#ifndef LUX_FHE_CRYPTO_KEY_KEY_H
+#define LUX_FHE_CRYPTO_KEY_KEY_H
 
 #include "cryptoobject.h"
 #include "utils/serial.h"
@@ -40,10 +40,10 @@
 #include <utility>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief Abstract interface class for  Keys
  *
@@ -72,6 +72,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

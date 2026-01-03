@@ -28,7 +28,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 //==================================================================================
@@ -36,10 +36,10 @@ namespace gpu {
 //==================================================================================
 
 // Use modular arithmetic from ntt.h
-using lbcrypto::gpu::mulmod;
-using lbcrypto::gpu::powmod;
-using lbcrypto::gpu::mod_inverse;
-using lbcrypto::gpu::find_primitive_root;
+using lux::gpu::mulmod;
+using lux::gpu::powmod;
+using lux::gpu::mod_inverse;
+using lux::gpu::find_primitive_root;
 
 namespace {
 
@@ -186,7 +186,7 @@ double FHEEngine::avgOperationsPerSecond() const {
 #ifdef WITH_MLX
 void FHEEngine::batchNTT(mx::array& polys, bool inverse) {
     // Use NTTEngine from ntt.h for CPU fallback
-    lbcrypto::gpu::NTTEngine ntt_engine(config_.N, config_.Q);
+    lux::gpu::NTTEngine ntt_engine(config_.N, config_.Q);
     if (inverse) {
         ntt_engine.inverse(polys);
     } else {
@@ -220,7 +220,7 @@ void FHEEngine::batchExternalProduct(const mx::array& rlweBatch,
     uint64_t Q = config_.Q;
 
     // Create NTT engine for polynomial operations
-    lbcrypto::gpu::NTTEngine ntt_engine(config_.N, Q);
+    lux::gpu::NTTEngine ntt_engine(config_.N, Q);
 
     mx::eval(rlweBatch);
     mx::eval(rgswBatch);
@@ -250,7 +250,7 @@ void FHEEngine::batchExternalProduct(const mx::array& rlweBatch,
                     // Access: rgsw[b][c][l][out_c][i]
                     for (int out_c = 0; out_c < 2; ++out_c) {
                         int64_t rgsw_coef = rgsw_ptr[b * 2 * L * 2 * N + c * L * 2 * N + l * 2 * N + out_c * N + i];
-                        uint64_t prod = lbcrypto::gpu::mulmod(digit, static_cast<uint64_t>(rgsw_coef), Q);
+                        uint64_t prod = lux::gpu::mulmod(digit, static_cast<uint64_t>(rgsw_coef), Q);
                         out_data[b * 2 * N + out_c * N + i] =
                             static_cast<int64_t>((static_cast<uint64_t>(out_data[b * 2 * N + out_c * N + i]) + prod) % Q);
                     }
@@ -1095,4 +1095,4 @@ void GPUCircuitEvaluator::batchAdd8(const std::vector<std::array<uint32_t, 8>>& 
 }
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -43,7 +43,7 @@
 #include "openfhecore.h"
 #include "time.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // define the main sections of the test
 

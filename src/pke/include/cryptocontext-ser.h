@@ -33,8 +33,8 @@
   serialize cryptocontext; include this in any app that needs to serialize them
  */
 
-#ifndef LBCRYPTO_CRYPTO_CRYPTOCONTEXTSER_H
-#define LBCRYPTO_CRYPTO_CRYPTOCONTEXTSER_H
+#ifndef LUX_FHE_CRYPTO_CRYPTOCONTEXTSER_H
+#define LUX_FHE_CRYPTO_CRYPTOCONTEXTSER_H
 
 #include "cryptocontext.h"
 #include "scheme/ckksrns/ckksrns-ser.h"
@@ -46,13 +46,13 @@
 #include <string>
 #include <vector>
 
-CEREAL_CLASS_VERSION(lbcrypto::CryptoContextImpl<lbcrypto::DCRTPoly>,
-                     lbcrypto::CryptoContextImpl<lbcrypto::DCRTPoly>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::CryptoContextImpl<lux::fhe::DCRTPoly>,
+                     lux::fhe::CryptoContextImpl<lux::fhe::DCRTPoly>::SerializedVersion());
 
 // the routines below are only instantiated if the user includes the appropriate
 // serialize-*.h file
 
-namespace lbcrypto {
+namespace lux::fhe {
 // ================================= JSON serialization/deserialization
 namespace Serial {
 /**
@@ -206,6 +206,6 @@ template bool CryptoContextImpl<DCRTPoly>::SerializeEvalAutomorphismKey<SerType:
 template bool CryptoContextImpl<DCRTPoly>::DeserializeEvalAutomorphismKey<SerType::SERBINARY>(
     std::istream& ser, const SerType::SERBINARY&);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

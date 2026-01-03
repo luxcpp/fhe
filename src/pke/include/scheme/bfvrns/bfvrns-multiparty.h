@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BFVRNS_MULTIPARTY_H
-#define LBCRYPTO_CRYPTO_BFVRNS_MULTIPARTY_H
+#ifndef LUX_FHE_CRYPTO_BFVRNS_MULTIPARTY_H
+#define LUX_FHE_CRYPTO_BFVRNS_MULTIPARTY_H
 
 #include "schemerns/rns-multiparty.h"
 
@@ -38,10 +38,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 class MultipartyBFVRNS : public MultipartyRNS {
     using ParmType = typename DCRTPoly::Params;
     using IntType  = typename DCRTPoly::Integer;
@@ -76,6 +76,6 @@ public:
         return "MultipartyBFVRNS";
     }
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

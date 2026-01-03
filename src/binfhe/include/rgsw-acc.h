@@ -39,7 +39,7 @@
 #include <vector>
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Ring GSW accumulator schemes described in
@@ -59,7 +59,7 @@ public:
    */
     virtual RingGSWACCKey KeyGenAcc(const std::shared_ptr<RingGSWCryptoParams>& params, const NativePoly& skNTT,
                                     ConstLWEPrivateKey& LWEsk) const {
-        OPENFHE_THROW("KeyGenACC operation not supported");
+        LUX_FHE_THROW("KeyGenACC operation not supported");
     }
 
     /**
@@ -72,7 +72,7 @@ public:
    */
     virtual void EvalAcc(const std::shared_ptr<RingGSWCryptoParams>& params, ConstRingGSWACCKey& ek,
                          RLWECiphertext& acc, const NativeVector& a) const {
-        OPENFHE_THROW("ACC operation not supported");
+        LUX_FHE_THROW("ACC operation not supported");
     }
 
     /**
@@ -98,6 +98,6 @@ public:
     void SignedDigitDecompose(const std::shared_ptr<RingGSWCryptoParams>& params, const NativePoly& input,
                               std::vector<NativePoly>& output) const;
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -33,7 +33,7 @@
 
 #include "math/hal/basicint.h"  // for MAX_MODULUS_SIZE
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Lists all features supported by public key encryption schemes
@@ -153,6 +153,6 @@ enum COMPRESSION_LEVEL {  // TODO (dsuponit): change it to camel case
     SLACK   = 3   // less efficient with weaker security assumption
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __CONSTANTS_DEFS_H__

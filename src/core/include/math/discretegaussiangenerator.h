@@ -63,8 +63,8 @@
  * It should be also noted that the memory requirement grows with the standard
  * deviation, therefore it is advised to use it with smaller deviations.   */
 
-#ifndef LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATOR_H_
-#define LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATOR_H_
+#ifndef LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATOR_H_
+#define LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATOR_H_
 
 #define _USE_MATH_DEFINES  // added for Visual Studio support
 
@@ -74,7 +74,7 @@
 #include <random>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 constexpr double KARNEY_THRESHOLD = 300.0;
 
@@ -257,6 +257,6 @@ private:
     static bool AlgorithmBDouble(PRNG& g, int32_t k, double x);
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_MATH_DISCRETEGAUSSIANGENERATOR_H_
+#endif  // LUX_FHE_MATH_DISCRETEGAUSSIANGENERATOR_H_

@@ -36,7 +36,7 @@
 #include "schemebase/base-pke.h"
 #include "schemebase/base-scheme.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <class Element>
 EvalKey<Element> PREBase<Element>::ReKeyGen(const PrivateKey<Element> oldPrivateKey,
@@ -73,11 +73,11 @@ Ciphertext<Element> PREBase<Element>::ReEncrypt(ConstCiphertext<Element> ciphert
     return result;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 // the code below is from base-pre-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class PREBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

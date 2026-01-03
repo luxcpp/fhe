@@ -42,7 +42,7 @@
 #include "gtest/gtest.h"
 #include <iterator>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 //===========================================================================================================
 enum TEST_CASE_TYPE : int { NOISE_ESTIMATION, FULL_NOISE_FLOODING, MULTIPARTY_NOISE_FLOODING };

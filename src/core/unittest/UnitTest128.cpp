@@ -45,7 +45,7 @@
 #include "utils/utilities.h"
 #include "lattice/lat-hal.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /************************************************
  *	TESTING Modular operations for 128-bit backend

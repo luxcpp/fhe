@@ -34,15 +34,15 @@
   relies on the built-in C++ generator for 32-bit unsigned integers defined in <random>
  */
 
-#ifndef LBCRYPTO_INC_MATH_DISCRETEUNIFORMGENERATOR_H_
-#define LBCRYPTO_INC_MATH_DISCRETEUNIFORMGENERATOR_H_
+#ifndef LUX_FHE_INC_MATH_DISCRETEUNIFORMGENERATOR_H_
+#define LUX_FHE_INC_MATH_DISCRETEUNIFORMGENERATOR_H_
 
 #include "math/distributiongenerator.h"
 
 #include <limits>
 #include <random>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 constexpr uint32_t DUG_CHUNK_MIN{0};
 constexpr uint32_t DUG_CHUNK_WIDTH{std::numeric_limits<uint32_t>::digits};
@@ -83,6 +83,6 @@ private:
     std::uniform_int_distribution<uint32_t>::param_type m_bound{DUG_CHUNK_MIN, DUG_CHUNK_MAX};
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_INC_MATH_DISCRETEUNIFORMGENERATOR_H_
+#endif  // LUX_FHE_INC_MATH_DISCRETEUNIFORMGENERATOR_H_

@@ -44,14 +44,14 @@ CKKS implementation. See https://eprint.iacr.org/2020/1118 for details.
 #include <complex>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 Ciphertext<DCRTPoly> AdvancedSHECKKSRNS::EvalMultMany(const std::vector<Ciphertext<DCRTPoly>>& ciphertextVec,
                                                       const std::vector<EvalKey<DCRTPoly>>& evalKeys) const {
     const size_t inSize = ciphertextVec.size();
 
     if (inSize == 0)
-        OPENFHE_THROW("Input ciphertext vector is empty.");
+        LUX_FHE_THROW("Input ciphertext vector is empty.");
 
     if (inSize == 1)
         return ciphertextVec[0];
@@ -333,10 +333,10 @@ static inline Ciphertext<DCRTPoly> internalEvalPolyLinearWithPrecomp(std::vector
                                                                      const std::vector<VectorDataType>& coefficients) {
     uint32_t k = coefficients.size() - 1;
     if (k <= 1)
-        OPENFHE_THROW("The coefficients vector should contain at least 2 elements");
+        LUX_FHE_THROW("The coefficients vector should contain at least 2 elements");
 
     if (!IsNotEqualZero(coefficients[k]))
-        OPENFHE_THROW("EvalPolyLinear: The highest-order coefficient cannot be set to 0.");
+        LUX_FHE_THROW("EvalPolyLinear: The highest-order coefficient cannot be set to 0.");
 
     auto cc = powers[0]->GetCryptoContext();
 
@@ -1385,4 +1385,4 @@ Ciphertext<DCRTPoly> AdvancedSHECKKSRNS::EvalChebyshevSeriesPS(ConstCiphertext<D
 // EVAL LINEAR TRANSFORMATION
 //------------------------------------------------------------------------------
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

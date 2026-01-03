@@ -35,7 +35,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void EvalNoiseBFV(PrivateKey<DCRTPoly> privateKey, ConstCiphertext<DCRTPoly> ciphertext, Plaintext ptxt, usint ptm,
                   double& noise, double& logQ);

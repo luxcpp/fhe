@@ -39,7 +39,7 @@ Example for CKKS bootstrapping with sparse packing
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void BootstrapExample(uint32_t numSlots);
 

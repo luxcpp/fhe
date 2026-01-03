@@ -30,7 +30,7 @@
 //==================================================================================
 #include "utils/memory.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void secure_memset(volatile void* mem, uint8_t c, size_t len) {
     volatile uint8_t* ptr = (volatile uint8_t*)mem;
@@ -38,4 +38,4 @@ void secure_memset(volatile void* mem, uint8_t c, size_t len) {
         *(ptr + i) = c;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

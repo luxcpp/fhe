@@ -50,7 +50,7 @@
 #include <limits>
 #include <random>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /*
  * Context setup utility methods

@@ -39,7 +39,7 @@ Example for CKKS bootstrapping with full packing
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void SimpleBootstrapExample();
 

@@ -40,7 +40,7 @@
 #include "scheme/ckksrns/ckksrns-cryptoparameters.h"
 #include "schemerns/rns-scheme.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 std::map<std::string, std::vector<EvalKey<Element>>> CryptoContextImpl<Element>::s_evalMultKeyMap{};
@@ -53,12 +53,12 @@ void CryptoContextImpl<Element>::SetKSTechniqueInScheme() {
     // check if the scheme is an RNS scheme
     auto schemeRNSPtr = std::dynamic_pointer_cast<SchemeRNS>(m_scheme);
     if (schemeRNSPtr == nullptr)
-        OPENFHE_THROW("The scheme is not RNS-based");
+        LUX_FHE_THROW("The scheme is not RNS-based");
 
     // check if the parameter object is RNS-based
     auto elPtr = std::dynamic_pointer_cast<const CryptoParametersRNS>(m_params);
     if (elPtr == nullptr)
-        OPENFHE_THROW("The parameter object is not RNS-based");
+        LUX_FHE_THROW("The parameter object is not RNS-based");
 
     schemeRNSPtr->SetKeySwitchingTechnique(elPtr->GetKeySwitchTechnique());
 }
@@ -117,7 +117,7 @@ void CryptoContextImpl<Element>::InsertEvalMultKey(const std::vector<EvalKey<Ele
     const std::string& tag = (keyTag.empty()) ? vectorToInsert[0]->GetKeyTag() : keyTag;
     if (CryptoContextImpl<Element>::s_evalMultKeyMap.find(tag) != CryptoContextImpl<Element>::s_evalMultKeyMap.end()) {
         // we do not allow to override the existing key vector if its keyTag is identical to the keyTag of the new keys
-        OPENFHE_THROW("Can not save a EvalMultKeys vector as there is a key vector for the given keyTag");
+        LUX_FHE_THROW("Can not save a EvalMultKeys vector as there is a key vector for the given keyTag");
     }
     CryptoContextImpl<Element>::s_evalMultKeyMap[tag] = vectorToInsert;
 }
@@ -131,7 +131,7 @@ void CryptoContextImpl<Element>::EvalSumKeyGen(const PrivateKey<Element> private
                                                const PublicKey<Element> publicKey) {
     ValidateKey(privateKey);
     if (publicKey != nullptr && privateKey->GetKeyTag() != publicKey->GetKeyTag()) {
-        OPENFHE_THROW("Public key passed to EvalSumKeyGen does not match private key");
+        LUX_FHE_THROW("Public key passed to EvalSumKeyGen does not match private key");
     }
 
     auto&& evalKeys = GetScheme()->EvalSumKeyGen(privateKey, publicKey);
@@ -143,7 +143,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> CryptoContextImpl<Element>
     const PrivateKey<Element> privateKey, const PublicKey<Element> publicKey, uint32_t rowSize, uint32_t subringDim) {
     ValidateKey(privateKey);
     if (publicKey != nullptr && privateKey->GetKeyTag() != publicKey->GetKeyTag())
-        OPENFHE_THROW("Public key passed to EvalSumKeyGen does not match private key");
+        LUX_FHE_THROW("Public key passed to EvalSumKeyGen does not match private key");
 
     std::vector<uint32_t> indices;
     auto&& evalKeys = GetScheme()->EvalSumRowsKeyGen(privateKey, rowSize, subringDim, indices);
@@ -157,7 +157,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> CryptoContextImpl<Element>
     const PrivateKey<Element> privateKey, const PublicKey<Element> publicKey) {
     ValidateKey(privateKey);
     if (publicKey != nullptr && privateKey->GetKeyTag() != publicKey->GetKeyTag())
-        OPENFHE_THROW("Public key passed to EvalSumKeyGen does not match private key");
+        LUX_FHE_THROW("Public key passed to EvalSumKeyGen does not match private key");
 
     std::vector<uint32_t> indices;
     auto&& evalKeys = GetScheme()->EvalSumColsKeyGen(privateKey, indices);
@@ -180,7 +180,7 @@ const std::vector<EvalKey<Element>>& CryptoContextImpl<Element>::GetEvalMultKeyV
     auto ekv = CryptoContextImpl<Element>::s_evalMultKeyMap.find(keyTag);
     if (ekv == CryptoContextImpl<Element>::s_evalMultKeyMap.end()) {
         std::string errMsg(std::string("Call EvalMultKeyGen() to have EvalMultKey available for ID [") + keyTag + "].");
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
     return ekv->second;
 }
@@ -196,7 +196,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> CryptoContextImpl<Element>
     const std::string& keyTag) {
     auto ekv = CryptoContextImpl<Element>::s_evalAutomorphismKeyMap.find(keyTag);
     if (ekv == CryptoContextImpl<Element>::s_evalAutomorphismKeyMap.end()) {
-        OPENFHE_THROW("EvalAutomorphismKeys are not generated for ID [" + keyTag + "].");
+        LUX_FHE_THROW("EvalAutomorphismKeys are not generated for ID [" + keyTag + "].");
     }
     return ekv->second;
 }
@@ -205,7 +205,7 @@ template <typename Element>
 std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> CryptoContextImpl<Element>::GetPartialEvalAutomorphismKeyMapPtr(
     const std::string& keyTag, const std::vector<uint32_t>& indexList) {
     if (!indexList.size())
-        OPENFHE_THROW("indexList is empty");
+        LUX_FHE_THROW("indexList is empty");
 
     std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> keyMap =
         CryptoContextImpl<Element>::GetEvalAutomorphismKeyMapPtr(keyTag);
@@ -215,7 +215,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> CryptoContextImpl<Element>
     for (uint32_t indx : indexList) {
         const auto it = keyMap->find(indx);
         if (it == keyMap->end()) {
-            OPENFHE_THROW("Key is not generated for index [" + std::to_string(indx) + "] and keyTag [" + keyTag + "]");
+            LUX_FHE_THROW("Key is not generated for index [" + std::to_string(indx) + "] and keyTag [" + keyTag + "]");
         }
         retMap.emplace(indx, it->second);
     }
@@ -261,7 +261,7 @@ void CryptoContextImpl<Element>::EvalAtIndexKeyGen(const PrivateKey<Element> pri
                                                    const PublicKey<Element> publicKey) {
     ValidateKey(privateKey);
     if (publicKey != nullptr && privateKey->GetKeyTag() != publicKey->GetKeyTag()) {
-        OPENFHE_THROW("Public key passed to EvalAtIndexKeyGen does not match private key");
+        LUX_FHE_THROW("Public key passed to EvalAtIndexKeyGen does not match private key");
     }
 
     auto&& evalKeys = GetScheme()->EvalAtIndexKeyGen(publicKey, privateKey, indexList);
@@ -401,7 +401,7 @@ template <typename Element>
 Ciphertext<Element> CryptoContextImpl<Element>::EvalMerge(
     const std::vector<Ciphertext<Element>>& ciphertextVector) const {
     if (0 == ciphertextVector.size())
-        OPENFHE_THROW("Input ciphertext vector is empty");
+        LUX_FHE_THROW("Input ciphertext vector is empty");
     ValidateCiphertext(ciphertextVector[0]);
     auto evalAutomorphismKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ciphertextVector[0]->GetKeyTag());
     return GetScheme()->EvalMerge(ciphertextVector, evalAutomorphismKeys);
@@ -413,7 +413,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(ConstCiphertext
                                                                  uint32_t batchSize) const {
     ValidateCiphertext(ct1);
     if (ct2 == nullptr || ct1->GetKeyTag() != ct2->GetKeyTag())
-        OPENFHE_THROW("Information was not generated with this crypto context");
+        LUX_FHE_THROW("Information was not generated with this crypto context");
     auto& evalSumKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ct1->GetKeyTag());
     auto& ek          = CryptoContextImpl<Element>::GetEvalMultKeyVector(ct1->GetKeyTag());
     return GetScheme()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys, ek[0]);
@@ -424,7 +424,7 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalInnerProduct(ConstCiphertext
                                                                  uint32_t batchSize) const {
     ValidateCiphertext(ct1);
     if (ct2 == nullptr)
-        OPENFHE_THROW("Information was not generated with this crypto context");
+        LUX_FHE_THROW("Information was not generated with this crypto context");
     auto& evalSumKeys = CryptoContextImpl<Element>::GetEvalAutomorphismKeyMap(ct1->GetKeyTag());
     return GetScheme()->EvalInnerProduct(ct1, ct2, batchSize, evalSumKeys);
 }
@@ -442,9 +442,9 @@ template <typename Element>
 DecryptResult CryptoContextImpl<Element>::Decrypt(ConstCiphertext<Element>& ciphertext,
                                                   const PrivateKey<Element>& privateKey, Plaintext* plaintext) {
     if (ciphertext == nullptr)
-        OPENFHE_THROW("ciphertext is empty");
+        LUX_FHE_THROW("ciphertext is empty");
     if (plaintext == nullptr)
-        OPENFHE_THROW("plaintext is empty");
+        LUX_FHE_THROW("plaintext is empty");
     ValidateKey(privateKey);
 
     // determine which type of plaintext that you need to decrypt into
@@ -525,10 +525,10 @@ Ciphertext<Element> CryptoContextImpl<Element>::EvalDivide(ConstCiphertext<Eleme
     return EvalChebyshevFunction([](double x) -> double { return 1 / x; }, ciphertext, a, b, degree);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 // the code below is from cryptocontext-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <>
 Plaintext CryptoContextImpl<DCRTPoly>::GetPlaintextForDecrypt(PlaintextEncodings pte, std::shared_ptr<ParmType> evp,
@@ -548,11 +548,11 @@ template <>
 DecryptResult CryptoContextImpl<DCRTPoly>::Decrypt(ConstCiphertext<DCRTPoly>& ciphertext,
                                                    const PrivateKey<DCRTPoly>& privateKey, Plaintext* plaintext) {
     if (ciphertext == nullptr)
-        OPENFHE_THROW("ciphertext is empty");
+        LUX_FHE_THROW("ciphertext is empty");
     if (plaintext == nullptr)
-        OPENFHE_THROW("plaintext is empty");
+        LUX_FHE_THROW("plaintext is empty");
     if (privateKey == nullptr || Mismatched(privateKey->GetCryptoContext()))
-        OPENFHE_THROW("Information was not generated with this crypto context");
+        LUX_FHE_THROW("Information was not generated with this crypto context");
 
     // determine which type of plaintext that you need to decrypt into
     // Plaintext decrypted =
@@ -608,7 +608,7 @@ DecryptResult CryptoContextImpl<DCRTPoly>::MultipartyDecryptFusion(
     for (size_t i = 0; i < last_ciphertext; i++) {
         ValidateCiphertext(partialCiphertextVec[i]);
         if (partialCiphertextVec[i]->GetEncodingType() != partialCiphertextVec[0]->GetEncodingType())
-            OPENFHE_THROW("Ciphertexts have mismatched encoding types");
+            LUX_FHE_THROW("Ciphertexts have mismatched encoding types");
     }
 
     // determine which type of plaintext that you need to decrypt into
@@ -683,10 +683,10 @@ std::unordered_map<uint32_t, DCRTPoly> CryptoContextImpl<DCRTPoly>::ShareKeys(co
                                                                               const std::string& shareType) const {
     // conditions on N and threshold for security with aborts
     if (N < 2)
-        OPENFHE_THROW("Number of parties needs to be at least 3 for aborts");
+        LUX_FHE_THROW("Number of parties needs to be at least 3 for aborts");
 
     if (threshold <= N / 2)
-        OPENFHE_THROW("Threshold required to be majority (more than N/2)");
+        LUX_FHE_THROW("Threshold required to be majority (more than N/2)");
 
     const auto cryptoParams = sk->GetCryptoContext()->GetCryptoParameters();
     auto elementParams      = cryptoParams->GetElementParams();
@@ -697,7 +697,7 @@ std::unordered_map<uint32_t, DCRTPoly> CryptoContextImpl<DCRTPoly>::ShareKeys(co
     for (size_t i = 0; i < vecSize; ++i) {
         auto modq_k = elementParams->GetParams()[i]->GetModulus();
         if (N >= modq_k)
-            OPENFHE_THROW("Number of parties N needs to be less than DCRTPoly moduli");
+            LUX_FHE_THROW("Number of parties N needs to be less than DCRTPoly moduli");
     }
 
     // secret sharing
@@ -778,14 +778,14 @@ void CryptoContextImpl<DCRTPoly>::RecoverSharedKey(PrivateKey<DCRTPoly>& sk,
                                                    std::unordered_map<uint32_t, DCRTPoly>& sk_shares, uint32_t N,
                                                    uint32_t threshold, const std::string& shareType) const {
     if (sk_shares.size() < threshold)
-        OPENFHE_THROW("Number of shares available less than threshold of the sharing scheme");
+        LUX_FHE_THROW("Number of shares available less than threshold of the sharing scheme");
 
     // conditions on N and threshold for security with aborts
     if (N < 2)
-        OPENFHE_THROW("Number of parties needs to be at least 3 for aborts");
+        LUX_FHE_THROW("Number of parties needs to be at least 3 for aborts");
 
     if (threshold <= N / 2)
-        OPENFHE_THROW("Threshold required to be majority (more than N/2)");
+        LUX_FHE_THROW("Threshold required to be majority (more than N/2)");
 
     const auto& cryptoParams  = sk->GetCryptoContext()->GetCryptoParameters();
     const auto& elementParams = cryptoParams->GetElementParams();
@@ -796,7 +796,7 @@ void CryptoContextImpl<DCRTPoly>::RecoverSharedKey(PrivateKey<DCRTPoly>& sk,
     for (size_t k = 0; k < vecSize; k++) {
         auto modq_k = elementParams->GetParams()[k]->GetModulus();
         if (N >= modq_k)
-            OPENFHE_THROW("Number of parties N needs to be less than DCRTPoly moduli");
+            LUX_FHE_THROW("Number of parties N needs to be less than DCRTPoly moduli");
     }
 
     // vector of indexes of the clients
@@ -809,7 +809,7 @@ void CryptoContextImpl<DCRTPoly>::RecoverSharedKey(PrivateKey<DCRTPoly>& sk,
     const uint32_t client_indexes_size = client_indexes.size();
 
     if (client_indexes_size < threshold)
-        OPENFHE_THROW("Not enough shares to recover the secret");
+        LUX_FHE_THROW("Not enough shares to recover the secret");
 
     if (shareType == "additive") {
         DCRTPoly sum_of_elems(elementParams, Format::EVALUATION, true);
@@ -879,4 +879,4 @@ INSTANTIATE_FUNCTION_TEMPLATES(double)
 INSTANTIATE_FUNCTION_TEMPLATES(std::complex<double>)
 // clang-format on
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

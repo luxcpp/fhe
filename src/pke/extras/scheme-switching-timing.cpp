@@ -39,7 +39,7 @@
 #include <chrono>
 #include <unistd.h>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void SwitchCKKSToFHEW(uint32_t depth, uint32_t slots, uint32_t numValues);
 void SwitchFHEWtoCKKS(uint32_t depth, uint32_t slots, uint32_t numValues);

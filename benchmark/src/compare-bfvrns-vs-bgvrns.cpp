@@ -49,7 +49,7 @@
 #include <iterator>
 #include <random>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 usint mult_depth = 3;
 

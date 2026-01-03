@@ -1,0 +1,279 @@
+---
+title: TFHE
+description: Torus Fully Homomorphic Encryption for binary circuits
+---
+
+# TFHE (Torus FHE)
+
+TFHE is a binary FHE scheme optimized for fast bootstrapping and boolean circuit evaluation. Each gate operation includes bootstrapping, enabling unlimited sequential computations.
+
+## Key Features
+
+- **Fast bootstrapping**: ~0.5ms on GPU
+- **Binary operations**: AND, OR, NAND, NOR, XOR, XNOR, NOT
+- **Programmable bootstrapping**: Apply lookup tables during bootstrap
+- **Consistent latency**: Every gate takes the same time
+
+## Quick Start
+
+```cpp
+#include <lux/fhe/binfhe.h>
+
+int main() {
+    // Create context with GPU acceleration
+    auto ctx = lux::fhe::BinaryContext::Create({
+        .security = 128,
+        .backend = lux::fhe::Backend::METAL
+    });
+
+    // Generate keys
+    auto sk = ctx->GenerateSecretKey();
+    auto bk = ctx->GenerateBootstrappingKey(sk);
+
+    // Encrypt bits
+    auto ct_a = ctx->Encrypt(sk, true);
+    auto ct_b = ctx->Encrypt(sk, false);
+
+    // Compute gates
+    auto ct_and = ctx->AND(bk, ct_a, ct_b);    // true AND false = false
+    auto ct_or = ctx->OR(bk, ct_a, ct_b);      // true OR false = true
+    auto ct_nand = ctx->NAND(bk, ct_a, ct_b);  // true NAND false = true
+
+    // Decrypt
+    bool result = ctx->Decrypt(sk, ct_nand);
+    std::cout << "Result: " << result << std::endl;  // 1
+
+    return 0;
+}
+```
+
+## Gates Reference
+
+### Basic Gates
+
+```cpp
+// NOT gate (no bootstrapping key needed)
+auto ct_not = ctx->NOT(ct_a);
+
+// AND gate
+auto ct_and = ctx->AND(bk, ct_a, ct_b);
+
+// OR gate
+auto ct_or = ctx->OR(bk, ct_a, ct_b);
+
+// XOR gate
+auto ct_xor = ctx->XOR(bk, ct_a, ct_b);
+```
+
+### NAND/NOR (Universal Gates)
+
+```cpp
+// NAND - can construct any circuit
+auto ct_nand = ctx->NAND(bk, ct_a, ct_b);
+
+// NOR
+auto ct_nor = ctx->NOR(bk, ct_a, ct_b);
+```
+
+### Ternary Gates
+
+```cpp
+// MUX: if sel then a else b
+auto ct_mux = ctx->MUX(bk, ct_sel, ct_a, ct_b);
+
+// CMUX: constant-time MUX
+auto ct_cmux = ctx->CMUX(bk, ct_sel, ct_a, ct_b);
+```
+
+## Integer Arithmetic
+
+Build integer operations from binary gates:
+
+### Addition
+
+```cpp
+// 8-bit encrypted addition
+std::vector<Ciphertext> EncryptedAdd8(
+    BinaryContext* ctx,
+    const BootstrappingKey& bk,
+    const std::vector<Ciphertext>& a,  // 8 bits
+    const std::vector<Ciphertext>& b   // 8 bits
+) {
+    std::vector<Ciphertext> result(8);
+    Ciphertext carry = ctx->Encrypt(ctx->GetSecretKey(), false);
+
+    for (int i = 0; i < 8; i++) {
+        // Full adder: sum = a XOR b XOR carry
+        auto ab_xor = ctx->XOR(bk, a[i], b[i]);
+        result[i] = ctx->XOR(bk, ab_xor, carry);
+
+        // carry = (a AND b) OR (carry AND (a XOR b))
+        auto ab_and = ctx->AND(bk, a[i], b[i]);
+        auto carry_ab = ctx->AND(bk, carry, ab_xor);
+        carry = ctx->OR(bk, ab_and, carry_ab);
+    }
+    return result;
+}
+```
+
+### Comparison
+
+```cpp
+// 8-bit encrypted comparison: a < b
+Ciphertext EncryptedLessThan8(
+    BinaryContext* ctx,
+    const BootstrappingKey& bk,
+    const std::vector<Ciphertext>& a,
+    const std::vector<Ciphertext>& b
+) {
+    // Start from MSB
+    Ciphertext result = ctx->Encrypt(ctx->GetSecretKey(), false);
+
+    for (int i = 7; i >= 0; i--) {
+        // result = (a[i] < b[i]) OR (result AND (a[i] == b[i]))
+        auto a_not = ctx->NOT(a[i]);
+        auto less = ctx->AND(bk, a_not, b[i]);  // a[i]=0 AND b[i]=1
+
+        auto eq = ctx->XNOR(bk, a[i], b[i]);    // a[i] == b[i]
+        auto propagate = ctx->AND(bk, result, eq);
+
+        result = ctx->OR(bk, less, propagate);
+    }
+    return result;
+}
+```
+
+## Programmable Bootstrapping
+
+Apply arbitrary functions during bootstrapping:
+
+```cpp
+// Define lookup table
+// For 3-bit input (0-7), define output for each value
+std::vector<bool> square_mod8 = {0, 1, 4, 9%8, 16%8, 25%8, 36%8, 49%8};
+//                              {0, 1, 4, 1,   0,    1,    4,    1}
+
+// Create programmable bootstrap
+auto lut = ctx->CreateLUT(square_mod8);
+
+// Apply to encrypted value
+auto ct_input = ctx->EncryptInteger(sk, 5, 3);  // 5 in 3 bits
+auto ct_squared = ctx->ProgrammableBootstrap(bk, ct_input, lut);
+// ct_squared = Encrypt(1) because 5² mod 8 = 25 mod 8 = 1
+```
+
+### Common LUT Examples
+
+```cpp
+// Sign function: -1, 0, +1 encoded as 0, 1, 2
+std::vector<bool> sign_lut = build_sign_lut(bits);
+
+// ReLU-like activation
+std::vector<bool> relu_lut = build_relu_lut(bits, threshold);
+
+// Absolute value
+std::vector<bool> abs_lut = build_abs_lut(bits);
+```
+
+## Multi-Value Bootstrapping
+
+Bootstrap multiple bits simultaneously:
+
+```cpp
+// Encrypt 4-bit integer
+auto ct_bits = ctx->EncryptInteger(sk, 7, 4);  // {1,1,1,0}
+
+// Bootstrap all bits in parallel
+auto refreshed = ctx->BatchBootstrap(bk, ct_bits);
+// All bits now have fresh noise
+```
+
+## Performance
+
+### Benchmarks (M3 Max)
+
+| Operation | CPU | Metal GPU | Speedup |
+|-----------|-----|-----------|---------|
+| NAND gate | 8.2ms | 0.45ms | 18x |
+| Bootstrap | 8.2ms | 0.45ms | 18x |
+| Key generation | 450ms | 85ms | 5x |
+| 8-bit addition | 140ms | 8ms | 17x |
+| 8-bit comparison | 130ms | 7ms | 19x |
+
+### Throughput
+
+```cpp
+// Batch processing for maximum throughput
+std::vector<std::pair<Ciphertext, Ciphertext>> gates(1000);
+auto results = ctx->BatchNAND(bk, gates);
+
+// Throughput: ~500,000 gates/sec on M3 Max GPU
+```
+
+## Key Sizes
+
+| Security | Secret Key | Bootstrapping Key | Total |
+|----------|-----------|-------------------|-------|
+| 128-bit | 1 KB | 30 MB | ~31 MB |
+| 192-bit | 2 KB | 60 MB | ~62 MB |
+| 256-bit | 4 KB | 120 MB | ~122 MB |
+
+## Parameter Selection
+
+```cpp
+// Standard 128-bit security
+auto ctx = lux::fhe::BinaryContext::Create({
+    .security = 128,
+    .std_dev = 3.19,     // Noise standard deviation
+    .base_bits = 23,     // Bootstrapping precision
+    .decomp_size = 3     // Gadget decomposition size
+});
+
+// High precision (slower but more accurate)
+auto ctx_precise = lux::fhe::BinaryContext::Create({
+    .security = 128,
+    .std_dev = 3.19,
+    .base_bits = 24,
+    .decomp_size = 4
+});
+```
+
+## Use Cases
+
+### Private Set Intersection
+
+```cpp
+// Check if encrypted query matches any element
+Ciphertext EncryptedContains(
+    const std::vector<Ciphertext>& encrypted_query,  // 8-bit value
+    const std::vector<std::vector<bool>>& set        // Plaintext set
+) {
+    Ciphertext result = ctx->Encrypt(sk, false);
+
+    for (const auto& element : set) {
+        // Compare query with each element
+        auto match = EncryptedEquals(encrypted_query, element);
+        result = ctx->OR(bk, result, match);
+    }
+    return result;
+}
+```
+
+### Private Database Queries
+
+```cpp
+// Encrypted WHERE clause evaluation
+Ciphertext EvaluateWhere(
+    const std::vector<Ciphertext>& encrypted_age,    // Encrypted: age
+    int threshold                                      // Plaintext: 18
+) {
+    auto encrypted_threshold = ctx->EncryptInteger(sk, threshold, 8);
+    return EncryptedGreaterEqual(encrypted_age, encrypted_threshold);
+}
+```
+
+## Further Reading
+
+- [Bootstrapping](/docs/concepts/bootstrapping) - How TFHE bootstrapping works
+- [GPU Backends](/docs/backends) - Hardware acceleration
+- [API Reference](/docs/api/cpp-api) - Complete API documentation

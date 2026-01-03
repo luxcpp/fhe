@@ -35,7 +35,7 @@
 
 #include "openfhecore.h"
 // #include <vld.h>
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 int main() {
     // double std = 1000;

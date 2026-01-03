@@ -34,7 +34,7 @@
 #include "binfhe-constants.h"
 #include "utils/exception.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 std::ostream& operator<<(std::ostream& s, BINFHE_PARAMSET f) {
     switch (f) {
@@ -290,7 +290,7 @@ void isMethodCompatible(BINFHE_METHOD m, BINFHE_PARAMSET p) {
             case LPF_STD128Q_LMKCDEY:
                 break;
             default:
-                OPENFHE_THROW("Specified BINFHE_METHOD and BINFHE_PARAMSET are incompatible");
+                LUX_FHE_THROW("Specified BINFHE_METHOD and BINFHE_PARAMSET are incompatible");
         }
     }
     else if (m == AP || m == GINX) {
@@ -321,12 +321,12 @@ void isMethodCompatible(BINFHE_METHOD m, BINFHE_PARAMSET p) {
             case SIGNED_MOD_TEST:
                 break;
             default:
-                OPENFHE_THROW("Specified BINFHE_METHOD and BINFHE_PARAMSET are incompatible");
+                LUX_FHE_THROW("Specified BINFHE_METHOD and BINFHE_PARAMSET are incompatible");
         }
     }
     else {
-        OPENFHE_THROW("Invalid BINFHE_METHOD");
+        LUX_FHE_THROW("Invalid BINFHE_METHOD");
     }
 }
 
-};  // namespace lbcrypto
+};  // namespace lux::fhe

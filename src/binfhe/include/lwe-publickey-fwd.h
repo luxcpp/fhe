@@ -33,13 +33,13 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class LWEPublicKeyImpl;
 
 using LWEPublicKey      = std::shared_ptr<LWEPublicKeyImpl>;
 using ConstLWEPublicKey = const std::shared_ptr<const LWEPublicKeyImpl>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __LWE_PUBLICKEY_FWD_H__

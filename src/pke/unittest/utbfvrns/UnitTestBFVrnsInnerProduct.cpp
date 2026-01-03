@@ -38,7 +38,7 @@
 
 #include "utils/debug.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 namespace {
 class UTBFVRNS_INNERPRODUCT : public ::testing::Test {
@@ -73,14 +73,14 @@ int64_t BFVrnsInnerProduct(const std::vector<int64_t> testVec) {
     CCParams<CryptoContextBFVRNS> parameters;
     parameters.SetPlaintextModulus(65537);
     parameters.SetMultiplicativeDepth(20);
-    parameters.SetSecurityLevel(lbcrypto::HEStd_NotSet);
+    parameters.SetSecurityLevel(lux::fhe::HEStd_NotSet);
     parameters.SetRingDim(1 << 7);
     uint32_t batchSize = parameters.GetRingDim() / 2;
 
     /////////////////////////////////////////////////////////
     // Set crypto params and create context
     /////////////////////////////////////////////////////////
-    lbcrypto::CryptoContext<lbcrypto::DCRTPoly> cc;
+    lux::fhe::CryptoContext<lux::fhe::DCRTPoly> cc;
     cc = GenCryptoContext(parameters);
 
     // Enable the features that you wish to use.
@@ -95,7 +95,7 @@ int64_t BFVrnsInnerProduct(const std::vector<int64_t> testVec) {
     Plaintext plaintext1 = cc->MakePackedPlaintext(testVec);
     auto ct1             = cc->Encrypt(keys.publicKey, plaintext1);
     auto finalResult     = cc->EvalInnerProduct(ct1, ct1, batchSize);
-    lbcrypto::Plaintext res;
+    lux::fhe::Plaintext res;
     cc->Decrypt(keys.secretKey, finalResult, &res);
     return res->GetPackedValue()[0];
 }

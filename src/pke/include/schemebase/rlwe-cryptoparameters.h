@@ -33,8 +33,8 @@
   ring-learn-with-errors functionality
  */
 
-#ifndef LBCRYPTO_RLWE_CRYPTOPARAMETERS_H
-#define LBCRYPTO_RLWE_CRYPTOPARAMETERS_H
+#ifndef LUX_FHE_RLWE_CRYPTOPARAMETERS_H
+#define LUX_FHE_RLWE_CRYPTOPARAMETERS_H
 
 #include <memory>
 #include <string>
@@ -47,7 +47,7 @@
 // TODO - temp include for the SecurityLevel
 #include "lattice/stdlatticeparms.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Template for crypto parameters.
@@ -597,6 +597,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

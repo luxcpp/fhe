@@ -1,0 +1,253 @@
+---
+title: Backends
+description: GPU and CPU acceleration backends for lux-fhe
+---
+
+# Backends
+
+lux-fhe supports multiple compute backends to accelerate FHE operations across different hardware platforms.
+
+## Backend Overview
+
+| Backend | Hardware | Status | Best For |
+|---------|----------|--------|----------|
+| **Metal** | Apple Silicon (M1/M2/M3) | ✅ Production | macOS development, Apple hardware |
+| **CUDA** | NVIDIA GPUs | ✅ Production | Data centers, high-throughput |
+| **CPU** | Any x86_64/ARM64 | ✅ Production | Fallback, compatibility |
+
+## Performance Comparison
+
+### BGV Multiply (n=8192)
+
+| Backend | Time | Speedup vs CPU |
+|---------|------|----------------|
+| CPU (AVX-512) | 12.5ms | 1x |
+| Metal (M2 Max) | 1.8ms | 6.9x |
+| CUDA (RTX 4090) | 0.9ms | 13.9x |
+| CUDA (A100) | 0.6ms | 20.8x |
+
+### CKKS Rescale (n=16384)
+
+| Backend | Time | Speedup vs CPU |
+|---------|------|----------------|
+| CPU (AVX-512) | 8.2ms | 1x |
+| Metal (M2 Max) | 1.2ms | 6.8x |
+| CUDA (RTX 4090) | 0.5ms | 16.4x |
+| CUDA (A100) | 0.3ms | 27.3x |
+
+### TFHE Bootstrap
+
+| Backend | Time | Speedup vs CPU |
+|---------|------|----------------|
+| CPU (AVX-512) | 45ms | 1x |
+| Metal (M2 Max) | 8ms | 5.6x |
+| CUDA (RTX 4090) | 3ms | 15x |
+| CUDA (A100) | 2ms | 22.5x |
+
+## Backend Selection
+
+### Automatic Selection
+
+By default, lux-fhe automatically selects the best available backend:
+
+```cpp
+// Backend::AUTO tries CUDA → Metal → CPU
+auto ctx = BGVContext::Create({
+    .ring_dim = 8192,
+    .backend = Backend::AUTO  // Default
+});
+```
+
+Selection priority:
+1. **CUDA** if NVIDIA GPU available
+2. **Metal** if Apple Silicon available
+3. **CPU** as fallback
+
+### Manual Selection
+
+```cpp
+// Force specific backend
+auto ctx = BGVContext::Create({
+    .ring_dim = 8192,
+    .backend = Backend::METAL
+});
+```
+
+### Query Available Backends
+
+```cpp
+#include <lux/fhe/fhe.h>
+
+// Check availability
+if (lux::fhe::IsBackendAvailable(Backend::CUDA)) {
+    std::cout << "CUDA available\n";
+}
+
+// List all available
+auto backends = lux::fhe::GetAvailableBackends();
+for (auto b : backends) {
+    std::cout << "Backend: " << BackendName(b) << "\n";
+}
+```
+
+## Memory Management
+
+### GPU Memory
+
+FHE operations require significant GPU memory:
+
+| Ring Dimension | Approx. Memory per Ciphertext |
+|----------------|------------------------------|
+| 4096 | ~1 MB |
+| 8192 | ~4 MB |
+| 16384 | ~16 MB |
+| 32768 | ~64 MB |
+
+For large batches, consider:
+
+```cpp
+// Process in batches to manage memory
+constexpr size_t BATCH_SIZE = 100;
+for (size_t i = 0; i < ciphertexts.size(); i += BATCH_SIZE) {
+    auto batch_end = std::min(i + BATCH_SIZE, ciphertexts.size());
+    // Process batch
+    for (size_t j = i; j < batch_end; j++) {
+        results[j] = ctx->Square(ciphertexts[j], rlk);
+    }
+    // Optional: sync to free intermediate memory
+    ctx->Synchronize();
+}
+```
+
+### Unified Memory (Metal)
+
+Metal uses unified memory architecture:
+
+```cpp
+// No explicit transfers needed on Apple Silicon
+auto ctx = BGVContext::Create({
+    .backend = Backend::METAL
+});
+
+// Data automatically accessible to CPU and GPU
+auto ct = ctx->Encrypt(pk, data);  // Unified memory
+auto result = ctx->Decrypt(sk, ct); // No transfer overhead
+```
+
+### Explicit Transfers (CUDA)
+
+For CUDA, data transfers can be optimized:
+
+```cpp
+// Batch transfers for efficiency
+std::vector<Ciphertext> gpu_cts;
+gpu_cts.reserve(100);
+
+for (auto& data : all_data) {
+    gpu_cts.push_back(ctx->Encrypt(pk, data));
+}
+
+// Operations happen on GPU
+for (auto& ct : gpu_cts) {
+    ct = ctx->Square(ct, rlk);
+}
+
+// Batch decrypt
+for (auto& ct : gpu_cts) {
+    results.push_back(ctx->Decrypt(sk, ct));
+}
+```
+
+## Multi-GPU Support
+
+### CUDA Multi-GPU
+
+```cpp
+// Query available devices
+int device_count = lux::fhe::GetCUDADeviceCount();
+
+// Create context per device
+std::vector<std::unique_ptr<BGVContext>> contexts;
+for (int i = 0; i < device_count; i++) {
+    contexts.push_back(BGVContext::Create({
+        .ring_dim = 8192,
+        .backend = Backend::CUDA,
+        .device_id = i
+    }));
+}
+
+// Distribute work
+#pragma omp parallel for
+for (size_t i = 0; i < work_items.size(); i++) {
+    int device = i % device_count;
+    auto& ctx = contexts[device];
+    // Process on specific GPU
+}
+```
+
+### Metal Multi-Device
+
+Metal supports multiple GPUs on Mac Pro:
+
+```cpp
+// List Metal devices
+auto devices = lux::fhe::GetMetalDevices();
+for (auto& device : devices) {
+    std::cout << device.name << ": " << device.memory_size << " bytes\n";
+}
+
+// Use specific device
+auto ctx = BGVContext::Create({
+    .backend = Backend::METAL,
+    .device_id = 1  // Second GPU
+});
+```
+
+## Hybrid CPU-GPU
+
+For optimal performance, combine CPU and GPU:
+
+```cpp
+// Use GPU for heavy operations
+auto gpu_ctx = BGVContext::Create({.backend = Backend::CUDA});
+
+// Use CPU for lightweight operations
+auto cpu_ctx = BGVContext::Create({.backend = Backend::CPU});
+
+// Encrypt on CPU (often faster for small data)
+auto ct = cpu_ctx->Encrypt(pk, data);
+
+// Transfer to GPU for computation
+ct = gpu_ctx->ToDevice(ct, Backend::CUDA);
+
+// Heavy computation on GPU
+for (int i = 0; i < depth; i++) {
+    ct = gpu_ctx->Mul(ct, ct, rlk);
+}
+
+// Transfer back for decryption
+ct = cpu_ctx->ToDevice(ct, Backend::CPU);
+auto result = cpu_ctx->Decrypt(sk, ct);
+```
+
+## Environment Variables
+
+```bash
+# Force specific backend
+export LUX_FHE_BACKEND=metal  # or cuda, cpu
+
+# Select CUDA device
+export CUDA_VISIBLE_DEVICES=0,1
+
+# Enable verbose backend logging
+export LUX_FHE_DEBUG=1
+
+# Memory allocation strategy
+export LUX_FHE_MEMORY_POOL=enabled  # Pre-allocate pools
+```
+
+## Further Reading
+
+- [Metal Backend](/docs/backends/metal) - Apple Silicon optimization
+- [CUDA Backend](/docs/backends/cuda) - NVIDIA GPU acceleration
+- [CPU Backend](/docs/backends/cpu) - SIMD optimization

@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class EvalKeyRelinImpl;
@@ -45,6 +45,6 @@ class EvalKeyRelinImpl;
 template <typename Element>
 using EvalKeyRelin = std::shared_ptr<EvalKeyRelinImpl<Element>>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __EVALKEYRELIN_FWD_H__

@@ -38,7 +38,7 @@
 #include <ostream>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 SCHEME convertToSCHEME(const std::string& str) {
     if (str == "CKKSRNS_SCHEME")
@@ -49,7 +49,7 @@ SCHEME convertToSCHEME(const std::string& str) {
         return BGVRNS_SCHEME;
 
     std::string errMsg(std::string("Unknown schemeId ") + str);
-    OPENFHE_THROW(errMsg);
+    LUX_FHE_THROW(errMsg);
 }
 
 std::string convertToString(SCHEME schemeId) noexcept {
@@ -78,10 +78,10 @@ std::ostream& operator<<(std::ostream& os, SCHEME schemeId) {
             break;
         default:
             std::string errMsg(std::string("Unknown schemeId ") + std::to_string(schemeId));
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
     }
 
     return os;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

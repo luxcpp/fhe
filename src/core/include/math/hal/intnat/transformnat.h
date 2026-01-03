@@ -33,8 +33,8 @@
  This file contains the linear transform interface functionality for the native math backend
 */
 
-#ifndef LBCRYPTO_MATH_HAL_INTNAT_TRANSFORMNAT_H
-#define LBCRYPTO_MATH_HAL_INTNAT_TRANSFORMNAT_H
+#ifndef LUX_FHE_MATH_HAL_INTNAT_TRANSFORMNAT_H
+#define LUX_FHE_MATH_HAL_INTNAT_TRANSFORMNAT_H
 
 #include "math/hal/transform.h"
 
@@ -245,7 +245,7 @@ public:
  * @brief Golden Chinese Remainder Transform FFT implementation.
  */
 template <typename VecType>
-class ChineseRemainderTransformFTTNat final : public lbcrypto::ChineseRemainderTransformFTTInterface<VecType> {
+class ChineseRemainderTransformFTTNat final : public lux::fhe::ChineseRemainderTransformFTTInterface<VecType> {
     using IntType = typename VecType::Integer;
 
 public:
@@ -479,7 +479,7 @@ private:
  * @brief Chinese Remainder Transform for arbitrary cyclotomics.
  */
 template <typename VecType>
-class ChineseRemainderTransformArbNat final : public lbcrypto::ChineseRemainderTransformArbInterface<VecType> {
+class ChineseRemainderTransformArbNat final : public lux::fhe::ChineseRemainderTransformArbInterface<VecType> {
     using IntType = typename VecType::Integer;
 
 public:

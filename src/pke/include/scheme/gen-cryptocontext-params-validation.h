@@ -33,7 +33,7 @@
 
 #include "scheme/gen-cryptocontext-params.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief Validate parameters for generating cryptocontext. Doesn't validate the parameters which set functions
  *        are disabled as they cannot be set by users
@@ -41,6 +41,6 @@ namespace lbcrypto {
  */
 void validateParametersForCryptocontext(const Params& parameters);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GEN_CRYPTOCONTEXT_PARAMS_VALIDATION_H__

@@ -33,8 +33,8 @@
  * This file contains the vector manipulation functionality for native integers
  */
 
-#ifndef LBCRYPTO_INC_MATH_HAL_INTNAT_MUBINTVECNAT_H
-#define LBCRYPTO_INC_MATH_HAL_INTNAT_MUBINTVECNAT_H
+#ifndef LUX_FHE_INC_MATH_HAL_INTNAT_MUBINTVECNAT_H
+#define LUX_FHE_INC_MATH_HAL_INTNAT_MUBINTVECNAT_H
 
 #include "math/hal/basicint.h"
 #include "math/hal/intnat/ubintnat.h"
@@ -117,8 +117,8 @@ bool operator!=(const NAlloc<T>&, const NAlloc<U>&) { return false; }
 #endif
 
 template <class IntegerType>
-class NativeVectorT final : public lbcrypto::BigVectorInterface<NativeVectorT<IntegerType>, IntegerType>,
-                            public lbcrypto::Serializable {
+class NativeVectorT final : public lux::fhe::BigVectorInterface<NativeVectorT<IntegerType>, IntegerType>,
+                            public lux::fhe::Serializable {
 private:
     // m_modulus stores the internal modulus of the vector.
     IntegerType m_modulus{0};
@@ -161,7 +161,7 @@ public:
     constexpr NativeVectorT(usint length, const IntegerType& modulus) noexcept : m_modulus{modulus}, m_data(length) {
         // TODO: better performance if this check is done at poly level
         //        if (modulus.GetMSB() > MAX_MODULUS_SIZE)
-        //            OPENFHE_THROW(std::to_string(modulus.GetMSB()) +
+        //            LUX_FHE_THROW(std::to_string(modulus.GetMSB()) +
         //                              " bits larger than max modulus bits " + std::to_string(MAX_MODULUS_SIZE));
     }
 
@@ -169,7 +169,7 @@ public:
         : m_modulus{modulus}, m_data(length, val.Mod(modulus)) {
         // TODO: better performance if this check is done at poly level
         //        if (modulus.GetMSB() > MAX_MODULUS_SIZE)
-        //            OPENFHE_THROW(std::to_string(modulus.GetMSB()) +
+        //            LUX_FHE_THROW(std::to_string(modulus.GetMSB()) +
         //                              " bits larger than max modulus bits " + std::to_string(MAX_MODULUS_SIZE));
     }
 
@@ -279,13 +279,13 @@ public:
    */
     IntegerType& at(size_t i) {
         if (!NativeVectorT::IndexCheck(i))
-            OPENFHE_THROW("NativeVectorT index out of range");
+            LUX_FHE_THROW("NativeVectorT index out of range");
         return m_data[i];
     }
 
     const IntegerType& at(size_t i) const {
         if (!NativeVectorT::IndexCheck(i))
-            OPENFHE_THROW("NativeVectorT index out of range");
+            LUX_FHE_THROW("NativeVectorT index out of range");
         return m_data[i];
     }
 
@@ -312,7 +312,7 @@ public:
         if (value.GetMSB() > MAX_MODULUS_SIZE) {
             std::string errMsg{"Requested modulus' size " + std::to_string(value.GetMSB()) + " is not supported."};
             errMsg += " NativeVectorT supports only modulus size <=  " + std::to_string(MAX_MODULUS_SIZE);
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
         m_modulus.m_value = value.m_value;
     }
@@ -675,7 +675,7 @@ public:
     typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ::cereal::size_type size;
@@ -696,7 +696,7 @@ public:
     typename std::enable_if<cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_data));
@@ -772,4 +772,4 @@ inline void CEREAL_LOAD_FUNCTION_NAME(Archive& ar, std::vector<intnat::NativeInt
 #endif
 }  // namespace cereal
 
-#endif  // LBCRYPTO_MATH_HAL_INTNAT_MUBINTVECNAT_H
+#endif  // LUX_FHE_MATH_HAL_INTNAT_MUBINTVECNAT_H

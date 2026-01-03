@@ -37,7 +37,7 @@
 #include <cstdint>
 #include <iosfwd>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 using LWEPlaintext        = int64_t;
 using LWEPlaintextModulus = uint64_t;
@@ -137,6 +137,6 @@ std::ostream& operator<<(std::ostream& s, KEYGEN_MODE f);
 
 void isMethodCompatible(BINFHE_METHOD m, BINFHE_PARAMSET p);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _BINFHE_CONSTANTS_H_

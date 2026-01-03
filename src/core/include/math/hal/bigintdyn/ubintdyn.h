@@ -39,8 +39,8 @@
 #include "config_core.h"
 #ifdef WITH_BE4
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTDYN_UBINTDYN_H
-        #define LBCRYPTO_MATH_HAL_BIGINTDYN_UBINTDYN_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTDYN_UBINTDYN_H
+        #define LUX_FHE_MATH_HAL_BIGINTDYN_UBINTDYN_H
 
         #include "math/hal/basicint.h"
         #include "math/hal/integer.h"
@@ -136,7 +136,7 @@ struct DataTypes<uint128_t> {
         #endif
 
 template <typename limb_t>
-class ubint final : public lbcrypto::BigIntegerInterface<ubint<limb_t>> {
+class ubint final : public lux::fhe::BigIntegerInterface<ubint<limb_t>> {
 private:
     // variable that stores the MOST SIGNIFICANT BIT position in the
     usint m_MSB{0};
@@ -200,7 +200,7 @@ public:
    * @param val is the initial integer represented as a uint64_t.
    */
     template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-    ubint(T val) : m_MSB{lbcrypto::GetMSB(val)}, m_value{limb_t(val)} {
+    ubint(T val) : m_MSB{lux::fhe::GetMSB(val)}, m_value{limb_t(val)} {
         if constexpr (sizeof(T) > sizeof(limb_t)) {
             if ((val >>= m_limbBitLength) > 0) {
                 m_value.resize(ubint::MSBToLimbs(m_MSB));
@@ -229,7 +229,7 @@ public:
     }
 
     ubint& operator=(const limb_t& val) noexcept {
-        m_MSB = lbcrypto::GetMSB(val);
+        m_MSB = lux::fhe::GetMSB(val);
         m_value.resize(1);
         m_value[0] = val;
         return *this;
@@ -644,10 +644,10 @@ public:
     }
 
     ubint ModMulFastConst(const ubint& b, const ubint& modulus, const ubint& bInv) const {
-        OPENFHE_THROW("ModMulFastConst is not implemented for backend 4");
+        LUX_FHE_THROW("ModMulFastConst is not implemented for backend 4");
     }
     ubint& ModMulFastConstEq(const ubint& b, const ubint& modulus, const ubint& bInv) {
-        OPENFHE_THROW("ModMulFastConstEq is not implemented for backend 4");
+        LUX_FHE_THROW("ModMulFastConstEq is not implemented for backend 4");
     }
 
     /**
@@ -775,7 +775,7 @@ public:
             if (0 != x.m_value[i])
                 return false;
         }
-        auto msb{lbcrypto::GetMSB(x.m_value[limbs]) - 1};
+        auto msb{lux::fhe::GetMSB(x.m_value[limbs]) - 1};
         auto mask{(1 << msb) - 1};
         return (0 == (x.m_value[limbs] & mask));
     }
@@ -890,7 +890,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_value));
@@ -911,7 +911,7 @@ private:
    */
     void SetMSB() {
         m_MSB = m_limbBitLength * static_cast<usint>(m_value.size() - 1);
-        m_MSB += lbcrypto::GetMSB(m_value.back());
+        m_MSB += lux::fhe::GetMSB(m_value.back());
     }
 
     /**
@@ -926,7 +926,7 @@ private:
         while (size > 0 && m_value[size--] == 0)
             m_value.pop_back();
         m_MSB = m_limbBitLength * static_cast<usint>(m_value.size() - 1);
-        m_MSB += lbcrypto::GetMSB(m_value.back());
+        m_MSB += lux::fhe::GetMSB(m_value.back());
     }
 
     /**
@@ -966,5 +966,5 @@ std::ostream &operator<<(std::ostream& os, const std::vector<limb_t>& v) {
 
 }  // namespace bigintdyn
 
-    #endif  // LBCRYPTO_MATH_HAL_BIGINTDYN_UBINTDYN_H
+    #endif  // LUX_FHE_MATH_HAL_BIGINTDYN_UBINTDYN_H
 #endif

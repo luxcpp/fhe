@@ -45,7 +45,7 @@ CKKS implementation. See https://eprint.iacr.org/2020/1118 for details.
 #include <unordered_set>
 #include <iostream>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 #if NATIVEINT == 128
 constexpr size_t AUXMODSIZE = 119;
@@ -87,18 +87,18 @@ bool ParameterGenerationCKKSRNS::ParamsGenCKKSRNSInternal(std::shared_ptr<Crypto
             errorMsg += " especially for larger multiplicative depth.";
             errorMsg += " Please increase the scaling factor (scalingModSize) or the register word size.";
             errorMsg += " Also, you can use COMPOSITESCALINGMANUAL at your own risk.";
-            OPENFHE_THROW(errorMsg);
+            LUX_FHE_THROW(errorMsg);
         }
         else if (compositeDegree == 1 && registerWordSize < 64) {
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "This COMPOSITESCALING* version does not support composite degree == 1 with register size < 64.");
         }
         else if (compositeDegree < 1) {
-            OPENFHE_THROW("Composite degree must be greater than or equal to 1.");
+            LUX_FHE_THROW("Composite degree must be greater than or equal to 1.");
         }
 
         if (registerWordSize < 20 && scalTech == COMPOSITESCALINGAUTO) {
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "Register word size must be greater than or equal to 20 for COMPOSITESCALINGAUTO. Otherwise, try it with COMPOSITESCALINGMANUAL.");
         }
     }
@@ -106,7 +106,7 @@ bool ParameterGenerationCKKSRNS::ParamsGenCKKSRNSInternal(std::shared_ptr<Crypto
     if ((PREMode != INDCPA) && (PREMode != NOT_SET)) {
         std::stringstream s;
         s << "This PRE mode " << PREMode << " is not supported for CKKSRNS";
-        OPENFHE_THROW(s.str());
+        LUX_FHE_THROW(s.str());
     }
 
     // TODO: Allow the user to specify this?
@@ -146,20 +146,20 @@ bool ParameterGenerationCKKSRNS::ParamsGenCKKSRNSInternal(std::shared_ptr<Crypto
         else {
             // Check whether particular selection is standards-compliant
             if (he_std_n > n) {
-                OPENFHE_THROW("The specified ring dimension (" + std::to_string(n) +
+                LUX_FHE_THROW("The specified ring dimension (" + std::to_string(n) +
                               ") does not comply with HE standards recommendation (" + std::to_string(he_std_n) + ").");
             }
         }
     }
     else if (n == 0) {
-        OPENFHE_THROW("Please specify the ring dimension or desired security level.");
+        LUX_FHE_THROW("Please specify the ring dimension or desired security level.");
     }
 
     if (encodingParams->GetBatchSize() > n / 2)
-        OPENFHE_THROW("The batch size cannot be larger than ring dimension / 2.");
+        LUX_FHE_THROW("The batch size cannot be larger than ring dimension / 2.");
 
     if (encodingParams->GetBatchSize() & (encodingParams->GetBatchSize() - 1))
-        OPENFHE_THROW("The batch size can only be set to zero (for full packing) or a power of two.");
+        LUX_FHE_THROW("The batch size can only be set to zero (for full packing) or a power of two.");
     //// End HE Standards compliance logic/check
 
     uint32_t dcrtBits = scalingModSize;
@@ -201,7 +201,7 @@ bool ParameterGenerationCKKSRNS::ParamsGenCKKSRNSInternal(std::shared_ptr<Crypto
         if (n < nActual) {
             std::string errMsg("The ring dimension [");
             errMsg += std::to_string(n) + "] does not meet security requirements. ";
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
     }
 
@@ -213,7 +213,7 @@ void ParameterGenerationCKKSRNS::CompositePrimeModuliGen(std::vector<NativeInteg
                                                          uint32_t numPrimes, uint32_t firstModSize, uint32_t dcrtBits,
                                                          uint32_t cyclOrder, uint32_t registerWordSize) const {
     if (firstModSize <= dcrtBits) {
-        OPENFHE_THROW("firstModSize must be > scalingModSize.");
+        LUX_FHE_THROW("firstModSize must be > scalingModSize.");
     }
 
     std::unordered_set<uint64_t> moduliQRecord;
@@ -265,10 +265,10 @@ void ParameterGenerationCKKSRNS::CompositePrimeModuliGen(std::vector<NativeInteg
                 qPrev[step] = sfInt - sfRem + NativeInteger(1) - NativeInteger(cyclOrder);
                 do {
                     try {
-                        qPrev[step] = lbcrypto::PreviousPrime(qPrev[step], cyclOrder);
+                        qPrev[step] = lux::fhe::PreviousPrime(qPrev[step], cyclOrder);
                     }
                     catch (const OpenFHEException& ex) {
-                        OPENFHE_THROW(compositeScalingErrMsg);
+                        LUX_FHE_THROW(compositeScalingErrMsg);
                     }
                 } while (std::log2(qPrev[step].ConvertToDouble()) > registerWordSize ||
                          moduliQRecord.find(qPrev[step].ConvertToInt()) != moduliQRecord.end() ||
@@ -283,14 +283,14 @@ void ParameterGenerationCKKSRNS::CompositePrimeModuliGen(std::vector<NativeInteg
                 do {
                     try {
                         if (fitsRegister == true) {
-                            qNext[step] = lbcrypto::NextPrime(qNext[step], cyclOrder);
+                            qNext[step] = lux::fhe::NextPrime(qNext[step], cyclOrder);
                         }
                         else {
-                            qNext[step] = lbcrypto::PreviousPrime(qNext[step], cyclOrder);
+                            qNext[step] = lux::fhe::PreviousPrime(qNext[step], cyclOrder);
                         }
                     }
                     catch (const OpenFHEException& ex) {
-                        OPENFHE_THROW(compositeScalingErrMsg);
+                        LUX_FHE_THROW(compositeScalingErrMsg);
                     }
                     if (std::log2(qNext[step].ConvertToDouble()) > registerWordSize) {
                         fitsRegister = false;
@@ -308,10 +308,10 @@ void ParameterGenerationCKKSRNS::CompositePrimeModuliGen(std::vector<NativeInteg
                     do {
                         qCurrentRecord.erase(qPrevNext.ConvertToInt());  // constant time
                         try {
-                            qPrevNext = lbcrypto::PreviousPrime(qPrevNext, cyclOrder);
+                            qPrevNext = lux::fhe::PreviousPrime(qPrevNext, cyclOrder);
                         }
                         catch (const OpenFHEException& ex) {
-                            OPENFHE_THROW(compositeScalingErrMsg);
+                            LUX_FHE_THROW(compositeScalingErrMsg);
                         }
                     } while (std::log2(qPrevNext.ConvertToDouble()) > registerWordSize ||
                              moduliQRecord.find(qPrevNext.ConvertToInt()) != moduliQRecord.end() ||
@@ -346,14 +346,14 @@ void ParameterGenerationCKKSRNS::CompositePrimeModuliGen(std::vector<NativeInteg
                         qCurrentRecord.erase(qNextPrev.ConvertToInt());  // constant time
                         try {
                             if (fitsRegister) {
-                                qNextPrev = lbcrypto::NextPrime(qNextPrev, cyclOrder);
+                                qNextPrev = lux::fhe::NextPrime(qNextPrev, cyclOrder);
                             }
                             else {
-                                qNextPrev = lbcrypto::PreviousPrime(qNextPrev, cyclOrder);
+                                qNextPrev = lux::fhe::PreviousPrime(qNextPrev, cyclOrder);
                             }
                         }
                         catch (const OpenFHEException& ex) {
-                            OPENFHE_THROW(compositeScalingErrMsg);
+                            LUX_FHE_THROW(compositeScalingErrMsg);
                         }
                         if (std::log2(qNextPrev.ConvertToDouble()) > registerWordSize) {
                             fitsRegister = false;
@@ -406,7 +406,7 @@ void ParameterGenerationCKKSRNS::CompositePrimeModuliGen(std::vector<NativeInteg
             remBits -= qBitSize;
         }
         catch (const OpenFHEException& ex) {
-            OPENFHE_THROW(compositeScalingErrMsg);
+            LUX_FHE_THROW(compositeScalingErrMsg);
         }
     }
 
@@ -531,4 +531,4 @@ void ParameterGenerationCKKSRNS::SinglePrimeModuliGen(std::vector<NativeInteger>
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -37,7 +37,7 @@
 #include <string>
 
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class DataAndLocation {
     std::string getDataDir();
@@ -45,7 +45,7 @@ class DataAndLocation {
 protected:
     CryptoContext<DCRTPoly> cryptoContext{nullptr};
     PublicKey<DCRTPoly> publicKey{nullptr};
-    std::shared_ptr<lbcrypto::BinFHEContext> binFHECryptoContext{nullptr};
+    std::shared_ptr<lux::fhe::BinFHEContext> binFHECryptoContext{nullptr};
     Ciphertext<DCRTPoly> FHEWtoCKKSSwitchKey{nullptr};
     Ciphertext<DCRTPoly> RAWCiphertext{nullptr};
 
@@ -80,7 +80,7 @@ protected:
 public:
     void SetDataDirectory(const std::string& dir) {
         if (dir.empty()) {
-            OPENFHE_THROW("dir is an empty string");
+            LUX_FHE_THROW("dir is an empty string");
         }
 
         // remove slash if it is the last charactes in "dir"
@@ -117,6 +117,6 @@ public:
     void Deserialize();
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __SCHEMESWITCHING_DATA_SERIALIZER_H__

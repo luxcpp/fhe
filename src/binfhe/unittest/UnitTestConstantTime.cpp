@@ -13,7 +13,7 @@
 #include <random>
 #include <vector>
 
-using namespace lbcrypto::security;
+using namespace lux::fhe::security;
 
 // ============================================================================
 // Constant-Time Select Tests

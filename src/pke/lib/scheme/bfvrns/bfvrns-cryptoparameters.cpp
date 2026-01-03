@@ -38,7 +38,7 @@ BFV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include "cryptocontext.h"
 #include "scheme/bfvrns/bfvrns-cryptoparameters.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Precomputation of CRT tables for encryption, decryption, and homomorphic multiplication
 void CryptoParametersBFVRNS::PrecomputeCRTTables(KeySwitchTechnique ksTech, ScalingTechnique scalTech,
@@ -887,4 +887,4 @@ uint64_t CryptoParametersBFVRNS::FindAuxPrimeStep() const {
     return 2 * GetElementParams()->GetRingDimension();
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

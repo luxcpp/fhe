@@ -33,8 +33,8 @@
   This code provides number theory utilities
  */
 
-#ifndef LBCRYPTO_INC_MATH_NBTHEORY_IMPL_H
-#define LBCRYPTO_INC_MATH_NBTHEORY_IMPL_H
+#ifndef LUX_FHE_INC_MATH_NBTHEORY_IMPL_H
+#define LUX_FHE_INC_MATH_NBTHEORY_IMPL_H
 
 #define _USE_MATH_DEFINES
 
@@ -52,7 +52,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /*
  Generates a random number between 0 and n.
@@ -188,7 +188,7 @@ IntType RootOfUnity(usint m, const IntType& modulo) {
             "satisfying the condition: (q-1)/m is an integer. The values of "
             "primeModulus = " +
             modulo.ToString() + " and m = " + std::to_string(m) + " do not satisfy this condition";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     IntType gen    = FindGenerator(modulo);
@@ -329,7 +329,7 @@ template <typename IntType>
 IntType FirstPrime(uint32_t nBits, uint64_t m) {
     if constexpr (std::is_same_v<IntType, NativeInteger>) {
         if (nBits > MAX_MODULUS_SIZE)
-            OPENFHE_THROW(std::string(__func__) + ": Requested bit length " + std::to_string(nBits) +
+            LUX_FHE_THROW(std::string(__func__) + ": Requested bit length " + std::to_string(nBits) +
                           " exceeds maximum allowed length " + std::to_string(MAX_MODULUS_SIZE));
     }
 
@@ -341,7 +341,7 @@ IntType FirstPrime(uint32_t nBits, uint64_t m) {
         qNew += M;
     while (!MillerRabinPrimalityTest(qNew)) {
         if ((qNew += M) < q)
-            OPENFHE_THROW(std::string(__func__) + ": overflow growing candidate");
+            LUX_FHE_THROW(std::string(__func__) + ": overflow growing candidate");
     }
     return qNew;
 }
@@ -350,7 +350,7 @@ template <typename IntType>
 IntType LastPrime(uint32_t nBits, uint64_t m) {
     if constexpr (std::is_same_v<IntType, NativeInteger>) {
         if (nBits > MAX_MODULUS_SIZE)
-            OPENFHE_THROW(std::string(__func__) + ": Requested bit length " + std::to_string(nBits) +
+            LUX_FHE_THROW(std::string(__func__) + ": Requested bit length " + std::to_string(nBits) +
                           " exceeds maximum allowed length " + std::to_string(MAX_MODULUS_SIZE));
     }
 
@@ -362,11 +362,11 @@ IntType LastPrime(uint32_t nBits, uint64_t m) {
         qNew -= M;
     while (!MillerRabinPrimalityTest(qNew)) {
         if ((qNew -= M) > q)
-            OPENFHE_THROW(std::string(__func__) + ": overflow shrinking candidate");
+            LUX_FHE_THROW(std::string(__func__) + ": overflow shrinking candidate");
     }
 
     if (qNew.GetMSB() != nBits)
-        OPENFHE_THROW(std::string(__func__) + ": Requested " + std::to_string(nBits) + " bits, but returned " +
+        LUX_FHE_THROW(std::string(__func__) + ": Requested " + std::to_string(nBits) + " bits, but returned " +
                       std::to_string(qNew.GetMSB()) + ". Please adjust parameters.");
 
     return qNew;
@@ -377,7 +377,7 @@ IntType NextPrime(const IntType& q, uint64_t m) {
     IntType M(m), qNew(q + M);
     while (!MillerRabinPrimalityTest(qNew)) {
         if ((qNew += M) < q)
-            OPENFHE_THROW(std::string(__func__) + ": overflow growing candidate");
+            LUX_FHE_THROW(std::string(__func__) + ": overflow growing candidate");
     }
     return qNew;
 }
@@ -387,7 +387,7 @@ IntType PreviousPrime(const IntType& q, uint64_t m) {
     IntType M(m), qNew(q - M);
     while (!MillerRabinPrimalityTest(qNew)) {
         if ((qNew -= M) > q)
-            OPENFHE_THROW(std::string(__func__) + ": overflow shrinking candidate");
+            LUX_FHE_THROW(std::string(__func__) + ": overflow shrinking candidate");
     }
     return qNew;
 }
@@ -510,6 +510,6 @@ IntVector SyntheticPolynomialDivision(const IntVector& dividend, const typename 
     return result;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

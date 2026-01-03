@@ -33,8 +33,8 @@
   Operations for the representation of ciphertext in OpenFHE
  */
 
-#ifndef LBCRYPTO_CRYPTO_CIPHERTEXT_H
-#define LBCRYPTO_CRYPTO_CIPHERTEXT_H
+#ifndef LUX_FHE_CRYPTO_CIPHERTEXT_H
+#define LUX_FHE_CRYPTO_CIPHERTEXT_H
 
 #include "ciphertext-fwd.h"
 #include "cryptoobject.h"
@@ -47,7 +47,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief CiphertextImpl
  *
@@ -145,7 +145,7 @@ public:
     const Element& GetElement() const {
         if (m_elements.size() == 1)
             return m_elements[0];
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "GetElement should only be used in cases with a "
             "Ciphertext with a single element");
     }
@@ -159,7 +159,7 @@ public:
     Element& GetElement() {
         if (m_elements.size() == 1)
             return m_elements[0];
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "GetElement should only be used in cases with a "
             "Ciphertext with a single element");
     }
@@ -196,7 +196,7 @@ public:
         else if (m_elements.size() == 1)
             m_elements[0] = element;
         else
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "SetElement should only be used in cases with a "
                 "Ciphertext with a single element");
     }
@@ -377,7 +377,7 @@ public:
     std::shared_ptr<Metadata> GetMetadataByKey(const std::string& key) const {
         auto it = m_metadataMap->find(key);
         if (it == m_metadataMap->end())
-            OPENFHE_THROW("Metadata element with key [" + key + "] is not found in the Metadata map.");
+            LUX_FHE_THROW("Metadata element with key [" + key + "] is not found in the Metadata map.");
         return std::make_shared<Metadata>(*(it->second));
     }
 
@@ -477,7 +477,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion())
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         ar(cereal::base_class<CryptoObject<Element>>(this));
         ar(cereal::make_nvp("v", m_elements));
@@ -622,6 +622,6 @@ Ciphertext<Element>& operator*=(Ciphertext<Element>& a, const Ciphertext<Element
     return a = a->GetCryptoContext()->EvalMult(a, b);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

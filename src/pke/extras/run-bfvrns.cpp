@@ -42,7 +42,7 @@
 
 typedef std::numeric_limits<double> dbl;
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // Poly tests
 void SHERun();

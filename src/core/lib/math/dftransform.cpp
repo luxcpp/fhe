@@ -42,7 +42,7 @@
 #include <complex>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 std::complex<double>* DiscreteFourierTransform::rootOfUnityTable = nullptr;
 std::unordered_map<uint32_t, DiscreteFourierTransform::PrecomputedValues> DiscreteFourierTransform::precomputedValues;
@@ -212,7 +212,7 @@ void DiscreteFourierTransform::FFTSpecialInv(std::vector<std::complex<double>>& 
     if (it == precomputedValues.end()) {
         std::string errMsg("DiscreteFourierTransform::Initialize() must be called for cyclOrder = ");
         errMsg += std::to_string(cyclOrder);
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     const uint32_t valsSize = vals.size();
@@ -244,7 +244,7 @@ void DiscreteFourierTransform::FFTSpecial(std::vector<std::complex<double>>& val
     if (it == precomputedValues.end()) {
         std::string errMsg("DiscreteFourierTransform::Initialize() must be called for cyclOrder = ");
         errMsg += std::to_string(cyclOrder);
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
     const PrecomputedValues& prepValues = it->second;
 
@@ -281,4 +281,4 @@ void DiscreteFourierTransform::BitReverse(std::vector<std::complex<double>>& val
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

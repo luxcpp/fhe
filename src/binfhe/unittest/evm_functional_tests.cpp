@@ -25,7 +25,7 @@
 #include <limits>
 #include <cstring>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 #ifdef WITH_LUX_EXTENSIONS
 

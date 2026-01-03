@@ -32,6 +32,6 @@
 #include "key/evalkey.h"
 
 // the code below is from evalkey-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 template class EvalKeyImpl<DCRTPoly>;
-}  // namespace lbcrypto
+}  // namespace lux::fhe

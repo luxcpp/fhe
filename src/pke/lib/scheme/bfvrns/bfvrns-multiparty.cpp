@@ -43,7 +43,7 @@ BFV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include "cryptocontext.h"
 #include "ciphertext.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // makeSparse is not used by this scheme
 KeyPair<DCRTPoly> MultipartyBFVRNS::MultipartyKeyGen(CryptoContext<DCRTPoly> cc,
@@ -200,4 +200,4 @@ DecryptResult MultipartyBFVRNS::MultipartyDecryptFusion(const std::vector<Cipher
     return DecryptResult(plaintext->GetLength());
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

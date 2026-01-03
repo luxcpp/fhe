@@ -48,7 +48,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 std::vector<std::complex<double>> Conjugate(const std::vector<std::complex<double>>& vec) {
     uint32_t n = vec.size();
@@ -117,12 +117,12 @@ bool CKKSPackedEncoding::Encode() {
         return true;
 
     if (typeFlag != IsDCRTPoly)
-        OPENFHE_THROW("Only DCRTPoly is supported for CKKS.");
+        LUX_FHE_THROW("Only DCRTPoly is supported for CKKS.");
 
     if (slots < value.size()) {
         std::string errMsg = std::string("The number of slots [") + std::to_string(slots) +
                              "] is less than the size of data [" + std::to_string(value.size()) + "]";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     auto inverse{value};
@@ -154,7 +154,7 @@ bool CKKSPackedEncoding::Encode() {
         // extract the mantissa of imaginary part and multiply it by 2^52
         double dim = static_cast<double>(std::frexp(inverse[i].imag(), &n2) * powP);
         if (is128BitOverflow(dre) || is128BitOverflow(dim)) {
-            OPENFHE_THROW("Overflow, try to decrease scaling factor");
+            LUX_FHE_THROW("Overflow, try to decrease scaling factor");
         }
 
         int64_t re64       = std::llround(dre);
@@ -183,7 +183,7 @@ bool CKKSPackedEncoding::Encode() {
         temp[i + slots] = (im < 0) ? MaxBitValue + im : im;
 
         if (is128BitOverflow(temp[i]) || is128BitOverflow(temp[i + slots])) {
-            OPENFHE_THROW("Overflow, try to decrease scaling factor");
+            LUX_FHE_THROW("Overflow, try to decrease scaling factor");
         }
     }
     DCRTPoly::Integer intPowP = NativeInteger(1) << pBits;
@@ -204,7 +204,7 @@ bool CKKSPackedEncoding::Encode() {
     }
     logc = (logc == std::numeric_limits<int32_t>::min()) ? 0 : logc;
     if (logc < 0)
-        OPENFHE_THROW("Scaling factor too small");
+        LUX_FHE_THROW("Scaling factor too small");
 
     // Compute approxFactor, a value to scale down by in case the value exceeds a 64-bit integer.
     constexpr int32_t MAX_BITS_IN_WORD = LargeScalingFactorConstants::MAX_BITS_IN_WORD;
@@ -273,7 +273,7 @@ bool CKKSPackedEncoding::Encode() {
             buffer << "- Max imaginary part contribution from input[" << imagMaxIdx << "]: " << imagMax << std::endl;
             buffer << "Scaling factor is " << ceil(log2(scalingFactor)) << " bits " << std::endl;
             buffer << "Scaled input is " << scaledInputSize << " bits " << std::endl;
-            OPENFHE_THROW(buffer.str());
+            LUX_FHE_THROW(buffer.str());
         }
 
         int64_t re = std::llround(dre);
@@ -439,7 +439,7 @@ bool CKKSPackedEncoding::Decode(size_t noiseScaleDeg, double scalingFactor, Scal
         // if stddev < sqrt{N}/4 (minimum approximation error that can be achieved)
         // if (stddev < 0.125 * std::sqrt(GetElementRingDimension())) {
         //   if (noiseScaleDeg <= 1) {
-        //    OPENFHE_THROW(
+        //    LUX_FHE_THROW(
         //                   "The decryption failed because the approximation error is
         //                   " "too small. Check the protocol used. ");
         //  } else {  // noiseScaleDeg > 1 and no rescaling operations have been applied yet
@@ -450,7 +450,7 @@ bool CKKSPackedEncoding::Decode(size_t noiseScaleDeg, double scalingFactor, Scal
         if (ckksDataType == REAL) {
             //   If less than 5 bits of precision is observed
             if (logstd > p - 5.0)
-                OPENFHE_THROW(
+                LUX_FHE_THROW(
                     "The decryption failed because the approximation error is "
                     "too high. Check the parameters. ");
         }
@@ -553,4 +553,4 @@ void CKKSPackedEncoding::FitToNativeVector(const std::vector<int128_t>& vec, int
 }
 #endif
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

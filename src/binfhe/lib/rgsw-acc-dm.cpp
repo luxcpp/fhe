@@ -33,7 +33,7 @@
 
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Key generation as described in Section 4 of https://eprint.iacr.org/2014/816
 RingGSWACCKey RingGSWAccumulatorDM::KeyGenAcc(const std::shared_ptr<RingGSWCryptoParams>& params,
@@ -142,4 +142,4 @@ void RingGSWAccumulatorDM::AddToAccDM(const std::shared_ptr<RingGSWCryptoParams>
         acc->GetElements()[1] += (dct[l] *= ev[l][1]);
 }
 
-};  // namespace lbcrypto
+};  // namespace lux::fhe

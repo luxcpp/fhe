@@ -41,8 +41,8 @@
  *    - Generator algorithm
  */
 
-#ifndef LBCRYPTO_INC_MATH_NBTHEORY_H
-#define LBCRYPTO_INC_MATH_NBTHEORY_H
+#ifndef LUX_FHE_INC_MATH_NBTHEORY_H
+#define LUX_FHE_INC_MATH_NBTHEORY_H
 
 #include "math/hal/basicint.h"
 
@@ -67,10 +67,10 @@ inline int clz_u128(uint128_t u) {
 #endif
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * Finds roots of unity for given input.  Assumes the the input is a power of
@@ -153,7 +153,7 @@ inline usint ReverseBits(usint num, usint msb) {
             // ERROR
             break;
     }
-    OPENFHE_THROW("msbb value not handled:" + std::to_string(msbb));
+    LUX_FHE_THROW("msbb value not handled:" + std::to_string(msbb));
 }
 
 /**
@@ -189,7 +189,7 @@ inline constexpr usint GetMSB(T x) {
     }
 #endif
     else {
-        OPENFHE_THROW("Unsupported int type (GetMSB() supports 32-, 64- and 128-bit integers only)");
+        LUX_FHE_THROW("Unsupported int type (GetMSB() supports 32-, 64- and 128-bit integers only)");
         return 0;
     }
 }
@@ -493,6 +493,6 @@ uint32_t FindAutomorphismIndexCyclic(int32_t i, uint32_t m, uint32_t g);
  */
 void PrecomputeAutoMap(uint32_t n, uint32_t k, std::vector<uint32_t>* precomp);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

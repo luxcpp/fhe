@@ -33,8 +33,8 @@
   This code provides basic integer types and enums
  */
 
-#ifndef LBCRYPTO_UTILS_INTTYPES_H
-#define LBCRYPTO_UTILS_INTTYPES_H
+#ifndef LUX_FHE_UTILS_INTTYPES_H
+#define LUX_FHE_UTILS_INTTYPES_H
 
 #include "math/hal/basicint.h"
 

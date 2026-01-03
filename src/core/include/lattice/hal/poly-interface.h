@@ -33,8 +33,8 @@
   Defines an interface that any DCRT Polynomial implmentation must implement in order to work in OpenFHE.
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_HAL_POLYINTERFACE_H
-#define LBCRYPTO_INC_LATTICE_HAL_POLYINTERFACE_H
+#ifndef LUX_FHE_INC_LATTICE_HAL_POLYINTERFACE_H
+#define LUX_FHE_INC_LATTICE_HAL_POLYINTERFACE_H
 
 #include "lattice/ilelement.h"
 #include "lattice/hal/default/ilparams.h"
@@ -52,7 +52,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename DerivedType, typename VecType, template <typename LVT> typename ContainerType>
 class PolyInterface : public ILElement<DerivedType, VecType> {
@@ -200,7 +200,7 @@ public:
    */
     usint GetLength() const final {
         //        if (this->GetDerived().IsEmpty())
-        //            OPENFHE_THROW("No values in PolyImpl");
+        //            LUX_FHE_THROW("No values in PolyImpl");
         return this->GetDerived().GetValues().GetLength();
     }
 
@@ -439,7 +439,7 @@ public:
    */
     inline DerivedType Transpose() const final {
         if (this->GetDerived().GetFormat() == Format::COEFFICIENT) {
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "PolyInterface element transposition is currently "
                 "implemented only in the Evaluation representation.");
         }
@@ -733,6 +733,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

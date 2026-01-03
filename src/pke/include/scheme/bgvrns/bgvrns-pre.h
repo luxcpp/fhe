@@ -29,18 +29,18 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BGVRNS_PRE_H
-#define LBCRYPTO_CRYPTO_BGVRNS_PRE_H
+#ifndef LUX_FHE_CRYPTO_BGVRNS_PRE_H
+#define LUX_FHE_CRYPTO_BGVRNS_PRE_H
 
 #include "schemerns/rns-pre.h"
 
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class PREBGVRNS : public PRERNS {
 public:
@@ -64,6 +64,6 @@ public:
         return "PREBGVRNS";
     }
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

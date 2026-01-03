@@ -30,7 +30,7 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::chrono;
 
 // ============================================================================

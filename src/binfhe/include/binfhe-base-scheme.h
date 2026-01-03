@@ -45,7 +45,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // The struct for storing bootstrapping keys
 typedef struct {
@@ -73,7 +73,7 @@ public:
         else if (method == LMKCDEY)
             ACCscheme = std::make_shared<RingGSWAccumulatorLMKCDEY>();
         else
-            OPENFHE_THROW("method is invalid");
+            LUX_FHE_THROW("method is invalid");
     }
 
     /**
@@ -260,6 +260,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

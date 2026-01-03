@@ -15,7 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace lbcrypto {
+namespace lux {
 namespace mlx_backend {
 
 //==================================================================================
@@ -852,4 +852,4 @@ std::vector<uint64_t> generateNTTFriendlyPrimes(uint32_t N, uint32_t bitWidth, u
 }
 
 }  // namespace mlx_backend
-}  // namespace lbcrypto
+}  // namespace lux::fhe

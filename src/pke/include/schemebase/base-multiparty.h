@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BASE_MULTIPARTY_H
-#define LBCRYPTO_CRYPTO_BASE_MULTIPARTY_H
+#ifndef LUX_FHE_CRYPTO_BASE_MULTIPARTY_H
+#define LUX_FHE_CRYPTO_BASE_MULTIPARTY_H
 
 #include "ciphertext-fwd.h"
 #include "cryptocontext-fwd.h"
@@ -46,10 +46,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 template <class Element>
 class KeyPair;
 /**
@@ -218,7 +218,7 @@ public:
    */
     virtual DecryptResult MultipartyDecryptFusion(const std::vector<Ciphertext<Element>>& ciphertextVec,
                                                   Poly* plaintext) const {
-        OPENFHE_THROW("Decryption to Poly is not supported");
+        LUX_FHE_THROW("Decryption to Poly is not supported");
     }
 
     /**
@@ -297,7 +297,7 @@ public:
 	 * @return: Resulting Ciphertext
 	 */
     virtual Ciphertext<Element> IntBootAdjustScale(ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -313,7 +313,7 @@ public:
        */
     virtual Ciphertext<Element> IntBootDecrypt(const PrivateKey<Element> privateKey,
                                                ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -328,7 +328,7 @@ public:
        */
     virtual Ciphertext<Element> IntBootEncrypt(const PublicKey<Element> publicKey,
                                                ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -342,7 +342,7 @@ public:
        */
     virtual Ciphertext<Element> IntBootAdd(ConstCiphertext<Element> ciphertext1,
                                            ConstCiphertext<Element> ciphertext2) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -352,7 +352,7 @@ public:
     * @return: Resulting Ciphertext
     */
     virtual Ciphertext<Element> IntMPBootAdjustScale(ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -363,7 +363,7 @@ public:
     */
     virtual Ciphertext<Element> IntMPBootRandomElementGen(std::shared_ptr<CryptoParametersCKKSRNS> params,
                                                           const PublicKey<Element> publicKey) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -378,7 +378,7 @@ public:
     virtual std::vector<Ciphertext<Element>> IntMPBootDecrypt(const PrivateKey<Element> privateKey,
                                                               ConstCiphertext<Element> ciphertext,
                                                               ConstCiphertext<Element> a) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -391,7 +391,7 @@ public:
     */
     virtual std::vector<Ciphertext<Element>> IntMPBootAdd(
         std::vector<std::vector<Ciphertext<Element>>>& sharesPairVec) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     /**
@@ -411,7 +411,7 @@ public:
                                                  const std::vector<Ciphertext<Element>>& sharesPair,
                                                  ConstCiphertext<Element> a,
                                                  ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("The function is not supported");
+        LUX_FHE_THROW("The function is not supported");
     }
 
     template <class Archive>
@@ -425,6 +425,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

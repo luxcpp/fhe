@@ -15,8 +15,8 @@
 // Copyright (C) 2024-2025 Lux Industries Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_BARRETT_METAL_H
-#define LBCRYPTO_MATH_HAL_MLX_BARRETT_METAL_H
+#ifndef LUX_FHE_MATH_HAL_MLX_BARRETT_METAL_H
+#define LUX_FHE_MATH_HAL_MLX_BARRETT_METAL_H
 
 #include <cstdint>
 #include <vector>
@@ -28,7 +28,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace metal {
 
@@ -1094,6 +1094,6 @@ inline bool test_barrett32_ntt() {
 
 }  // namespace metal
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_BARRETT_METAL_H
+#endif // LUX_FHE_MATH_HAL_MLX_BARRETT_METAL_H

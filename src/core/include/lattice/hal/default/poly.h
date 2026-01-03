@@ -33,8 +33,8 @@
   Creates Represents integer lattice elements
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_HAL_DEFAULT_POLY_H
-#define LBCRYPTO_INC_LATTICE_HAL_DEFAULT_POLY_H
+#ifndef LUX_FHE_INC_LATTICE_HAL_DEFAULT_POLY_H
+#define LUX_FHE_INC_LATTICE_HAL_DEFAULT_POLY_H
 
 #include "lattice/hal/poly-interface.h"
 #include "lattice/hal/default/ildcrtparams.h"
@@ -54,7 +54,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @class PolyImpl
@@ -191,7 +191,7 @@ public:
 
     inline const VecType& GetValues() const final {
         if (m_values == nullptr)
-            OPENFHE_THROW("No values in PolyImpl");
+            LUX_FHE_THROW("No values in PolyImpl");
         return *m_values;
     }
 
@@ -201,13 +201,13 @@ public:
 
     inline Integer& at(usint i) final {
         if (m_values == nullptr)
-            OPENFHE_THROW("No values in PolyImpl");
+            LUX_FHE_THROW("No values in PolyImpl");
         return m_values->at(i);
     }
 
     inline const Integer& at(usint i) const final {
         if (m_values == nullptr)
-            OPENFHE_THROW("No values in PolyImpl");
+            LUX_FHE_THROW("No values in PolyImpl");
         return m_values->at(i);
     }
 
@@ -221,11 +221,11 @@ public:
 
     PolyImpl Plus(const PolyImpl& rhs) const override {
         if (m_params->GetRingDimension() != rhs.m_params->GetRingDimension())
-            OPENFHE_THROW("RingDimension missmatch");
+            LUX_FHE_THROW("RingDimension missmatch");
         if (m_params->GetModulus() != rhs.m_params->GetModulus())
-            OPENFHE_THROW("Modulus missmatch");
+            LUX_FHE_THROW("Modulus missmatch");
         if (m_format != rhs.m_format)
-            OPENFHE_THROW("Format missmatch");
+            LUX_FHE_THROW("Format missmatch");
         auto tmp(*this);
         tmp.m_values->ModAddNoCheckEq(*rhs.m_values);
         return tmp;
@@ -253,11 +253,11 @@ public:
 
     PolyImpl Times(const PolyImpl& rhs) const override {
         if (m_params->GetRingDimension() != rhs.m_params->GetRingDimension())
-            OPENFHE_THROW("RingDimension missmatch");
+            LUX_FHE_THROW("RingDimension missmatch");
         if (m_params->GetModulus() != rhs.m_params->GetModulus())
-            OPENFHE_THROW("Modulus missmatch");
+            LUX_FHE_THROW("Modulus missmatch");
         if (m_format != Format::EVALUATION || rhs.m_format != Format::EVALUATION)
-            OPENFHE_THROW("operator* for PolyImpl supported only in Format::EVALUATION");
+            LUX_FHE_THROW("operator* for PolyImpl supported only in Format::EVALUATION");
         auto tmp(*this);
         tmp.m_values->ModMulNoCheckEq(*rhs.m_values);
         return tmp;
@@ -269,11 +269,11 @@ public:
     }
     PolyImpl& operator*=(const PolyImpl& rhs) override {
         if (m_params->GetRingDimension() != rhs.m_params->GetRingDimension())
-            OPENFHE_THROW("RingDimension missmatch");
+            LUX_FHE_THROW("RingDimension missmatch");
         if (m_params->GetModulus() != rhs.m_params->GetModulus())
-            OPENFHE_THROW("Modulus missmatch");
+            LUX_FHE_THROW("Modulus missmatch");
         if (m_format != Format::EVALUATION || rhs.m_format != Format::EVALUATION)
-            OPENFHE_THROW("operator* for PolyImpl supported only in Format::EVALUATION");
+            LUX_FHE_THROW("operator* for PolyImpl supported only in Format::EVALUATION");
         if (m_values) {
             m_values->ModMulNoCheckEq(*rhs.m_values);
             return *this;
@@ -342,7 +342,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_values));
@@ -369,6 +369,6 @@ protected:
     void ArbitrarySwitchFormat();
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

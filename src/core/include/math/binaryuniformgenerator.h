@@ -34,8 +34,8 @@
   relies on the built-in C++ generator for 32-bit unsigned integers defined in <random>
  */
 
-#ifndef LBCRYPTO_INC_MATH_BINARYUNIFORMGENERATOR_H_
-#define LBCRYPTO_INC_MATH_BINARYUNIFORMGENERATOR_H_
+#ifndef LUX_FHE_INC_MATH_BINARYUNIFORMGENERATOR_H_
+#define LUX_FHE_INC_MATH_BINARYUNIFORMGENERATOR_H_
 
 #include "math/distributiongenerator.h"
 #include "math/math-hal.h"
@@ -44,7 +44,7 @@
 
 #include <random>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief A generator of the Binary Uniform Distribution.
@@ -75,6 +75,6 @@ private:
     static std::bernoulli_distribution m_distribution;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_INC_MATH_BINARYUNIFORMGENERATOR_H_
+#endif  // LUX_FHE_INC_MATH_BINARYUNIFORMGENERATOR_H_

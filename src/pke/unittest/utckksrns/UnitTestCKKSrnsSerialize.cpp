@@ -43,7 +43,7 @@
 #include <vector>
 #include <string>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 //===========================================================================================================
 enum TEST_CASE_TYPE : int {
@@ -195,13 +195,13 @@ protected:
         try {
             CryptoContext<Element> cc(UnitTestGenerateContext(testData.params));
 
-            OPENFHE_DEBUG_FLAG(false);
+            LUX_FHE_DEBUG_FLAG(false);
 
             CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();
             CryptoContextImpl<DCRTPoly>::ClearEvalSumKeys();
             CryptoContextImpl<DCRTPoly>::ClearEvalAutomorphismKeys();
 
-            OPENFHE_DEBUG("step 0");
+            LUX_FHE_DEBUG("step 0");
             {
                 std::stringstream s;
                 Serial::Serialize(cc, s, sertype);
@@ -218,28 +218,28 @@ protected:
             KeyPair<DCRTPoly> kp = cc->KeyGen();
             KeyPair<DCRTPoly> kpnew;
 
-            OPENFHE_DEBUG("step 1");
+            LUX_FHE_DEBUG("step 1");
             {
                 std::stringstream s;
                 Serial::Serialize(kp.publicKey, s, sertype);
                 Serial::Deserialize(kpnew.publicKey, s, sertype);
                 EXPECT_EQ(*kp.publicKey, *kpnew.publicKey) << "Public key mismatch after ser/deser";
             }
-            OPENFHE_DEBUG("step 2");
+            LUX_FHE_DEBUG("step 2");
             {
                 std::stringstream s;
                 Serial::Serialize(kp.secretKey, s, sertype);
                 Serial::Deserialize(kpnew.secretKey, s, sertype);
                 EXPECT_EQ(*kp.secretKey, *kpnew.secretKey) << "Secret key mismatch after ser/deser";
             }
-            OPENFHE_DEBUG("step 3");
+            LUX_FHE_DEBUG("step 3");
             std::vector<std::complex<double>> vals = {1.0, 3.0, 5.0, 7.0, 9.0, 2.0, 4.0, 6.0, 8.0, 11.0};
             Plaintext plaintextShort               = cc->MakeCKKSPackedPlaintext(vals);
             Plaintext plaintextShortL2D2           = cc->MakeCKKSPackedPlaintext(vals, 2, 2);
             Ciphertext<DCRTPoly> ciphertext        = cc->Encrypt(kp.publicKey, plaintextShort);
             Ciphertext<DCRTPoly> ciphertextL2D2    = cc->Encrypt(kp.publicKey, plaintextShortL2D2);
 
-            OPENFHE_DEBUG("step 4");
+            LUX_FHE_DEBUG("step 4");
             Ciphertext<DCRTPoly> newC;
             Ciphertext<DCRTPoly> newCL2D2;
             {
@@ -253,7 +253,7 @@ protected:
                 EXPECT_EQ(*ciphertextL2D2, *newCL2D2) << "Ciphertext mismatch";
             }
 
-            OPENFHE_DEBUG("step 5");
+            LUX_FHE_DEBUG("step 5");
             Plaintext plaintextShortNew;
             Plaintext plaintextShortNewL2D2;
             cc->Decrypt(kp.secretKey, newC, &plaintextShortNew);
@@ -265,7 +265,7 @@ protected:
             checkEquality(plaintextShortNewL2D2->GetCKKSPackedValue(), plaintextShortL2D2->GetCKKSPackedValue(), eps,
                           failmsg + " Decrypted serialization test fails (level 2, depth 2)");
 
-            OPENFHE_DEBUG("step 6");
+            LUX_FHE_DEBUG("step 6");
             KeyPair<DCRTPoly> kp2 = cc->KeyGen();
 
             cc->EvalMultKeyGen(kp.secretKey);
@@ -273,7 +273,7 @@ protected:
             cc->EvalSumKeyGen(kp.secretKey);
             cc->EvalSumKeyGen(kp2.secretKey);
 
-            OPENFHE_DEBUG("step 7");
+            LUX_FHE_DEBUG("step 7");
             // serialize a bunch of mult keys
             std::stringstream ser0;
             EXPECT_EQ(CryptoContextImpl<DCRTPoly>::SerializeEvalMultKey(ser0, sertype, kp.secretKey->GetKeyTag()), true)
@@ -285,7 +285,7 @@ protected:
             EXPECT_EQ(CryptoContextImpl<DCRTPoly>::SerializeEvalMultKey(ser3, sertype), true)
                 << "all context eval mult key ser fails";
 
-            OPENFHE_DEBUG("step 8");
+            LUX_FHE_DEBUG("step 8");
             // serialize a bunch of sum keys
             std::stringstream aser0;
             EXPECT_EQ(CryptoContextImpl<DCRTPoly>::SerializeEvalSumKey(aser0, sertype, kp.secretKey->GetKeyTag()), true)
@@ -297,7 +297,7 @@ protected:
             EXPECT_EQ(CryptoContextImpl<DCRTPoly>::SerializeEvalSumKey(aser3, sertype), true)
                 << "all eval sum key ser fails";
 
-            OPENFHE_DEBUG("step 9");
+            LUX_FHE_DEBUG("step 9");
             cc.reset();
 
             // test mult deserialize
@@ -327,7 +327,7 @@ protected:
             EXPECT_EQ(CryptoContextFactory<DCRTPoly>::GetContextCount(), 1) << "all-key deser, context";
             EXPECT_EQ(CryptoContextImpl<DCRTPoly>::GetAllEvalMultKeys().size(), 2U) << "all-key deser, keys";
 
-            OPENFHE_DEBUG("step 10");
+            LUX_FHE_DEBUG("step 10");
             // test sum deserialize
 
             CryptoContextImpl<DCRTPoly>::ClearEvalMultKeys();

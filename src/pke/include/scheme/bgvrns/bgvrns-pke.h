@@ -29,18 +29,18 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BGVRNS_PKE_H
-#define LBCRYPTO_CRYPTO_BGVRNS_PKE_H
+#ifndef LUX_FHE_CRYPTO_BGVRNS_PKE_H
+#define LUX_FHE_CRYPTO_BGVRNS_PKE_H
 
 #include "schemerns/rns-pke.h"
 
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class PKEBGVRNS : public PKERNS {
     using ParmType = typename DCRTPoly::Params;
@@ -77,7 +77,7 @@ public:
             "PKEBGVRNS: Decryption to Poly from DCRTPoly is not supported as it "
             "may "
             "lead to incorrect results.";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     /////////////////////////////////////
@@ -98,6 +98,6 @@ public:
         return "PKEBGVRNS";
     }
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -29,17 +29,17 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_KEY_KEYPAIR_H
-#define LBCRYPTO_CRYPTO_KEY_KEYPAIR_H
+#ifndef LUX_FHE_CRYPTO_KEY_KEYPAIR_H
+#define LUX_FHE_CRYPTO_KEY_KEYPAIR_H
 
 #include "key/privatekey.h"
 #include "key/publickey.h"
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <class Element>
 class KeyPair {
@@ -61,6 +61,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

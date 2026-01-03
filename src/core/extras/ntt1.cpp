@@ -47,7 +47,7 @@
 #include "openfhecore.h"
 #include "time.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // define the main sections of the test
 void test_NTT(void);  // test code
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
                 res = (fn);                                                                                 \
             }                                                                                               \
             time2 = TOC(t);                                                                                 \
-            OPENFHE_DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " \
+            LUX_FHE_DEBUG(#t << ": " << nloop << " loops " << #res << " = " << #fn << " computation time: " \
                              << "\t" << time2 << " us");                                                    \
             if (res != testval) {                                                                           \
                 std::cout << "Bad " << #res << " = " << #fn << std::endl;                                   \

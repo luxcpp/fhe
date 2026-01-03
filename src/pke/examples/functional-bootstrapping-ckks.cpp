@@ -39,7 +39,7 @@
 
 #include <functional>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 const BigInteger QBFVINIT(BigInteger(1) << 60);
 const BigInteger QBFVINITLARGE(BigInteger(1) << 80);

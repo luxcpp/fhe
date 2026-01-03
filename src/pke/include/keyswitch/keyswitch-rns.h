@@ -33,18 +33,18 @@
  * Abstract interface class for the RNS versions of key switching algorithms
  */
 
-#ifndef LBCRYPTO_CRYPTO_KEYSWITCH_RNS_H
-#define LBCRYPTO_CRYPTO_KEYSWITCH_RNS_H
+#ifndef LUX_FHE_CRYPTO_KEYSWITCH_RNS_H
+#define LUX_FHE_CRYPTO_KEYSWITCH_RNS_H
 
 #include "keyswitch/keyswitch-base.h"
 
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief A child of KeySwitchBase for use with RNS keyswitching
@@ -73,6 +73,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

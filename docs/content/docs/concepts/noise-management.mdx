@@ -1,0 +1,312 @@
+---
+title: Noise Management
+description: Understanding and managing noise in FHE computations
+---
+
+# Noise Management
+
+Noise is fundamental to the security of FHE but must be carefully managed to ensure correct decryption. This guide explains noise growth and techniques to control it.
+
+## Why Noise Exists
+
+Noise is essential for security in lattice-based cryptography:
+
+```
+Encryption: ct = (a, b = a·s + m + e)
+                              ↑
+                           noise term
+```
+
+Without noise, the encryption would be deterministic and breakable. The challenge is keeping noise small enough for correct decryption while maintaining security.
+
+## Noise Budget
+
+Each ciphertext has a "noise budget" that decreases with operations:
+
+```cpp
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .multiplicative_depth = 6  // ~6 multiplications allowed
+});
+
+auto ct = ctx->Encrypt(pk, data);
+std::cout << "Initial budget: " << ctx->GetNoiseBudget(ct) << " bits\n";
+// Output: Initial budget: 180 bits
+
+ct = ctx->Mul(ct, ct);
+std::cout << "After mult: " << ctx->GetNoiseBudget(ct) << " bits\n";
+// Output: After mult: 150 bits (lost ~30 bits)
+
+ct = ctx->Add(ct, ct);
+std::cout << "After add: " << ctx->GetNoiseBudget(ct) << " bits\n";
+// Output: After add: 149 bits (lost ~1 bit)
+```
+
+When budget reaches 0, decryption fails.
+
+## Noise Growth by Operation
+
+| Operation | Noise Growth | Budget Loss |
+|-----------|-------------|-------------|
+| Addition | Linear | ~1 bit |
+| Subtraction | Linear | ~1 bit |
+| Plaintext mult | Linear | ~log₂(plaintext) |
+| Ciphertext mult | Quadratic | ~30-40 bits |
+| Rotation | Constant | ~5 bits |
+| Relinearization | Adds small | ~2 bits |
+
+### Mathematical Model
+
+```
+Noise after addition:    ||e_add|| ≤ ||e1|| + ||e2||
+Noise after multiplication: ||e_mul|| ≤ ||e1|| × ||e2|| × factor
+```
+
+## Techniques for Noise Control
+
+### 1. Modulus Switching
+
+Reduce noise by switching to a smaller modulus:
+
+```cpp
+// BGV modulus switching
+auto ct = ctx->Encrypt(pk, data);
+// ct is at modulus level L
+
+ct = ctx->Mul(ct, ct);  // Noise grows
+
+ct = ctx->ModSwitch(ct);  // Switch to level L-1
+// Noise reduced proportionally to modulus reduction
+```
+
+This is automatic in most operations but can be manually controlled:
+
+```cpp
+// Manual control for optimization
+auto ctx = lux::fhe::BGVContext::Create({
+    .coeff_modulus_bits = {60, 40, 40, 40, 60},
+    .auto_mod_switch = false  // Manual control
+});
+
+ct = ctx->Mul(ct1, ct2);
+// Don't switch yet - another mult coming
+
+ct = ctx->Mul(ct, ct3);
+// Now switch to save noise budget
+ct = ctx->ModSwitch(ct);
+```
+
+### 2. Relinearization
+
+After multiplication, ciphertext size increases. Relinearization reduces it back:
+
+```cpp
+// Multiplication increases ciphertext size
+auto ct = ctx->Mul(ct1, ct2);
+// ct now has 3 elements instead of 2
+
+ct = ctx->Relinearize(ct, rlk);  // Back to 2 elements
+// Also reduces some noise
+```
+
+### 3. Rescaling (CKKS)
+
+CKKS requires rescaling after multiplication to manage scale:
+
+```cpp
+auto ctx = lux::fhe::CKKSContext::Create({
+    .scale = 1ULL << 40
+});
+
+auto ct = ctx->Mul(ct1, ct2);
+// Scale is now 2^80 (doubled!)
+
+ct = ctx->Rescale(ct);
+// Scale back to 2^40, noise managed
+```
+
+### 4. Bootstrapping
+
+The ultimate noise reset - refresh to minimal noise:
+
+```cpp
+// When noise budget critically low
+if (ctx->GetNoiseBudget(ct) < 20) {
+    ct = ctx->Bootstrap(bk, ct);
+    // Noise budget restored to ~90% of initial
+}
+```
+
+## Noise Estimation and Monitoring
+
+### Debug Mode
+
+Enable noise tracking in debug builds:
+
+```cpp
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .debug_noise = true  // Enable noise tracking
+});
+
+auto ct = ctx->Encrypt(pk, data);
+auto info = ctx->GetNoiseInfo(ct);
+
+std::cout << "Noise std dev: " << info.std_dev << "\n";
+std::cout << "Noise budget: " << info.budget_bits << "\n";
+std::cout << "Max noise: " << info.max_coefficient << "\n";
+```
+
+### Noise Heuristics
+
+Estimate noise without expensive computation:
+
+```cpp
+// Quick estimate based on operation count
+int estimated_budget = initial_budget
+    - num_additions * 1
+    - num_multiplications * 35
+    - num_rotations * 5;
+
+if (estimated_budget < safety_margin) {
+    // Bootstrap or restructure computation
+}
+```
+
+## Circuit Optimization
+
+### Depth Minimization
+
+Reorganize computations to minimize multiplicative depth:
+
+```cpp
+// Bad: Sequential multiplications (depth = 4)
+auto result = ctx->Mul(a, b);
+result = ctx->Mul(result, c);
+result = ctx->Mul(result, d);
+result = ctx->Mul(result, e);
+
+// Good: Tree structure (depth = 2)
+auto ab = ctx->Mul(a, b);
+auto cd = ctx->Mul(c, d);
+auto abcd = ctx->Mul(ab, cd);
+result = ctx->Mul(abcd, e);
+```
+
+### Plaintext Absorption
+
+Multiply by plaintexts instead of ciphertexts when possible:
+
+```cpp
+// Expensive: Encrypt constant, then multiply
+auto ct_const = ctx->Encrypt(pk, constant);
+auto result = ctx->Mul(ct, ct_const);  // Full noise growth
+
+// Cheap: Multiply by plaintext directly
+auto result = ctx->MulPlain(ct, constant);  // Much less noise
+```
+
+### Operation Batching
+
+Combine operations to minimize noise accumulation:
+
+```cpp
+// Bad: Multiple additions
+auto sum = ctx->Add(ct1, ct2);
+sum = ctx->Add(sum, ct3);
+sum = ctx->Add(sum, ct4);  // Noise: e1 + e2 + e3 + e4
+
+// Good: Single multi-add
+auto sum = ctx->AddMany({ct1, ct2, ct3, ct4});
+// More efficient noise management internally
+```
+
+## Scheme-Specific Considerations
+
+### TFHE
+
+- Bootstrapping after every gate - noise always fresh
+- No explicit noise management needed
+
+```cpp
+// TFHE: Simple, always bootstrapped
+auto result = ctx->AND(bk, a, b);  // Fresh
+result = ctx->OR(bk, result, c);    // Fresh again
+```
+
+### BGV
+
+- Modulus switching is primary technique
+- Plan multiplicative depth carefully
+
+```cpp
+// BGV: Plan for depth
+auto ctx = lux::fhe::BGVContext::Create({
+    .multiplicative_depth = compute_circuit_depth(circuit)
+});
+```
+
+### CKKS
+
+- Rescaling essential after multiplication
+- Approximate nature affects noise interpretation
+
+```cpp
+// CKKS: Always rescale after multiplication
+auto ct = ctx->Mul(ct1, ct2);
+ct = ctx->Rescale(ct);  // Critical!
+```
+
+## Best Practices
+
+### 1. Know Your Circuit Depth
+
+```cpp
+// Calculate depth before implementation
+int depth = analyze_circuit_depth(algorithm);
+auto ctx = create_context_for_depth(depth);
+```
+
+### 2. Use Appropriate Parameters
+
+```cpp
+// Don't over-provision
+// Bad: Always use maximum parameters
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 32768,  // Overkill for depth-3 circuit
+    .multiplicative_depth = 30
+});
+
+// Good: Match parameters to needs
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 4096,   // Sufficient for depth-3
+    .multiplicative_depth = 5
+});
+```
+
+### 3. Profile Noise in Development
+
+```cpp
+#ifdef DEBUG
+    // Track noise during development
+    auto budget = ctx->GetNoiseBudget(ct);
+    assert(budget > 0 && "Noise budget exhausted!");
+    log_noise_budget(operation_name, budget);
+#endif
+```
+
+### 4. Consider Noise in Algorithm Design
+
+```cpp
+// Design algorithms with noise in mind
+// Example: Use Horner's method for polynomial evaluation
+// p(x) = a₀ + x(a₁ + x(a₂ + x·a₃))  // Depth: 3
+// vs
+// p(x) = a₀ + a₁x + a₂x² + a₃x³     // Depth: 4
+```
+
+## Further Reading
+
+- [Bootstrapping](/docs/concepts/bootstrapping) - Ultimate noise reset
+- [Security](/docs/concepts/security) - How noise provides security
+- [CKKS Scheme](/docs/schemes/ckks) - Approximate arithmetic considerations

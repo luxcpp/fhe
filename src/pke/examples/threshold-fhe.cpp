@@ -35,7 +35,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void RunBGVrnsAdditive();
 void RunBFVrns();

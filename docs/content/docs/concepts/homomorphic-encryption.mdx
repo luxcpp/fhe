@@ -1,0 +1,179 @@
+---
+title: Homomorphic Encryption
+description: Introduction to homomorphic encryption and its properties
+---
+
+# Homomorphic Encryption
+
+Homomorphic encryption is a form of encryption that allows computations to be performed on ciphertexts, producing an encrypted result that, when decrypted, matches the result of operations performed on the plaintext.
+
+## Properties
+
+### Additive Homomorphism
+
+An encryption scheme is additively homomorphic if:
+
+```
+Decrypt(Encrypt(a) ⊕ Encrypt(b)) = a + b
+```
+
+### Multiplicative Homomorphism
+
+An encryption scheme is multiplicatively homomorphic if:
+
+```
+Decrypt(Encrypt(a) ⊗ Encrypt(b)) = a × b
+```
+
+### Fully Homomorphic
+
+A scheme is **fully homomorphic** if it supports both addition and multiplication (and thus any computation):
+
+```
+Decrypt(f(Encrypt(a), Encrypt(b), ...)) = f(a, b, ...)
+```
+
+## Historical Development
+
+| Year | Milestone |
+|------|-----------|
+| 1978 | RSA introduces multiplicative homomorphism |
+| 1982 | Goldwasser-Micali additively homomorphic scheme |
+| 1999 | Paillier cryptosystem (additive) |
+| 2009 | Gentry's first FHE construction |
+| 2011 | BGV scheme introduced |
+| 2012 | BFV scheme introduced |
+| 2016 | TFHE with fast bootstrapping |
+| 2017 | CKKS for approximate arithmetic |
+
+## Mathematical Foundation
+
+### Learning With Errors (LWE)
+
+The security of modern FHE schemes is based on the hardness of the Learning With Errors problem:
+
+```
+Given (A, b = A·s + e) where:
+- A is a random matrix
+- s is a secret vector
+- e is a small error vector
+
+Find s
+```
+
+This problem is believed to be hard even for quantum computers.
+
+### Ring-LWE
+
+lux-fhe uses Ring-LWE, which operates over polynomial rings:
+
+```cpp
+// Polynomial ring R = Z[X]/(X^n + 1)
+// where n is a power of 2
+
+// Encryption: ct = (a, b = a·s + m + e)
+// where a is random, s is secret key, e is error
+```
+
+## Encryption Process
+
+```cpp
+#include <lux/fhe/pke.h>
+
+// 1. Setup: Generate parameters and keys
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 16384,
+    .scale = 1ULL << 40,
+    .multiplicative_depth = 8
+});
+
+auto [pk, sk] = ctx->GenerateKeyPair();
+
+// 2. Encode: Convert plaintext to polynomial
+std::vector<double> data = {1.5, 2.7, 3.14};
+auto plaintext = ctx->Encode(data);
+
+// 3. Encrypt: Add noise and create ciphertext
+auto ciphertext = ctx->Encrypt(pk, plaintext);
+
+// 4. Compute: Perform operations on ciphertext
+auto result_ct = ctx->Square(ciphertext);
+
+// 5. Decrypt: Remove encryption to get result
+auto result = ctx->Decrypt(sk, result_ct);
+// result ≈ {2.25, 7.29, 9.87}
+```
+
+## Security Parameters
+
+### Ring Dimension (n)
+
+The polynomial degree determines security level:
+
+| Ring Dim | Security Level | Use Case |
+|----------|---------------|----------|
+| 1024 | ~80 bits | Testing only |
+| 2048 | ~100 bits | Low security |
+| 4096 | ~128 bits | Standard |
+| 8192 | ~192 bits | High security |
+| 16384 | ~256 bits | Post-quantum |
+| 32768 | ~384 bits | Maximum |
+
+### Modulus Size
+
+Larger moduli allow more operations but reduce security:
+
+```cpp
+// Trade-off: larger Q = more depth, less security
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537,
+    .coeff_modulus_bits = {60, 40, 40, 40, 60}  // Q ≈ 240 bits
+});
+```
+
+## Comparison with Other Encryption
+
+| Property | AES | RSA | FHE |
+|----------|-----|-----|-----|
+| Computation on encrypted | ❌ | Limited | ✅ Full |
+| Speed | Very fast | Fast | Slow |
+| Ciphertext expansion | 1x | ~2x | 100-10000x |
+| Key size | 128-256 bits | 2048+ bits | MB-GB |
+| Quantum resistant | ❌ | ❌ | ✅ |
+
+## Practical Considerations
+
+### When to Use FHE
+
+✅ **Good use cases:**
+- Cloud computing on sensitive data
+- Privacy-preserving machine learning
+- Secure multi-party computation
+- Confidential smart contracts
+
+❌ **Poor use cases:**
+- Real-time applications requiring less than 1ms latency
+- Very large datasets (petabytes)
+- Simple data storage (use AES instead)
+
+### Performance Expectations
+
+```cpp
+// Typical operation times (M3 Max GPU):
+// - TFHE Bootstrap: 0.45ms
+// - BGV Multiply (n=8192): 1.1ms
+// - CKKS Multiply (n=16384): 2.5ms
+// - Key Generation: 85ms
+
+// Ciphertext sizes:
+// - TFHE (1 bit): ~2 KB
+// - BGV (n=8192): ~128 KB
+// - CKKS (n=16384): ~512 KB
+```
+
+## Further Reading
+
+- [Bootstrapping](/docs/concepts/bootstrapping) - How to enable unlimited operations
+- [Noise Management](/docs/concepts/noise-management) - Managing noise growth
+- [Security](/docs/concepts/security) - Parameter selection and security analysis

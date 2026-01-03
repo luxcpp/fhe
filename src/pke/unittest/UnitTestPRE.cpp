@@ -41,7 +41,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 //===========================================================================================================
 enum TEST_CASE_TYPE : int {

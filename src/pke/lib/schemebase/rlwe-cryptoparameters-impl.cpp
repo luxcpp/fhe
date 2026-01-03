@@ -32,10 +32,10 @@
 #include "cryptocontext.h"
 #include "schemebase/rlwe-cryptoparameters.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // template class CryptoParametersRLWE<Poly>;
 // template class CryptoParametersRLWE<NativePoly>;
 template class CryptoParametersRLWE<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

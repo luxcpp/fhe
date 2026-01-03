@@ -15,7 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace lbcrypto {
+namespace lux {
 namespace mlx_backend {
 
 // ============================================================================
@@ -560,4 +560,4 @@ void clear_cache() {
 }
 
 } // namespace mlx_backend
-} // namespace lbcrypto
+} // namespace lux

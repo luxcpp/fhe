@@ -1,0 +1,141 @@
+---
+title: Schemes
+description: FHE schemes supported by lux-fhe
+---
+
+# FHE Schemes
+
+lux-fhe implements four major FHE schemes, each optimized for different use cases.
+
+## Scheme Overview
+
+| Scheme | Data Type | Operations | Bootstrapping | Use Case |
+|--------|-----------|------------|---------------|----------|
+| **TFHE** | Binary | Boolean gates | Fast (~0.5ms) | Binary circuits, comparisons |
+| **BGV** | Integers | Exact arithmetic | Slow (~100ms) | Integer computation |
+| **BFV** | Integers | Exact arithmetic | Slow (~100ms) | Integer computation |
+| **CKKS** | Reals | Approximate | Medium (~50ms) | Machine learning, statistics |
+
+## Quick Comparison
+
+### Performance (M3 Max GPU)
+
+| Operation | TFHE | BGV | CKKS |
+|-----------|------|-----|------|
+| Addition | N/A | 0.1ms | 0.2ms |
+| Multiplication | N/A | 1.1ms | 2.5ms |
+| Bootstrap | 0.45ms | 100ms | 50ms |
+| Gate (AND/OR) | 0.45ms | N/A | N/A |
+
+### Ciphertext Sizes
+
+| Scheme | Ring Dim | Single Ciphertext |
+|--------|----------|-------------------|
+| TFHE | 1024 | ~2 KB |
+| BGV | 8192 | ~128 KB |
+| BFV | 8192 | ~128 KB |
+| CKKS | 16384 | ~512 KB |
+
+## Choosing a Scheme
+
+### Use TFHE When
+
+- Computing boolean circuits
+- Need fast bootstrapping
+- Performing comparisons
+- Low multiplicative depth
+
+```cpp
+#include <lux/fhe/binfhe.h>
+
+// Perfect for: encrypted database queries, private set intersection
+auto ctx = lux::fhe::BinaryContext::Create({.security = 128});
+auto result = ctx->NAND(bk, ct_a, ct_b);
+```
+
+### Use BGV/BFV When
+
+- Need exact integer arithmetic
+- Computing polynomials
+- Fixed precision requirements
+- High throughput batching
+
+```cpp
+#include <lux/fhe/pke.h>
+
+// Perfect for: voting, auctions, integer statistics
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537
+});
+auto result = ctx->Mul(ct_x, ct_y);  // Exact result
+```
+
+### Use CKKS When
+
+- Working with real numbers
+- Machine learning inference
+- Statistical computations
+- Can tolerate approximation
+
+```cpp
+#include <lux/fhe/pke.h>
+
+// Perfect for: ML inference, financial modeling, scientific computing
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 16384,
+    .scale = 1ULL << 40
+});
+auto result = ctx->Mul(ct_x, ct_y);  // Approximate result
+```
+
+## Scheme Details
+
+### [TFHE](/docs/schemes/tfhe)
+Binary FHE with programmable bootstrapping. Each gate includes a bootstrap operation, enabling unlimited sequential operations with consistent latency.
+
+### [BGV](/docs/schemes/bgv)
+Brakerski-Gentry-Vaikuntanathan scheme for exact integer arithmetic. Uses modulus switching for noise management.
+
+### [BFV](/docs/schemes/bfv)
+Brakerski-Fan-Vercauteren scheme, similar to BGV but with different noise management. Often preferred for simpler implementations.
+
+### [CKKS](/docs/schemes/ckks)
+Cheon-Kim-Kim-Song scheme for approximate arithmetic on real/complex numbers. Essential for machine learning applications.
+
+## Architecture
+
+All schemes share common infrastructure from lux-lattice:
+
+```
+┌─────────────────────────────────────────────┐
+│                 lux-fhe                     │
+├─────────────┬───────────┬──────────────────┤
+│    TFHE     │  BGV/BFV  │      CKKS        │
+│  (binfhe/)  │   (pke/)  │     (pke/)       │
+├─────────────┴───────────┴──────────────────┤
+│              lux-lattice                    │
+│     (NTT, Sampling, Polynomial Ops)         │
+├────────────────────────────────────────────┤
+│               lux-gpu                       │
+│        (Metal, CUDA, CPU SIMD)              │
+└────────────────────────────────────────────┘
+```
+
+## Hybrid Usage
+
+Combine schemes for complex applications:
+
+```cpp
+// Example: Private ML inference
+// 1. Use CKKS for neural network layers
+auto ckks = lux::fhe::CKKSContext::Create({...});
+auto hidden = ckks->MatMul(encrypted_input, weights);
+
+// 2. Use TFHE for activation function (comparison-based)
+auto tfhe = lux::fhe::BinaryContext::Create({...});
+auto activated = apply_relu_with_tfhe(hidden, tfhe);
+
+// 3. Continue with CKKS for output layer
+auto output = ckks->MatMul(activated, output_weights);
+```

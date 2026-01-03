@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace radix {
 
 // Radix integer parameters
@@ -443,6 +443,6 @@ void BatchPropagateCarries(
 );
 
 } // namespace radix
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // RADIX_RADIX_H

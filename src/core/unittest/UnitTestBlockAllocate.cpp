@@ -48,7 +48,7 @@
     #include "utils/inttypes.h"
     #include "utils/utilities.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UnitTestBinInt : public ::testing::Test {
 protected:

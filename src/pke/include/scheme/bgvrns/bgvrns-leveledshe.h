@@ -29,18 +29,18 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BGVRNS_LEVELEDSHE_H
-#define LBCRYPTO_CRYPTO_BGVRNS_LEVELEDSHE_H
+#ifndef LUX_FHE_CRYPTO_BGVRNS_LEVELEDSHE_H
+#define LUX_FHE_CRYPTO_BGVRNS_LEVELEDSHE_H
 
 #include "schemerns/rns-leveledshe.h"
 
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class LeveledSHEBGVRNS : public LeveledSHERNS {
 public:
@@ -96,6 +96,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

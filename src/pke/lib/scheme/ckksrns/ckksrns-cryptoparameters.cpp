@@ -40,7 +40,7 @@ CKKS implementation. See https://eprint.iacr.org/2020/1118 for details.
 
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Precomputation of CRT tables encryption, decryption, and  homomorphic
 // multiplication
@@ -141,7 +141,7 @@ void CryptoParametersCKKSRNS::PrecomputeCRTTables(KeySwitchTechnique ksTech, Sca
                     if (m_scalTechnique == FLEXIBLEAUTO || m_scalTechnique == FLEXIBLEAUTOEXT) {
                         double ratio = m_scalingFactorsReal[k] / lastPresetFactor;
                         if (ratio <= 0.5 || ratio >= 2.0) {
-                            OPENFHE_THROW("FLEXIBLEAUTO scaling failed at level " + std::to_string(k) +
+                            LUX_FHE_THROW("FLEXIBLEAUTO scaling failed at level " + std::to_string(k) +
                                           " with scaling factor ratio " + std::to_string(ratio) +
                                           ". Use FIXEDMANUAL or FIXEDAUTO instead.");
                         }
@@ -203,15 +203,15 @@ void CryptoParametersCKKSRNS::ConfigureCompositeDegree(uint32_t scalingModSize) 
                     errMsg += std::to_string(static_cast<float>(scalingModSize) / compositeDegree);
                     errMsg +=
                         ") is too short (< 19) for target multiplicative depth. Consider increasing the scaling factor or the register word size.";
-                    OPENFHE_THROW(errMsg);
+                    LUX_FHE_THROW(errMsg);
                 }
                 m_compositeDegree = compositeDegree;
             }  // else composite degree remains set to 1
         }
         else {
-            OPENFHE_THROW("COMPOSITESCALING scaling technique only supports register word size <= 64.");
+            LUX_FHE_THROW("COMPOSITESCALING scaling technique only supports register word size <= 64.");
         }
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

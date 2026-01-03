@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef SRC_LIB_OPENFHE_H_
-#define SRC_LIB_OPENFHE_H_
+#ifndef SRC_LIB_LUX_FHE_H_
+#define SRC_LIB_LUX_FHE_H_
 
 #include <initializer_list>
 #include <memory>
@@ -74,4 +74,4 @@
 #include "scheme/bfvrns/gen-cryptocontext-bfvrns.h"
 #include "scheme/bgvrns/gen-cryptocontext-bgvrns.h"
 
-#endif /* SRC_LIB_OPENFHE_H_ */
+#endif /* SRC_LIB_LUX_FHE_H_ */

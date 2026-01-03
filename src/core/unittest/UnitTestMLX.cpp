@@ -13,7 +13,7 @@
 
 #include "math/hal/mlx/mlx_backend.h"
 
-using namespace lbcrypto::mlx_backend;
+using namespace lux::mlx_backend;
 
 class MLXBackendTest : public ::testing::Test {
 protected:

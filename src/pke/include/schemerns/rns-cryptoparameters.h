@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_RNS_CRYPTOPARAMETERS_H
-#define LBCRYPTO_CRYPTO_RNS_CRYPTOPARAMETERS_H
+#ifndef LUX_FHE_CRYPTO_RNS_CRYPTOPARAMETERS_H
+#define LUX_FHE_CRYPTO_RNS_CRYPTOPARAMETERS_H
 
 #include "lattice/lat-hal.h"
 
@@ -42,10 +42,10 @@
 #include <utility>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief main implementation class to capture essential cryptoparameters of
@@ -448,7 +448,7 @@ public:
         if (part < m_PartQlHatInvModq.size() && sublvl < m_PartQlHatInvModq[part].size())
             return m_PartQlHatInvModq[part][sublvl];
 
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "CryptoParametersCKKS::GetPartitionQHatInvModQTable - "
             "index out of bounds.");
     }
@@ -463,7 +463,7 @@ public:
         if (part < m_PartQlHatInvModqPrecon.size() && sublvl < m_PartQlHatInvModqPrecon[part].size())
             return m_PartQlHatInvModqPrecon[part][sublvl];
 
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "CryptoParametersCKKS::"
             "GetPartitionQHatInvModQPreconTable - index "
             "out of bounds.");
@@ -479,7 +479,7 @@ public:
         if (lvl < m_PartQlHatModp.size() && part < m_PartQlHatModp[lvl].size())
             return m_PartQlHatModp[lvl][part];
 
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "CryptoParametersCKKS::GetPartitionQHatModPTable - "
             "index out of bounds.");
     }
@@ -494,7 +494,7 @@ public:
         if (lvl < m_modComplPartqBarrettMu.size() && part < m_modComplPartqBarrettMu[lvl].size())
             return m_modComplPartqBarrettMu[lvl][part];
 
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "CryptoParametersCKKS::GetPartitionPrecon - index out "
             "of bounds.");
     }
@@ -1862,7 +1862,7 @@ public:
         if (version > SerializedVersion()) {
             std::string errMsg("serialized object version " + std::to_string(version) +
                                " is from a later version of the library");
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
         ar(cereal::base_class<CryptoParametersRLWE<DCRTPoly>>(this));
         ar(cereal::make_nvp("ks", m_ksTechnique));
@@ -1893,6 +1893,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

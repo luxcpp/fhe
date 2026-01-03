@@ -32,7 +32,7 @@
 #include "binfhecontext.h"
 #include "gtest/gtest.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 TEST(UNITTestFHEWExtended, EvalBinGate2) {
     auto cc = BinFHEContext();

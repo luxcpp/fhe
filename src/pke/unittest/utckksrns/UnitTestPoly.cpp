@@ -42,7 +42,7 @@
 #include "gtest/gtest.h"
 #include <iterator>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 //===========================================================================================================
 enum TEST_CASE_TYPE : int {

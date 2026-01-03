@@ -1,0 +1,329 @@
+---
+title: BFV
+description: Brakerski-Fan-Vercauteren scheme for integer arithmetic
+---
+
+# BFV Scheme
+
+BFV (Brakerski-Fan-Vercauteren) is an FHE scheme for exact integer arithmetic, similar to BGV but with different noise management. BFV uses scale-invariant noise handling, making it simpler to implement and reason about.
+
+## Key Features
+
+- **Exact arithmetic**: No approximation errors
+- **Scale-invariant**: Noise doesn't depend on message encoding
+- **Batching (SIMD)**: Process multiple values in parallel
+- **Simpler noise model**: Easier parameter selection than BGV
+
+## BGV vs BFV
+
+| Aspect | BGV | BFV |
+|--------|-----|-----|
+| Noise scaling | Message-dependent | Scale-invariant |
+| Modulus switching | Required | Optional |
+| Implementation | More complex | Simpler |
+| Performance | Slightly faster | Slightly slower |
+| Parameter selection | Harder | Easier |
+
+## Quick Start
+
+```cpp
+#include <lux/fhe/pke.h>
+
+int main() {
+    // Create BFV context
+    auto ctx = lux::fhe::BFVContext::Create({
+        .ring_dim = 4096,
+        .plaintext_modulus = 256,
+        .coeff_modulus_bits = {40, 40, 40}
+    });
+
+    // Generate keys
+    auto [pk, sk] = ctx->GenerateKeyPair();
+    auto rlk = ctx->GenerateRelinearizationKey(sk);
+
+    // Encrypt
+    std::vector<int64_t> data = {1, 2, 3, 4};
+    auto ct = ctx->Encrypt(pk, data);
+
+    // Operations
+    auto ct_squared = ctx->Square(ct, rlk);
+
+    // Decrypt
+    auto result = ctx->Decrypt(sk, ct_squared);
+    // result = {1, 4, 9, 16}
+
+    return 0;
+}
+```
+
+## Operations
+
+### Basic Arithmetic
+
+```cpp
+// Addition
+auto ct_sum = ctx->Add(ct_a, ct_b);
+
+// Subtraction
+auto ct_diff = ctx->Sub(ct_a, ct_b);
+
+// Multiplication
+auto ct_prod = ctx->Mul(ct_a, ct_b, rlk);
+
+// Square
+auto ct_sq = ctx->Square(ct_a, rlk);
+
+// Negate
+auto ct_neg = ctx->Negate(ct_a);
+```
+
+### Plaintext Operations
+
+```cpp
+// Add plaintext constant
+auto ct_add = ctx->AddPlain(ct, {5, 5, 5, 5});
+
+// Multiply by plaintext
+auto ct_mul = ctx->MulPlain(ct, {2, 2, 2, 2});
+
+// Multiply by scalar
+auto ct_scaled = ctx->MulScalar(ct, 10);
+```
+
+### Rotation
+
+```cpp
+// Generate Galois keys for rotation
+auto gk = ctx->GenerateGaloisKeys(sk);
+
+// Rotate slots
+auto ct_rot_left = ctx->RotateLeft(ct, 1, gk);
+auto ct_rot_right = ctx->RotateRight(ct, 1, gk);
+
+// Rotate rows (for matrix operations)
+auto ct_rot_rows = ctx->RotateRows(ct, gk);
+```
+
+## Noise Budget
+
+BFV's scale-invariant approach simplifies noise tracking:
+
+```cpp
+// Check remaining noise budget
+int budget = ctx->GetNoiseBudget(ct);
+std::cout << "Noise budget: " << budget << " bits\n";
+
+// Operations consume budget:
+// - Addition: ~0 bits
+// - Multiplication: ~30-40 bits
+// - Rotation: ~5 bits
+
+// Example budget tracking
+auto ct = ctx->Encrypt(pk, data);      // Budget: 80 bits
+ct = ctx->Mul(ct, ct, rlk);             // Budget: ~45 bits
+ct = ctx->Mul(ct, ct, rlk);             // Budget: ~10 bits
+ct = ctx->Mul(ct, ct, rlk);             // Budget: ~0 bits - decryption will fail!
+```
+
+## Parameter Selection
+
+### Plaintext Modulus
+
+```cpp
+// For 8-bit values (0-255)
+auto ctx = lux::fhe::BFVContext::Create({
+    .plaintext_modulus = 256,  // Power of 2
+});
+
+// For modular arithmetic
+auto ctx = lux::fhe::BFVContext::Create({
+    .plaintext_modulus = 65537,  // Prime for batching
+});
+
+// For larger integers
+auto ctx = lux::fhe::BFVContext::Create({
+    .plaintext_modulus = 40961,  // Larger prime
+});
+```
+
+### Coefficient Modulus
+
+```cpp
+// For depth-2 circuits (2 multiplications)
+auto ctx = lux::fhe::BFVContext::Create({
+    .ring_dim = 4096,
+    .coeff_modulus_bits = {40, 40, 40}  // ~120 bits total
+});
+
+// For depth-4 circuits
+auto ctx = lux::fhe::BFVContext::Create({
+    .ring_dim = 8192,
+    .coeff_modulus_bits = {60, 40, 40, 40, 60}  // ~240 bits
+});
+
+// For depth-6 circuits
+auto ctx = lux::fhe::BFVContext::Create({
+    .ring_dim = 16384,
+    .coeff_modulus_bits = {60, 40, 40, 40, 40, 40, 60}  // ~320 bits
+});
+```
+
+### Security Levels
+
+| Ring Dim | Max Coeff Bits | Security |
+|----------|---------------|----------|
+| 1024 | 27 | ~80 bits |
+| 2048 | 54 | ~100 bits |
+| 4096 | 109 | ~128 bits |
+| 8192 | 218 | ~192 bits |
+| 16384 | 438 | ~256 bits |
+
+## Batching
+
+Encode multiple values in a single ciphertext:
+
+```cpp
+auto ctx = lux::fhe::BFVContext::Create({
+    .ring_dim = 4096,
+    .plaintext_modulus = 40961,  // Must be prime ≡ 1 (mod 2n)
+    .batching = true
+});
+
+// Encrypt 4096 values in one ciphertext
+std::vector<int64_t> batch(4096);
+for (int i = 0; i < 4096; i++) batch[i] = i % 100;
+
+auto ct = ctx->Encrypt(pk, batch);
+
+// All operations apply element-wise
+auto ct_squared = ctx->Square(ct, rlk);  // Squares all 4096 values
+```
+
+## Performance
+
+### Benchmarks (M3 Max GPU)
+
+| Operation | n=4096 | n=8192 | n=16384 |
+|-----------|--------|--------|---------|
+| Encrypt | 0.8ms | 1.5ms | 3ms |
+| Add | 0.05ms | 0.1ms | 0.2ms |
+| Multiply | 2ms | 4ms | 8ms |
+| Rotate | 1.5ms | 3ms | 6ms |
+
+### Key Sizes
+
+| Ring Dim | Secret Key | Public Key | Relin Key |
+|----------|-----------|------------|-----------|
+| 4096 | 32 KB | 64 KB | 192 KB |
+| 8192 | 64 KB | 128 KB | 384 KB |
+| 16384 | 128 KB | 256 KB | 768 KB |
+
+## Use Cases
+
+### Encrypted Lookup
+
+```cpp
+// Private index into public table
+std::vector<int64_t> table = {10, 20, 30, 40, 50};
+
+// Encrypt query index
+auto ct_index = ctx->Encrypt(pk, {3});  // Looking for table[3]
+
+// Create indicator vector
+std::vector<Ciphertext> indicators;
+for (size_t i = 0; i < table.size(); i++) {
+    // indicator[i] = 1 if index == i, else 0
+    indicators.push_back(EncryptedEquals(ct_index, i));
+}
+
+// Select matching element
+Ciphertext ct_result = ctx->MulPlain(indicators[0], {table[0]});
+for (size_t i = 1; i < table.size(); i++) {
+    auto term = ctx->MulPlain(indicators[i], {table[i]});
+    ct_result = ctx->Add(ct_result, term);
+}
+// ct_result = Encrypt(40)
+```
+
+### Private Set Membership
+
+```cpp
+// Check if encrypted value is in public set
+std::set<int64_t> public_set = {1, 3, 5, 7, 9};
+
+auto ct_value = ctx->Encrypt(pk, query_value);
+
+Ciphertext ct_found = ctx->Encrypt(pk, 0);  // False
+for (int64_t elem : public_set) {
+    auto ct_match = EncryptedEquals(ct_value, elem);
+    ct_found = ctx->Add(ct_found, ct_match);
+}
+// ct_found = Encrypt(1) if query is in set, Encrypt(0) otherwise
+```
+
+### Integer Multiplication
+
+```cpp
+// Multiply two encrypted integers without overflow
+// Using schoolbook multiplication
+
+// For 16-bit integers, split into 8-bit limbs
+auto ct_a_lo = ctx->Encrypt(pk, a & 0xFF);
+auto ct_a_hi = ctx->Encrypt(pk, (a >> 8) & 0xFF);
+auto ct_b_lo = ctx->Encrypt(pk, b & 0xFF);
+auto ct_b_hi = ctx->Encrypt(pk, (b >> 8) & 0xFF);
+
+// Compute partial products
+auto ct_ll = ctx->Mul(ct_a_lo, ct_b_lo, rlk);
+auto ct_lh = ctx->Mul(ct_a_lo, ct_b_hi, rlk);
+auto ct_hl = ctx->Mul(ct_a_hi, ct_b_lo, rlk);
+auto ct_hh = ctx->Mul(ct_a_hi, ct_b_hi, rlk);
+
+// Combine (with careful overflow handling)
+```
+
+## Tips and Best Practices
+
+### 1. Choose Appropriate Plaintext Modulus
+
+```cpp
+// Rule: plaintext_modulus should be >= 2 * max_value + 1
+// to avoid overflow into negative numbers
+
+// For values 0-100:
+.plaintext_modulus = 257  // OK
+
+// For values -50 to 50:
+.plaintext_modulus = 257  // OK (values mod 257)
+```
+
+### 2. Minimize Multiplicative Depth
+
+```cpp
+// Bad: Sequential multiplication (depth 3)
+auto t1 = ctx->Mul(a, b, rlk);
+auto t2 = ctx->Mul(t1, c, rlk);
+auto result = ctx->Mul(t2, d, rlk);
+
+// Good: Tree-structured (depth 2)
+auto t1 = ctx->Mul(a, b, rlk);
+auto t2 = ctx->Mul(c, d, rlk);
+auto result = ctx->Mul(t1, t2, rlk);
+```
+
+### 3. Use Batching for Throughput
+
+```cpp
+// Process many values in parallel
+std::vector<int64_t> all_inputs(4096);
+auto ct = ctx->Encrypt(pk, all_inputs);
+
+// One encrypted multiply = 4096 plaintext multiplies
+auto ct_result = ctx->Square(ct, rlk);
+```
+
+## Further Reading
+
+- [BGV Scheme](/docs/schemes/bgv) - Alternative with modulus switching
+- [CKKS Scheme](/docs/schemes/ckks) - For approximate arithmetic
+- [API Reference](/docs/api/cpp-api) - Complete API documentation

@@ -33,8 +33,8 @@
 Base class for key switching algorithms.
  */
 
-#ifndef LBCRYPTO_CRYPTO_KEYSWITCH_BASE_H
-#define LBCRYPTO_CRYPTO_KEYSWITCH_BASE_H
+#ifndef LUX_FHE_CRYPTO_KEYSWITCH_BASE_H
+#define LUX_FHE_CRYPTO_KEYSWITCH_BASE_H
 
 #include "ciphertext-fwd.h"
 #include "key/publickey-fwd.h"
@@ -48,10 +48,10 @@ Base class for key switching algorithms.
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract class for LBC keyswitching
@@ -76,36 +76,36 @@ public:
    */
     virtual EvalKey<Element> KeySwitchGenInternal(const PrivateKey<Element> oldPrivateKey,
                                                   const PrivateKey<Element> newPrivateKey) const {
-        OPENFHE_THROW(std::string(__func__) + " is not supported");
+        LUX_FHE_THROW(std::string(__func__) + " is not supported");
     }
 
     virtual EvalKey<Element> KeySwitchGenInternal(const PrivateKey<Element> oldPrivateKey,
                                                   const PrivateKey<Element> newPrivateKey,
                                                   const EvalKey<Element> evalKey) const {
-        OPENFHE_THROW(std::string(__func__) + " is not supported");
+        LUX_FHE_THROW(std::string(__func__) + " is not supported");
     }
 
     virtual EvalKey<Element> KeySwitchGenInternal(const PrivateKey<Element> oldPrivateKey,
                                                   const PublicKey<Element> newPublicKey) const {
-        OPENFHE_THROW(std::string(__func__) + " is not supported");
+        LUX_FHE_THROW(std::string(__func__) + " is not supported");
     }
 
     virtual Ciphertext<Element> KeySwitch(ConstCiphertext<Element> ciphertext, const EvalKey<Element> evalKey) const;
 
     virtual void KeySwitchInPlace(Ciphertext<Element>& ciphertext, const EvalKey<Element> evalKey) const {
-        OPENFHE_THROW("KeySwitch is not supported");
+        LUX_FHE_THROW("KeySwitch is not supported");
     }
 
     virtual Ciphertext<Element> KeySwitchExt(ConstCiphertext<Element> ciphertext, bool addFirst) const {
-        OPENFHE_THROW("KeySwitchExt is not supported");
+        LUX_FHE_THROW("KeySwitchExt is not supported");
     }
 
     virtual Ciphertext<Element> KeySwitchDown(ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("KeySwitchDown is not supported");
+        LUX_FHE_THROW("KeySwitchDown is not supported");
     }
 
     virtual Element KeySwitchDownFirstElement(ConstCiphertext<Element> ciphertext) const {
-        OPENFHE_THROW("KeySwitchDownFirstElement is not supported");
+        LUX_FHE_THROW("KeySwitchDownFirstElement is not supported");
     }
     /////////////////////////////////////////
     // CORE OPERATIONS
@@ -113,27 +113,27 @@ public:
 
     virtual std::shared_ptr<std::vector<Element>> KeySwitchCore(const Element& a,
                                                                 const EvalKey<Element> evalKey) const {
-        OPENFHE_THROW("KeySwitchCore is not supported");
+        LUX_FHE_THROW("KeySwitchCore is not supported");
     }
 
     virtual std::shared_ptr<std::vector<Element>> EvalKeySwitchPrecomputeCore(
         const Element& c, std::shared_ptr<CryptoParametersBase<Element>> cryptoParamsBase) const {
-        OPENFHE_THROW("EvalKeySwitchPrecomputeCore is not supported");
+        LUX_FHE_THROW("EvalKeySwitchPrecomputeCore is not supported");
     }
 
     virtual std::shared_ptr<std::vector<Element>> EvalFastKeySwitchCore(
         const std::shared_ptr<std::vector<Element>> digits, const EvalKey<Element> evalKey,
         const std::shared_ptr<ParmType> paramsQl) const {
-        OPENFHE_THROW("EvalFastKeySwitchCore is not supported");
+        LUX_FHE_THROW("EvalFastKeySwitchCore is not supported");
     }
 
     virtual std::shared_ptr<std::vector<Element>> EvalFastKeySwitchCoreExt(
         const std::shared_ptr<std::vector<Element>> digits, const EvalKey<Element> evalKey,
         const std::shared_ptr<ParmType> paramsQl) const {
-        OPENFHE_THROW("EvalFastKeySwitchCoreExt is not supported");
+        LUX_FHE_THROW("EvalFastKeySwitchCoreExt is not supported");
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -16,8 +16,8 @@
 // See patent: PAT-FHE-010-four-step-ntt-metal.md
 //==================================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_FOUR_STEP_NTT_H
-#define LBCRYPTO_MATH_HAL_MLX_FOUR_STEP_NTT_H
+#ifndef LUX_FHE_MATH_HAL_MLX_FOUR_STEP_NTT_H
+#define LUX_FHE_MATH_HAL_MLX_FOUR_STEP_NTT_H
 
 #include <cstdint>
 #include <memory>
@@ -30,7 +30,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace metal_backend {
 
 //==================================================================================
@@ -400,6 +400,6 @@ inline uint32_t ComputeOptimalBatchSize(uint32_t N, size_t available_memory) {
 }
 
 } // namespace metal_backend
-} // namespace lbcrypto
+} // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_FOUR_STEP_NTT_H
+#endif // LUX_FHE_MATH_HAL_MLX_FOUR_STEP_NTT_H

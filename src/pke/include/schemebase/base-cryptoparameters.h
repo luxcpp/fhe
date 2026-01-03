@@ -28,8 +28,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
-#ifndef LBCRYPTO_CRYPTO_BASE_CRYPTOPARAMETERS_H
-#define LBCRYPTO_CRYPTO_BASE_CRYPTOPARAMETERS_H
+#ifndef LUX_FHE_CRYPTO_BASE_CRYPTOPARAMETERS_H
+#define LUX_FHE_CRYPTO_BASE_CRYPTOPARAMETERS_H
 
 #include "encoding/encodings.h"
 #include "encoding/plaintext.h"
@@ -39,10 +39,10 @@
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief main implementation class to capture essential cryptoparameters of
@@ -174,7 +174,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("elp", m_params));
@@ -230,6 +230,6 @@ protected:
     EncodingParams m_encodingParams;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

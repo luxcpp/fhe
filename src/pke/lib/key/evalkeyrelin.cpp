@@ -32,6 +32,6 @@
 #include "key/evalkeyrelin.h"
 
 // the code below is from evalkeyrelin-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 template class EvalKeyRelinImpl<DCRTPoly>;
-}  // namespace lbcrypto
+}  // namespace lux::fhe

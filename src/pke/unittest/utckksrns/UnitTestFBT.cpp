@@ -56,7 +56,7 @@
 // secure and lead to slightly more efficient results as compared to those tables.
 // #define BENCH
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 enum TEST_CASE_TYPE : int {
     FBT_ARBLUT = 0,

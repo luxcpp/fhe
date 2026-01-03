@@ -10,7 +10,7 @@
 #include <vector>
 #include <numeric>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::chrono;
 
 void run_benchmarks(BINFHE_PARAMSET paramSet, const std::string& paramName) {

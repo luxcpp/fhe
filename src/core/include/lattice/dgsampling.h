@@ -34,8 +34,8 @@
   https://eprint.iacr.org/2018/946, and "Implementing Token-Based Obfuscation under (Ring) LWE" (not publicly available yet)
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_DGSAMPLING_H
-#define LBCRYPTO_INC_LATTICE_DGSAMPLING_H
+#ifndef LUX_FHE_INC_LATTICE_DGSAMPLING_H
+#define LUX_FHE_INC_LATTICE_DGSAMPLING_H
 
 #include "lattice/field2n.h"
 
@@ -45,7 +45,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Statistical error in Gaussian sampling
 // corresponds to statistical error of 2^(-80)
@@ -184,6 +184,6 @@ private:
     static void InversePermute(std::shared_ptr<Matrix<int64_t>> p);
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

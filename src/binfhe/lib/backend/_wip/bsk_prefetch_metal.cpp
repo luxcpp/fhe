@@ -24,7 +24,7 @@
 #endif
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -609,12 +609,12 @@ protected:
 };
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #else // !__APPLE__
 
 // Stub for non-Apple platforms
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 std::unique_ptr<BSKPrefetcher> CreateMetalBSKPrefetcher(
@@ -628,6 +628,6 @@ std::unique_ptr<BSKPrefetcher> CreateMetalBSKPrefetcher(
 }
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // __APPLE__

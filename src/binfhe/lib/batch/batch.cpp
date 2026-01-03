@@ -11,7 +11,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // ============================================================================
 // BatchFuture Implementation
@@ -494,4 +494,4 @@ void BatchDAG::Clear() {
     impl_->dependencies.clear();
 }
 
-} // namespace lbcrypto
+} // namespace lux::fhe

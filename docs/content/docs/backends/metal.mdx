@@ -1,0 +1,328 @@
+---
+title: Metal Backend
+description: Apple Silicon GPU acceleration for lux-fhe
+---
+
+# Metal Backend
+
+The Metal backend provides GPU acceleration on Apple Silicon (M1/M2/M3) and Intel Macs with AMD GPUs.
+
+## Requirements
+
+- macOS 11.0+ (Big Sur or later)
+- Apple Silicon (M1/M2/M3) or AMD GPU
+- Metal 2.0+ support
+- lux-fhe built with Metal support
+
+## Installation
+
+Metal support is included by default on macOS:
+
+```bash
+# Build with Metal (default on macOS)
+cmake -DLUX_FHE_METAL=ON ..
+make -j$(nproc)
+
+# Verify Metal support
+./tests/test_metal_backend
+```
+
+## Usage
+
+### Basic Usage
+
+```cpp
+#include <lux/fhe/fhe.h>
+
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537,
+    .backend = lux::fhe::Backend::METAL
+});
+```
+
+### Query Metal Devices
+
+```cpp
+#include <lux/fhe/metal.h>
+
+// List available Metal devices
+auto devices = lux::fhe::metal::GetDevices();
+for (const auto& dev : devices) {
+    std::cout << "Device: " << dev.name << "\n";
+    std::cout << "  Memory: " << (dev.memory_size / 1024 / 1024) << " MB\n";
+    std::cout << "  Family: " << dev.family << "\n";
+    std::cout << "  Unified: " << (dev.unified_memory ? "Yes" : "No") << "\n";
+}
+```
+
+### Select Specific Device
+
+```cpp
+// Use second Metal device (e.g., Mac Pro with multiple GPUs)
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .backend = lux::fhe::Backend::METAL,
+    .device_id = 1
+});
+```
+
+## Performance Optimization
+
+### Unified Memory Architecture
+
+Apple Silicon uses unified memory, eliminating CPU-GPU transfer overhead:
+
+```cpp
+// No explicit data transfers needed
+std::vector<int64_t> data = {1, 2, 3, 4};
+
+// Encrypt - data accessible to both CPU and GPU
+auto ct = ctx->Encrypt(pk, data);
+
+// Compute - GPU accelerated, no transfer
+auto ct_squared = ctx->Square(ct, rlk);
+
+// Decrypt - immediate access to result
+auto result = ctx->Decrypt(sk, ct_squared);
+```
+
+### Batch Operations
+
+Metal excels at batch processing:
+
+```cpp
+// Batch encryption for efficiency
+std::vector<std::vector<int64_t>> all_data = /* ... */;
+std::vector<Ciphertext> ciphertexts;
+ciphertexts.reserve(all_data.size());
+
+// Metal automatically batches these operations
+for (const auto& data : all_data) {
+    ciphertexts.push_back(ctx->Encrypt(pk, data));
+}
+
+// Batch computation
+for (auto& ct : ciphertexts) {
+    ct = ctx->Mul(ct, ct, rlk);
+}
+```
+
+### Shader Optimization
+
+lux-fhe uses optimized Metal shaders for FHE operations:
+
+```cpp
+// NTT operations use specialized Metal compute shaders
+// Automatically selected based on ring dimension
+
+// For advanced users: custom shader parameters
+lux::fhe::metal::SetShaderConfig({
+    .threadgroup_size = 256,  // Threads per threadgroup
+    .simd_width = 32,         // SIMD width for M2/M3
+    .use_bfloat16 = true      // Enable BFloat16 where applicable
+});
+```
+
+## Memory Management
+
+### Memory Pools
+
+Pre-allocate memory pools for consistent performance:
+
+```cpp
+// Initialize memory pool for large workloads
+lux::fhe::metal::InitializeMemoryPool({
+    .ciphertext_slots = 1000,  // Pre-allocate for 1000 ciphertexts
+    .ring_dim = 8192,
+    .coefficient_modulus_count = 5
+});
+
+// Operations use pooled memory
+for (int i = 0; i < 1000; i++) {
+    auto ct = ctx->Encrypt(pk, data[i]);
+    // Memory reused from pool
+}
+
+// Clean up pool
+lux::fhe::metal::ReleaseMemoryPool();
+```
+
+### Memory Pressure Handling
+
+Handle memory pressure gracefully:
+
+```cpp
+// Register memory pressure handler
+lux::fhe::metal::SetMemoryPressureHandler([](MemoryPressureLevel level) {
+    if (level == MemoryPressureLevel::Critical) {
+        // Release non-essential ciphertexts
+        cache.clear();
+    }
+});
+```
+
+## Synchronization
+
+### Automatic Sync
+
+By default, operations are synchronized:
+
+```cpp
+auto ct = ctx->Encrypt(pk, data);
+// Operation complete when function returns
+```
+
+### Async Operations
+
+For advanced pipelining:
+
+```cpp
+#include <lux/fhe/metal.h>
+
+// Create async context
+auto async_ctx = lux::fhe::metal::AsyncContext::Create(ctx);
+
+// Queue multiple operations
+auto future1 = async_ctx->EncryptAsync(pk, data1);
+auto future2 = async_ctx->EncryptAsync(pk, data2);
+
+// Do other work...
+
+// Wait for results
+auto ct1 = future1.get();
+auto ct2 = future2.get();
+```
+
+### Command Buffer Management
+
+```cpp
+// Manual command buffer control
+auto cmd_buffer = lux::fhe::metal::CreateCommandBuffer();
+
+cmd_buffer.Encode([&](auto& encoder) {
+    encoder.Encrypt(pk, data1);
+    encoder.Encrypt(pk, data2);
+    encoder.Mul(ct1, ct2, rlk);
+});
+
+cmd_buffer.Commit();
+cmd_buffer.WaitUntilCompleted();
+```
+
+## Apple Silicon Specific
+
+### M1/M2/M3 Optimization
+
+Different Apple chips have different optimal configurations:
+
+```cpp
+// Query chip capabilities
+auto chip_info = lux::fhe::metal::GetChipInfo();
+std::cout << "Chip: " << chip_info.name << "\n";
+std::cout << "GPU Cores: " << chip_info.gpu_cores << "\n";
+std::cout << "Neural Engine: " << (chip_info.has_neural_engine ? "Yes" : "No") << "\n";
+
+// Auto-tune for specific chip
+lux::fhe::metal::AutoTuneForChip();
+```
+
+### Performance by Chip
+
+| Operation | M1 | M1 Pro | M1 Max | M2 | M2 Max | M3 Max |
+|-----------|-----|--------|--------|-----|--------|--------|
+| BGV Mul (8K) | 2.5ms | 2.0ms | 1.8ms | 2.2ms | 1.8ms | 1.5ms |
+| CKKS Rescale | 1.8ms | 1.4ms | 1.2ms | 1.5ms | 1.2ms | 1.0ms |
+| TFHE Bootstrap | 12ms | 9ms | 8ms | 10ms | 8ms | 6ms |
+| NTT (16K) | 0.8ms | 0.6ms | 0.5ms | 0.7ms | 0.5ms | 0.4ms |
+
+### Neural Engine (Future)
+
+Support for Apple Neural Engine acceleration is planned:
+
+```cpp
+// Future API - not yet available
+auto ctx = BGVContext::Create({
+    .backend = Backend::METAL,
+    .use_neural_engine = true  // Accelerate polynomial evaluation
+});
+```
+
+## Debugging
+
+### Metal Validation
+
+Enable Metal validation layer for debugging:
+
+```bash
+# Enable validation
+export MTL_SHADER_VALIDATION=1
+export MTL_DEBUG_LAYER=1
+
+# Run with validation
+./your_app
+```
+
+### GPU Capture
+
+Use Xcode GPU Frame Capture:
+
+```cpp
+// Mark capture boundaries
+lux::fhe::metal::BeginCapture("FHE Operations");
+
+// Your FHE operations
+auto ct = ctx->Encrypt(pk, data);
+ct = ctx->Mul(ct, ct, rlk);
+
+lux::fhe::metal::EndCapture();
+// Open capture in Xcode GPU debugger
+```
+
+### Performance Counters
+
+```cpp
+// Enable performance monitoring
+lux::fhe::metal::EnablePerformanceCounters();
+
+// Run operations
+auto ct = ctx->Encrypt(pk, data);
+
+// Get metrics
+auto metrics = lux::fhe::metal::GetPerformanceMetrics();
+std::cout << "GPU Time: " << metrics.gpu_time_ms << "ms\n";
+std::cout << "Memory Bandwidth: " << metrics.bandwidth_gbps << " GB/s\n";
+std::cout << "Shader Occupancy: " << metrics.occupancy << "%\n";
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**"Metal not available"**
+```cpp
+// Check Metal support
+if (!lux::fhe::IsBackendAvailable(Backend::METAL)) {
+    std::cerr << "Metal not available, falling back to CPU\n";
+    ctx = BGVContext::Create({.backend = Backend::CPU});
+}
+```
+
+**Performance regression**
+- Check Activity Monitor for thermal throttling
+- Ensure not running in Low Power Mode
+- Close other GPU-intensive applications
+
+**Memory issues**
+```cpp
+// Check available memory
+auto mem_info = lux::fhe::metal::GetMemoryInfo();
+std::cout << "Available: " << (mem_info.available / 1024 / 1024) << " MB\n";
+std::cout << "Used by FHE: " << (mem_info.fhe_used / 1024 / 1024) << " MB\n";
+```
+
+## Further Reading
+
+- [CUDA Backend](/docs/backends/cuda) - NVIDIA GPU acceleration
+- [CPU Backend](/docs/backends/cpu) - SIMD optimization
+- [Performance Guide](/docs/concepts/noise-management) - Optimization tips

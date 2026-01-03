@@ -25,7 +25,7 @@
 
 #include "metal_dispatch_optimized.h"
 
-using namespace lbcrypto::gpu::metal;
+using namespace lux::gpu::metal;
 
 // =============================================================================
 // Reference CPU NTT (OpenFHE-style)

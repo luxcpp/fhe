@@ -9,7 +9,7 @@
 #include <vector>
 #include <cmath>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::chrono;
 
 // Timing helper

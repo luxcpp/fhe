@@ -45,7 +45,7 @@ CKKS implementation. See https://eprint.iacr.org/2020/1118 for details.
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /////////////////////////////////////////
 // SHE ADDITION CONSTANT
@@ -556,7 +556,7 @@ Ciphertext<DCRTPoly> LeveledSHECKKSRNS::EvalFastRotationExt(
     // Retrieve the automorphism key that corresponds to the auto index.
     auto evalKeyIterator = evalKeys.find(autoIndex);
     if (evalKeyIterator == evalKeys.end()) {
-        OPENFHE_THROW("EvalKey for index [" + std::to_string(autoIndex) + "] is not found.");
+        LUX_FHE_THROW("EvalKey for index [" + std::to_string(autoIndex) + "] is not found.");
     }
     auto evalKey = evalKeyIterator->second;
 
@@ -828,4 +828,4 @@ uint32_t LeveledSHECKKSRNS::FindAutomorphismIndex(uint32_t index, uint32_t m) co
     return FindAutomorphismIndex2nComplex(index, m);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

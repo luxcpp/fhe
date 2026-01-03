@@ -33,8 +33,8 @@
  This file contains the main class for native integers. It implements the same methods as other mathematical backends.
 */
 
-#ifndef LBCRYPTO_MATH_HAL_INTNAT_UBINTNAT_H
-#define LBCRYPTO_MATH_HAL_INTNAT_UBINTNAT_H
+#ifndef LUX_FHE_MATH_HAL_INTNAT_UBINTNAT_H
+#define LUX_FHE_MATH_HAL_INTNAT_UBINTNAT_H
 
 #include "math/hal/basicint.h"
 #include "math/hal/bigintbackend.h"
@@ -124,7 +124,7 @@ struct DataTypes<uint128_t> {
  * @tparam NativeInt native unsigned integer type
  */
 template <typename NativeInt>
-class NativeIntegerT final : public lbcrypto::BigIntegerInterface<NativeIntegerT<NativeInt>> {
+class NativeIntegerT final : public lux::fhe::BigIntegerInterface<NativeIntegerT<NativeInt>> {
 private:
     NativeInt m_value{0};
 
@@ -233,9 +233,9 @@ public:
         NativeInt acc{0}, tst{0};
         for (auto c : str) {
             if ((c - '0') > 9)
-                OPENFHE_THROW("String contains a non-digit");
+                LUX_FHE_THROW("String contains a non-digit");
             if ((acc = (10 * acc) + static_cast<NativeInt>(c - '0')) < tst)
-                OPENFHE_THROW(str + " is too large to fit in this native integer object");
+                LUX_FHE_THROW(str + " is too large to fit in this native integer object");
             tst = acc;
         }
         m_value = acc;
@@ -277,7 +277,7 @@ public:
     NativeIntegerT AddCheck(const NativeIntegerT& b) const {
         auto r{m_value + b.m_value};
         if (r < m_value || r < b.m_value)
-            OPENFHE_THROW("NativeIntegerT AddCheck: Overflow");
+            LUX_FHE_THROW("NativeIntegerT AddCheck: Overflow");
         return {r};
     }
 
@@ -311,7 +311,7 @@ public:
     NativeIntegerT& AddEqCheck(const NativeIntegerT& b) {
         auto oldv{m_value};
         if ((m_value += b.m_value) < oldv)
-            OPENFHE_THROW("NativeIntegerT AddEqCheck: Overflow");
+            LUX_FHE_THROW("NativeIntegerT AddEqCheck: Overflow");
         return *this;
     }
 
@@ -376,7 +376,7 @@ public:
    */
     NativeIntegerT& SubEqCheck(const NativeIntegerT& b) {
         if (m_value < b.m_value)
-            OPENFHE_THROW("NativeIntegerT SubEqCheck: neg value");
+            LUX_FHE_THROW("NativeIntegerT SubEqCheck: neg value");
         return *this = m_value - b.m_value;
     }
 
@@ -416,7 +416,7 @@ public:
     NativeIntegerT MulCheck(const NativeIntegerT& b) const {
         auto p{b.m_value * m_value};
         if (p < m_value || p < b.m_value)
-            OPENFHE_THROW("NativeIntegerT MulCheck: Overflow");
+            LUX_FHE_THROW("NativeIntegerT MulCheck: Overflow");
         return {p};
     }
 
@@ -450,7 +450,7 @@ public:
     NativeIntegerT& MulEqCheck(const NativeIntegerT& b) {
         auto oldv{m_value};
         if ((m_value *= b.m_value) < oldv)
-            OPENFHE_THROW("NativeIntegerT MulEqCheck: Overflow");
+            LUX_FHE_THROW("NativeIntegerT MulEqCheck: Overflow");
         return *this;
     }
 
@@ -473,7 +473,7 @@ public:
    */
     NativeIntegerT DividedBy(const NativeIntegerT& b) const {
         if (b.m_value == 0)
-            OPENFHE_THROW("NativeIntegerT DividedBy: zero");
+            LUX_FHE_THROW("NativeIntegerT DividedBy: zero");
         return {m_value / b.m_value};
     }
 
@@ -485,7 +485,7 @@ public:
    */
     NativeIntegerT& DividedByEq(const NativeIntegerT& b) {
         if (b.m_value == 0)
-            OPENFHE_THROW("NativeIntegerT DividedByEq: zero");
+            LUX_FHE_THROW("NativeIntegerT DividedByEq: zero");
         return *this = m_value / b.m_value;
     }
 
@@ -526,7 +526,7 @@ public:
    */
     NativeIntegerT MultiplyAndRound(const NativeIntegerT& p, const NativeIntegerT& q) const {
         if (q.m_value == 0)
-            OPENFHE_THROW("NativeIntegerT MultiplyAndRound: Divide by zero");
+            LUX_FHE_THROW("NativeIntegerT MultiplyAndRound: Divide by zero");
         return static_cast<NativeInt>(p.ConvertToDouble() * (this->ConvertToDouble() / q.ConvertToDouble()) + 0.5);
     }
 
@@ -540,7 +540,7 @@ public:
    */
     NativeIntegerT& MultiplyAndRoundEq(const NativeIntegerT& p, const NativeIntegerT& q) {
         if (q.m_value == 0)
-            OPENFHE_THROW("NativeIntegerT MultiplyAndRoundEq: Divide by zero");
+            LUX_FHE_THROW("NativeIntegerT MultiplyAndRoundEq: Divide by zero");
         return *this =
                    static_cast<NativeInt>(p.ConvertToDouble() * (this->ConvertToDouble() / q.ConvertToDouble()) + 0.5);
     }
@@ -586,7 +586,7 @@ public:
    */
     NativeIntegerT DivideAndRound(const NativeIntegerT& q) const {
         if (q.m_value == 0)
-            OPENFHE_THROW("NativeIntegerT DivideAndRound: zero");
+            LUX_FHE_THROW("NativeIntegerT DivideAndRound: zero");
         auto ans{m_value / q.m_value};
         auto rem{m_value % q.m_value};
         auto halfQ{q.m_value >> 1};
@@ -604,7 +604,7 @@ public:
    */
     NativeIntegerT& DivideAndRoundEq(const NativeIntegerT& q) {
         if (q.m_value == 0)
-            OPENFHE_THROW("NativeIntegerT DivideAndRoundEq: zero");
+            LUX_FHE_THROW("NativeIntegerT DivideAndRoundEq: zero");
         auto ans{m_value / q.m_value};
         auto rem{m_value % q.m_value};
         auto halfQ{q.m_value >> 1};
@@ -641,16 +641,16 @@ public:
     template <typename T = NativeInt>
     NativeIntegerT ComputeMu(typename std::enable_if_t<!std::is_same_v<T, DNativeInt>, bool> = true) const {
         if (m_value == 0)
-            OPENFHE_THROW("NativeIntegerT ComputeMu: Divide by zero");
-        auto&& tmp{DNativeInt{1} << (2 * lbcrypto::GetMSB(m_value) + 3)};
+            LUX_FHE_THROW("NativeIntegerT ComputeMu: Divide by zero");
+        auto&& tmp{DNativeInt{1} << (2 * lux::fhe::GetMSB(m_value) + 3)};
         return {tmp / DNativeInt(m_value)};
     }
 
     template <typename T = NativeInt>
     NativeIntegerT ComputeMu(typename std::enable_if_t<std::is_same_v<T, DNativeInt>, bool> = true) const {
         if (m_value == 0)
-            OPENFHE_THROW("NativeIntegerT ComputeMu: Divide by zero");
-        auto&& tmp{bigintbackend::BigInteger{1} << (2 * lbcrypto::GetMSB(m_value) + 3)};
+            LUX_FHE_THROW("NativeIntegerT ComputeMu: Divide by zero");
+        auto&& tmp{bigintbackend::BigInteger{1} << (2 * lux::fhe::GetMSB(m_value) + 3)};
         return {(tmp / bigintbackend::BigInteger(m_value)).template ConvertToInt<NativeInt>()};
     }
 
@@ -1438,7 +1438,7 @@ public:
         const NativeIntegerT& modulus,
         typename std::enable_if<!std::is_same<T, DNativeInt>::value, bool>::type = true) const {
         if (modulus.m_value == 0)
-            OPENFHE_THROW("Divide by zero");
+            LUX_FHE_THROW("Divide by zero");
         auto&& w{DNativeInt(m_value) << NativeIntegerT::MaxBits()};
         return {w / DNativeInt(modulus.m_value)};
     }
@@ -1448,7 +1448,7 @@ public:
         const NativeIntegerT& modulus,
         typename std::enable_if<std::is_same<T, DNativeInt>::value, bool>::type = true) const {
         if (modulus.m_value == 0)
-            OPENFHE_THROW("Divide by zero");
+            LUX_FHE_THROW("Divide by zero");
         auto&& w{bigintbackend::BigInteger(m_value) << NativeIntegerT::MaxBits()};
         return {(w / bigintbackend::BigInteger(modulus.m_value)).template ConvertToInt<NativeInt>()};
     }
@@ -1557,7 +1557,7 @@ public:
         if (a == 0) {
             std::string msg = NativeIntegerT::toString(m_value) + " does not have a ModInverse using " +
                               NativeIntegerT::toString(mod.m_value);
-            OPENFHE_THROW(msg);
+            LUX_FHE_THROW(msg);
         }
         if (modulus == 1)
             return NativeIntegerT();
@@ -1669,12 +1669,12 @@ public:
    */
     static NativeIntegerT FromBinaryString(const std::string& bitString) {
         if (bitString.length() > NativeIntegerT::MaxBits())
-            OPENFHE_THROW("Bit string is too long to fit in an intnat");
+            LUX_FHE_THROW("Bit string is too long to fit in an intnat");
         NativeInt v{0};
         for (size_t i = 0; i < bitString.length(); ++i) {
             auto n = bitString[i] - '0';
             if (n < 0 || n > 1)
-                OPENFHE_THROW("Bit string must contain only 0 or 1");
+                LUX_FHE_THROW("Bit string must contain only 0 or 1");
             v = (v << 1) | static_cast<NativeInt>(n);
         }
         return {v};
@@ -1686,7 +1686,7 @@ public:
    * @return the index of the most significant bit.
    */
     usint GetMSB() const {
-        return lbcrypto::GetMSB(m_value);
+        return lux::fhe::GetMSB(m_value);
     }
 
     /**
@@ -1736,7 +1736,7 @@ public:
    */
     uschar GetBitAtIndex(usint index) const {
         if (index == 0)
-            OPENFHE_THROW("Zero index in GetBitAtIndex");
+            LUX_FHE_THROW("Zero index in GetBitAtIndex");
         return static_cast<uschar>((m_value >> (index - 1)) & 0x1);
     }
 
@@ -1780,7 +1780,7 @@ public:
     typename std::enable_if_t<std::is_same_v<NativeInt, uint64_t> || std::is_same_v<NativeInt, uint32_t>, T> load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_value));
@@ -1792,7 +1792,7 @@ public:
                               void>
     load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         // get an array with 2 unint64_t values for m_value
@@ -1808,7 +1808,7 @@ public:
                               void>
     load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         // get an array with 2 unint64_t values for m_value
@@ -2078,4 +2078,4 @@ template std::ostream& operator<< <uint64_t>(std::ostream& os, const std::vector
 
 }  // namespace intnat
 
-#endif  // LBCRYPTO_MATH_HAL_INTNAT_UBINTNAT_H
+#endif  // LUX_FHE_MATH_HAL_INTNAT_UBINTNAT_H

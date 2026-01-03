@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
         }
 
         std::cerr << "==== Using external PRNG" << std::endl;
-        lbcrypto::PseudoRandomNumberGenerator::InitPRNGEngine(arg);
+        lux::fhe::PseudoRandomNumberGenerator::InitPRNGEngine(arg);
     }
     else {
         std::cerr << "==== Using OpenFHE's built-in PRNG" << std::endl;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 
     std::uniform_int_distribution<> dis(0, 10);
     for ( size_t i = 0; i < 5; ++i) {
-        [[maybe_unused]] int randomNum = dis(lbcrypto::PseudoRandomNumberGenerator::GetPRNG());
+        [[maybe_unused]] int randomNum = dis(lux::fhe::PseudoRandomNumberGenerator::GetPRNG());
     }
 
     return 0;

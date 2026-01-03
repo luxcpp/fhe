@@ -38,7 +38,7 @@
 #include "utils/utilities.h"
 
 using namespace std;
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace testing;
 
 static string lead = "****** ";

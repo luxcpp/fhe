@@ -33,8 +33,8 @@
   Defines an interface that any DCRT Polynomial implmentation must implement in order to work in OpenFHE.
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_HAL_DCRTPOLYINTERFACE_H
-#define LBCRYPTO_INC_LATTICE_HAL_DCRTPOLYINTERFACE_H
+#ifndef LUX_FHE_INC_LATTICE_HAL_DCRTPOLYINTERFACE_H
+#define LUX_FHE_INC_LATTICE_HAL_DCRTPOLYINTERFACE_H
 
 #include "lattice/hal/default/ildcrtparams.h"
 #include "lattice/ilelement.h"
@@ -51,7 +51,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Ideal lattice for the double-CRT interface representation.
@@ -69,7 +69,7 @@ namespace lbcrypto {
  * @tparam DerivedType Curiously-Recurring-Template-Pattern
  * @tparam BigVecType The Vector type before decomposing the polynomial into CRT
  * @tparam LilVecType The underlaying RNS data structure, a vectors type structure, that will compose the CRT data
- * @tparam RNSContainer The container of LilVecType, a lbcrypto::PolyImpl or vector typically
+ * @tparam RNSContainer The container of LilVecType, a lux::fhe::PolyImpl or vector typically
  *
  * example for the default DerivedType the template types would be...
  *    DerivedType       - DCRTPolyImpl<BigVector>
@@ -259,10 +259,10 @@ public:
    * @return interpolated value at index i.
    */
     BigIntType& at(usint i) final {
-        OPENFHE_THROW("at() not implemented for DCRTPoly");
+        LUX_FHE_THROW("at() not implemented for DCRTPoly");
     }
     const BigIntType& at(usint i) const final {
-        OPENFHE_THROW("const at() not implemented for DCRTPoly");
+        LUX_FHE_THROW("const at() not implemented for DCRTPoly");
     }
 
     /**
@@ -271,10 +271,10 @@ public:
    * @return interpolated value at index i.
    */
     BigIntType& operator[](usint i) final {
-        OPENFHE_THROW("operator[] not implemented for DCRTPoly");
+        LUX_FHE_THROW("operator[] not implemented for DCRTPoly");
     }
     const BigIntType& operator[](usint i) const final {
-        OPENFHE_THROW("const operator[] not implemented for DCRTPoly");
+        LUX_FHE_THROW("const operator[] not implemented for DCRTPoly");
     }
 
     /**
@@ -506,7 +506,7 @@ public:
    */
     DerivedType Transpose() const final {
         if (this->GetDerived().GetFormat() == Format::COEFFICIENT)
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "DCRTPolyInterface element transposition is currently "
                 "implemented only in the Evaluation representation.");
         return this->GetDerived().AutomorphismTransform(this->GetDerived().GetCyclotomicOrder() - 1);
@@ -656,7 +656,7 @@ public:
    * @warning Will remove, this is only inplace because of BFV
    */
     DerivedType MultiplyAndRound(const BigIntType& p, const BigIntType& q) const final {
-        OPENFHE_THROW("MultiplyAndRound not implemented for DCRTPoly");
+        LUX_FHE_THROW("MultiplyAndRound not implemented for DCRTPoly");
     }
 
     /**
@@ -669,7 +669,7 @@ public:
    * @warning Will remove, this is only inplace because of BFV
    */
     DerivedType DivideAndRound(const BigIntType& q) const final {
-        OPENFHE_THROW("DivideAndRound not implemented for DCRTPoly");
+        LUX_FHE_THROW("DivideAndRound not implemented for DCRTPoly");
     }
 
     /**
@@ -725,7 +725,7 @@ public:
    * @warning Doesn't make sense for DCRT
    */
     DerivedType ModByTwo() const final {
-        OPENFHE_THROW("Mod of a BigIntType not implemented for DCRTPoly");
+        LUX_FHE_THROW("Mod of a BigIntType not implemented for DCRTPoly");
     }
 
     /**
@@ -738,7 +738,7 @@ public:
    * @warning Doesn't make sense for DCRT
    */
     DerivedType Mod(const BigIntType& modulus) const final {
-        OPENFHE_THROW("Mod of a BigIntType not implemented for DCRTPoly");
+        LUX_FHE_THROW("Mod of a BigIntType not implemented for DCRTPoly");
     }
 
     /**
@@ -749,7 +749,7 @@ public:
    * @warning Doesn't make sense for DCRT
    */
     const BigVecType& GetValues() const final {
-        OPENFHE_THROW("GetValues not implemented for DCRTPoly");
+        LUX_FHE_THROW("GetValues not implemented for DCRTPoly");
     }
 
     /**
@@ -761,7 +761,7 @@ public:
    * @warning Doesn't make sense for DCRT
    */
     void SetValues(const BigVecType& values, Format format) {
-        OPENFHE_THROW("SetValues not implemented for DCRTPoly");
+        LUX_FHE_THROW("SetValues not implemented for DCRTPoly");
     }
 
     /**
@@ -786,7 +786,7 @@ public:
    * @warning Doesn't make sense for DCRT
    */
     DerivedType AddRandomNoise(const BigIntType& modulus) const {
-        OPENFHE_THROW("AddRandomNoise is not currently implemented for DCRTPoly");
+        LUX_FHE_THROW("AddRandomNoise is not currently implemented for DCRTPoly");
     }
 
     /**
@@ -798,7 +798,7 @@ public:
    * @warning Only used by RingSwitching, which is no longer supported. Will be removed in future.
    */
     void MakeSparse(uint32_t wFactor) final {
-        OPENFHE_THROW("MakeSparse is not currently implemented for DCRTPoly");
+        LUX_FHE_THROW("MakeSparse is not currently implemented for DCRTPoly");
     }
 
     /**
@@ -1392,7 +1392,7 @@ public:
    */
     void SwitchModulus(const BigIntType& modulus, const BigIntType& rootOfUnity, const BigIntType& modulusArb,
                        const BigIntType& rootOfUnityArb) final {
-        OPENFHE_THROW("SwitchModulus not implemented for DCRTPoly");
+        LUX_FHE_THROW("SwitchModulus not implemented for DCRTPoly");
     }
 
     /**
@@ -1597,6 +1597,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_LATTICE_HAL_DCRTPOLYINTERFACE_H
+#endif  // LUX_FHE_LATTICE_HAL_DCRTPOLYINTERFACE_H

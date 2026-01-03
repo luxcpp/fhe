@@ -28,8 +28,8 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
-#ifndef LBCRYPTO_SERIALIZABLE_H
-#define LBCRYPTO_SERIALIZABLE_H
+#ifndef LUX_FHE_SERIALIZABLE_H
+#define LUX_FHE_SERIALIZABLE_H
 
 #ifndef CEREAL_RAPIDJSON_HAS_STDSTRING
     #define CEREAL_RAPIDJSON_HAS_STDSTRING 1
@@ -72,7 +72,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * \class Serializable
@@ -100,6 +100,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
     return os;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

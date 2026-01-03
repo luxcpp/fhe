@@ -43,7 +43,7 @@
 #include <memory>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief PseudoRandomNumberGenerator provides the PRNG capability to all random distribution generators in OpenFHE.
@@ -82,6 +82,6 @@ private:
     static GenPRNGEngineFuncPtr genPRNGEngine;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __DISTRIBUTIONGENERATOR_H__

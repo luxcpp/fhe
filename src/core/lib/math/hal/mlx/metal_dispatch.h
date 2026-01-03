@@ -21,8 +21,8 @@
 //
 // See ntt_twiddle_cache.h and ntt_batch_optimized.h for implementations.
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_METAL_DISPATCH_H
-#define LBCRYPTO_MATH_HAL_MLX_METAL_DISPATCH_H
+#ifndef LUX_FHE_MATH_HAL_MLX_METAL_DISPATCH_H
+#define LUX_FHE_MATH_HAL_MLX_METAL_DISPATCH_H
 
 #include <cstdint>
 #include <string>
@@ -34,7 +34,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace metal {
 
@@ -1330,6 +1330,6 @@ inline mx::array NTT32Dispatcher::poly_mul_rns(const mx::array& a, const mx::arr
 
 }  // namespace metal
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_METAL_DISPATCH_H
+#endif // LUX_FHE_MATH_HAL_MLX_METAL_DISPATCH_H

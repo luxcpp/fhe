@@ -1,0 +1,48 @@
+---
+title: Concepts
+description: Core concepts in Fully Homomorphic Encryption
+---
+
+# FHE Concepts
+
+Understanding the fundamental concepts behind Fully Homomorphic Encryption is essential for effective use of lux-fhe.
+
+## Overview
+
+Fully Homomorphic Encryption enables computation on encrypted data without decryption. This section covers the theoretical foundations and practical considerations.
+
+## Topics
+
+### [Homomorphic Encryption](/docs/concepts/homomorphic-encryption)
+Introduction to homomorphic encryption, its properties, and how it enables privacy-preserving computation.
+
+### [Bootstrapping](/docs/concepts/bootstrapping)
+The key technique that makes FHE "fully" homomorphic by refreshing ciphertexts and reducing noise.
+
+### [Noise Management](/docs/concepts/noise-management)
+Understanding and managing noise growth in FHE computations to maintain correctness.
+
+### [Security](/docs/concepts/security)
+Security foundations of lattice-based cryptography and parameter selection guidelines.
+
+## Key Terminology
+
+| Term | Definition |
+|------|------------|
+| **Plaintext** | Unencrypted data in its original form |
+| **Ciphertext** | Encrypted data that can be computed on |
+| **Noise** | Random error added during encryption for security |
+| **Bootstrapping** | Operation to reduce noise and enable unlimited computations |
+| **Multiplicative Depth** | Number of sequential multiplications before bootstrapping needed |
+| **Ring Dimension** | Size of polynomial ring (power of 2), affects security and performance |
+| **Modulus** | Large integer defining the coefficient space |
+
+## Scheme Selection Guide
+
+| Use Case | Recommended Scheme | Why |
+|----------|-------------------|-----|
+| Boolean circuits | TFHE | Fast bootstrapping, native binary ops |
+| Integer arithmetic | BGV/BFV | Exact computation, batching |
+| Machine learning | CKKS | Approximate arithmetic, real numbers |
+| Privacy-preserving search | TFHE | Comparison operations |
+| Statistical analysis | CKKS | Floating-point operations |

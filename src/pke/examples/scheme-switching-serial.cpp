@@ -53,7 +53,7 @@
 #include <memory>
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /////////////////////////////////////////////////////////////////
 // NOTE:
@@ -222,7 +222,7 @@ void clientProcess(uint32_t modulus_LWE) {
 
     CryptoContext<DCRTPoly> clientCC{deserializer.getCryptoContext()};
     PublicKey<DCRTPoly> clientPublicKey{deserializer.getPublicKey()};
-    std::shared_ptr<lbcrypto::BinFHEContext> clientBinCC{clientCC->GetBinCCForSchemeSwitch()};
+    std::shared_ptr<lux::fhe::BinFHEContext> clientBinCC{clientCC->GetBinCCForSchemeSwitch()};
     Ciphertext<DCRTPoly> clientC{deserializer.getRAWCiphertext()};
 
     // Scale the inputs to ensure their difference is correctly represented after switching to FHEW

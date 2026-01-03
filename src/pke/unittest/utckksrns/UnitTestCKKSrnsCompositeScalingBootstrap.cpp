@@ -46,7 +46,7 @@
 #include <iterator>
 #include <string>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 #if NATIVEINT == 64
 //===========================================================================================================
@@ -218,7 +218,7 @@ class UTCKKSRNSCS_BOOT : public ::testing::TestWithParam<TEST_CASE_UTCKKSRNSCS_B
     double CalculateApproximationError(const std::vector<std::complex<double>>& result,
                                        const std::vector<std::complex<double>>& expectedResult) {
         if (result.size() != expectedResult.size())
-            OPENFHE_THROW("Cannot compare vectors with different numbers of elements");
+            LUX_FHE_THROW("Cannot compare vectors with different numbers of elements");
 
         // using the infinity norm
         double maxError = 0;

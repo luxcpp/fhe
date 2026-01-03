@@ -45,8 +45,8 @@
 
 struct BaseTestCase {
 private:
-    // std::shared_ptr<lbcrypto::Params> params;
-    lbcrypto::SCHEME scheme;
+    // std::shared_ptr<lux::fhe::Params> params;
+    lux::fhe::SCHEME scheme;
     std::vector<std::string> paramOverrides;
 
 public:
@@ -54,13 +54,13 @@ public:
     // skipTest() is to check all those conditions, so we do not get our unit tests failed
     bool skipTest() const {
 #if NATIVEINT == 128
-        lbcrypto::SCHEME schemeId = lbcrypto::convertToSCHEME(*paramOverrides.begin());
-        if (schemeId == lbcrypto::SCHEME::CKKSRNS_SCHEME) {
-            lbcrypto::CCParams<lbcrypto::CryptoContextCKKSRNS> parameters(paramOverrides);
+        lux::fhe::SCHEME schemeId = lux::fhe::convertToSCHEME(*paramOverrides.begin());
+        if (schemeId == lux::fhe::SCHEME::CKKSRNS_SCHEME) {
+            lux::fhe::CCParams<lux::fhe::CryptoContextCKKSRNS> parameters(paramOverrides);
             // CKKS does not support FLEXIBLEAUTO or FLEXIBLEAUTOEXT for NATIVEINT == 128
             switch (parameters.GetScalingTechnique()) {
-                case lbcrypto::ScalingTechnique::FLEXIBLEAUTO:
-                case lbcrypto::ScalingTechnique::FLEXIBLEAUTOEXT:
+                case lux::fhe::ScalingTechnique::FLEXIBLEAUTO:
+                case lux::fhe::ScalingTechnique::FLEXIBLEAUTOEXT:
                     return true;
                 default:
                     break;
@@ -70,11 +70,11 @@ public:
         return false;
     }
 
-    // const std::shared_ptr<lbcrypto::Params> getCryptoContextParams() const {
+    // const std::shared_ptr<lux::fhe::Params> getCryptoContextParams() const {
     //    return params;
     // }
 
-    // void setCryptoContextParams(std::shared_ptr<lbcrypto::Params> params0) {
+    // void setCryptoContextParams(std::shared_ptr<lux::fhe::Params> params0) {
     //    params = params0;
     // }
 
@@ -90,25 +90,25 @@ public:
      */
     // size_t populateCryptoContextParams(const std::vector<std::string>::const_iterator& start) {
     //    // get the total number of the parameter override values
-    //    size_t numOverrides = lbcrypto::Params::getAllParamsDataMembers().size();
+    //    size_t numOverrides = lux::fhe::Params::getAllParamsDataMembers().size();
 
     //    // get the subset of elements with the parameter override values
     //    std::vector<std::string> overrideValues(start, start + numOverrides);
 
-    //    lbcrypto::SCHEME scheme = lbcrypto::convertToSCHEME(*start);
+    //    lux::fhe::SCHEME scheme = lux::fhe::convertToSCHEME(*start);
     //    switch (scheme) {
-    //    case lbcrypto::CKKSRNS_SCHEME:
-    //        setCryptoContextParams(std::make_shared<lbcrypto::CCParams<lbcrypto::CryptoContextCKKSRNS>>(overrideValues));
+    //    case lux::fhe::CKKSRNS_SCHEME:
+    //        setCryptoContextParams(std::make_shared<lux::fhe::CCParams<lux::fhe::CryptoContextCKKSRNS>>(overrideValues));
     //        break;
-    //    case lbcrypto::BFVRNS_SCHEME:
-    //        setCryptoContextParams(std::make_shared<lbcrypto::CCParams<lbcrypto::CryptoContextBFVRNS>>(overrideValues));
+    //    case lux::fhe::BFVRNS_SCHEME:
+    //        setCryptoContextParams(std::make_shared<lux::fhe::CCParams<lux::fhe::CryptoContextBFVRNS>>(overrideValues));
     //        break;
-    //    case lbcrypto::BGVRNS_SCHEME:
-    //        setCryptoContextParams(std::make_shared<lbcrypto::CCParams<lbcrypto::CryptoContextBGVRNS>>(overrideValues));
+    //    case lux::fhe::BGVRNS_SCHEME:
+    //        setCryptoContextParams(std::make_shared<lux::fhe::CCParams<lux::fhe::CryptoContextBGVRNS>>(overrideValues));
     //        break;
     //    default: {
     //        std::string errMsg(std::string("Unknown schemeId ") + std::to_string(scheme));
-    //        OPENFHE_THROW(errMsg);
+    //        LUX_FHE_THROW(errMsg);
     //    }
     //    }
 
@@ -117,9 +117,9 @@ public:
 
     size_t setCryptoContextParamsOverrides(const std::vector<std::string>::const_iterator& start) {
         // get the total number of the parameter override values
-        size_t numOverrides = lbcrypto::Params::getAllParamsDataMembers().size();
+        size_t numOverrides = lux::fhe::Params::getAllParamsDataMembers().size();
 
-        scheme = lbcrypto::convertToSCHEME(*start);
+        scheme = lux::fhe::convertToSCHEME(*start);
 
         // get the subset of elements with the parameter override values
         try {
@@ -128,7 +128,7 @@ public:
         catch (...) {
             std::string errMsg("Check the number of parameter overrides in the .csv file. It should be [" +
                                std::to_string(numOverrides) + "]");
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
         return numOverrides;
     }

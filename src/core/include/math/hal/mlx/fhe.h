@@ -21,7 +21,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 // Forward declarations
@@ -332,6 +332,6 @@ private:
 std::unique_ptr<FHEEngine> createOptimizedEngine(const FHEConfig& config);
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // GPU_FHE_H

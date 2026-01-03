@@ -35,7 +35,7 @@
 
 #include "binfhecontext-ser.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // path where files will be written to
 const std::string DATAFOLDER = "demoData";

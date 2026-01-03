@@ -1,0 +1,287 @@
+---
+title: Bootstrapping
+description: The key technique enabling fully homomorphic encryption
+---
+
+# Bootstrapping
+
+Bootstrapping is the fundamental operation that makes FHE "fully" homomorphic. It refreshes a ciphertext by homomorphically evaluating the decryption circuit, reducing noise and enabling unlimited sequential operations.
+
+## The Noise Problem
+
+Every FHE operation increases the noise in a ciphertext:
+
+```
+Initial:     ct₀ with noise e₀
+After add:   ct₁ with noise e₀ + e₁
+After mult:  ct₂ with noise e₀ × e₁ (grows faster!)
+```
+
+When noise exceeds a threshold, decryption fails:
+
+```cpp
+// Without bootstrapping: limited depth
+auto ct = ctx->Encrypt(pk, value);
+ct = ctx->Mul(ct, ct);  // depth 1
+ct = ctx->Mul(ct, ct);  // depth 2
+ct = ctx->Mul(ct, ct);  // depth 3
+ct = ctx->Mul(ct, ct);  // depth 4 - may fail!
+```
+
+## How Bootstrapping Works
+
+Bootstrapping homomorphically evaluates the decryption function:
+
+```
+Bootstrap(ct) = Encrypt(Decrypt(ct))
+```
+
+This produces a fresh ciphertext with minimal noise:
+
+```cpp
+#include <lux/fhe/binfhe.h>
+
+// TFHE bootstrapping example
+auto ctx = lux::fhe::BinaryContext::Create({
+    .security = 128,
+    .backend = lux::fhe::Backend::METAL
+});
+
+auto sk = ctx->GenerateSecretKey();
+auto bk = ctx->GenerateBootstrappingKey(sk);  // Large key!
+
+// Each gate includes bootstrapping
+auto ct_a = ctx->Encrypt(sk, true);
+auto ct_b = ctx->Encrypt(sk, false);
+
+// NAND gate with automatic bootstrapping
+auto ct_result = ctx->NAND(bk, ct_a, ct_b);
+// ct_result has fresh, low noise - can continue indefinitely
+```
+
+## Bootstrapping Key
+
+The bootstrapping key encrypts the secret key under itself:
+
+```cpp
+// Bootstrapping key generation (expensive!)
+auto bk = ctx->GenerateBootstrappingKey(sk);
+
+// Key structure for TFHE:
+// - Bootstrapping key: ~30 MB
+// - Key switching key: ~10 MB
+// Total: ~40 MB per secret key
+```
+
+### Key Sizes by Scheme
+
+| Scheme | Bootstrapping Key | Key Switching Key | Total |
+|--------|------------------|-------------------|-------|
+| TFHE-128 | 30 MB | 10 MB | 40 MB |
+| TFHE-192 | 60 MB | 20 MB | 80 MB |
+| BGV (n=16384) | 200 MB | 50 MB | 250 MB |
+| CKKS (n=32768) | 400 MB | 100 MB | 500 MB |
+
+## TFHE Bootstrapping
+
+TFHE uses a unique approach called **programmable bootstrapping** that combines noise reduction with function evaluation:
+
+```cpp
+// Programmable bootstrapping: apply function during bootstrap
+auto ctx = lux::fhe::BinaryContext::Create({.security = 128});
+
+// Define lookup table for function f(x)
+std::vector<int> lut = {0, 1, 1, 0, 1, 0, 0, 1};  // Example: parity
+
+// Bootstrap while computing f
+auto ct_input = ctx->Encrypt(sk, 5);  // Input value
+auto ct_output = ctx->ProgrammableBootstrap(bk, ct_input, lut);
+// ct_output = Encrypt(lut[5]) = Encrypt(0)
+```
+
+### Gate Bootstrapping
+
+Standard gates automatically bootstrap:
+
+```cpp
+// Each gate is bootstrapped - unlimited depth
+auto ct = ctx->Encrypt(sk, true);
+
+for (int i = 0; i < 1000; i++) {
+    ct = ctx->NAND(bk, ct, ct);  // Fresh output each time
+}
+
+bool result = ctx->Decrypt(sk, ct);  // Still correct!
+```
+
+## BGV/CKKS Bootstrapping
+
+For BGV and CKKS, bootstrapping is more expensive and typically avoided through careful circuit design:
+
+```cpp
+// BGV: Plan circuit to avoid bootstrapping
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 16384,
+    .plaintext_modulus = 65537,
+    .multiplicative_depth = 20  // Allow 20 multiplications
+});
+
+// Manual bootstrapping when needed
+auto ct = ctx->Encrypt(pk, data);
+// ... many operations ...
+
+if (ctx->GetNoiseLevel(ct) > threshold) {
+    ct = ctx->Bootstrap(bk, ct);  // Expensive! ~100ms
+}
+```
+
+### CKKS Bootstrapping Steps
+
+1. **ModRaise**: Raise modulus to refresh budget
+2. **CoeffToSlot**: Convert to slot representation
+3. **EvalSin/Cos**: Approximate modular reduction
+4. **SlotToCoeff**: Convert back
+
+```cpp
+// CKKS bootstrapping configuration
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 32768,
+    .scale = 1ULL << 45,
+    .multiplicative_depth = 30,
+    .bootstrap_precision = 25  // Bits of precision after bootstrap
+});
+
+auto bk = ctx->GenerateBootstrappingKey(sk, {
+    .coeff_to_slot_levels = 3,
+    .slot_to_coeff_levels = 3,
+    .iterations = 2  // Double-angle iterations
+});
+```
+
+## GPU-Accelerated Bootstrapping
+
+lux-fhe leverages GPUs for fast bootstrapping:
+
+```cpp
+// Metal backend (Apple Silicon)
+auto ctx = lux::fhe::BinaryContext::Create({
+    .security = 128,
+    .backend = lux::fhe::Backend::METAL
+});
+
+// Performance comparison:
+// CPU (i9-13900K): 8.2ms per bootstrap
+// Metal (M3 Max):  0.45ms per bootstrap (18x faster)
+// CUDA (RTX 4090): 0.28ms per bootstrap (29x faster)
+```
+
+### Batch Bootstrapping
+
+Bootstrap multiple ciphertexts in parallel:
+
+```cpp
+std::vector<Ciphertext> cts = {...};  // 1000 ciphertexts
+
+// Batch bootstrap on GPU - much faster than sequential
+auto refreshed = ctx->BatchBootstrap(bk, cts);
+
+// Throughput: ~500,000 bootstraps/sec on RTX 4090
+```
+
+## Bootstrapping Strategies
+
+### Strategy 1: Bootstrap After Every Gate (TFHE)
+
+```cpp
+// Simple and robust - always fresh
+auto result = ctx->AND(bk, a, b);  // Includes bootstrap
+result = ctx->OR(bk, result, c);   // Fresh again
+```
+
+**Pros**: Simple, unlimited depth
+**Cons**: Slower for shallow circuits
+
+### Strategy 2: Leveled FHE (BGV/CKKS)
+
+```cpp
+// No bootstrapping - budget for N multiplications
+auto ctx = lux::fhe::BGVContext::Create({
+    .multiplicative_depth = 10  // Allow exactly 10 mults
+});
+
+auto ct = encrypt(data);
+for (int i = 0; i < 10; i++) {
+    ct = ctx->Mul(ct, ct);  // Consumes one level
+}
+// Cannot do more without bootstrapping
+```
+
+**Pros**: Faster for known-depth circuits
+**Cons**: Must know depth in advance
+
+### Strategy 3: Hybrid (Sparse Bootstrapping)
+
+```cpp
+// Bootstrap only when necessary
+auto ct = encrypt(data);
+int level = max_level;
+
+while (computation_not_done) {
+    ct = next_operation(ct);
+    level--;
+
+    if (level < threshold) {
+        ct = ctx->Bootstrap(bk, ct);
+        level = max_level;  // Reset
+    }
+}
+```
+
+**Pros**: Best of both worlds
+**Cons**: More complex logic
+
+## Performance Optimization
+
+### 1. Minimize Bootstrapping
+
+```cpp
+// Bad: Bootstrap frequently
+for (int i = 0; i < 100; i++) {
+    ct = ctx->Mul(ct, data[i]);
+    ct = ctx->Bootstrap(bk, ct);  // Every iteration!
+}
+
+// Good: Batch operations, bootstrap less
+for (int batch = 0; batch < 10; batch++) {
+    for (int i = 0; i < 10; i++) {
+        ct = ctx->Mul(ct, data[batch*10 + i]);
+    }
+    ct = ctx->Bootstrap(bk, ct);  // Once per 10 operations
+}
+```
+
+### 2. Use GPU Acceleration
+
+```cpp
+// Enable GPU for bootstrapping-heavy workloads
+auto ctx = lux::fhe::BinaryContext::Create({
+    .backend = lux::fhe::Backend::METAL,  // or CUDA
+    .gpu_memory_pool = 4ULL << 30  // 4GB GPU memory
+});
+```
+
+### 3. Precompute Bootstrapping Keys
+
+```cpp
+// Keys can be saved and reused
+ctx->SaveBootstrappingKey(bk, "bk.key");
+
+// Later: load instead of regenerate
+auto bk = ctx->LoadBootstrappingKey("bk.key");
+```
+
+## Further Reading
+
+- [TFHE Scheme](/docs/schemes/tfhe) - Fast bootstrapping binary FHE
+- [Noise Management](/docs/concepts/noise-management) - When to bootstrap
+- [GPU Backends](/docs/backends) - Hardware acceleration

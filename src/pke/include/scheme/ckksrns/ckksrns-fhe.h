@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_CKKSRNS_FHE_H
-#define LBCRYPTO_CRYPTO_CKKSRNS_FHE_H
+#ifndef LUX_FHE_CRYPTO_CKKSRNS_FHE_H
+#define LUX_FHE_CRYPTO_CKKSRNS_FHE_H
 
 #include "constants.h"
 #include "encoding/plaintext-fwd.h"
@@ -48,10 +48,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class CKKSBootstrapPrecom {
 public:
@@ -306,7 +306,7 @@ private:
         auto pair = m_bootPrecomMap.find(slots);
         if (pair != m_bootPrecomMap.end())
             return *(pair->second);
-        OPENFHE_THROW("Precomputations for " + std::to_string(slots) + " slots not found.");
+        LUX_FHE_THROW("Precomputations for " + std::to_string(slots) + " slots not found.");
     }
 
     //------------------------------------------------------------------------------
@@ -724,6 +724,6 @@ private:
         3.3135661534883555537e-10, 0, -2.6219531992178505467e-11};
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

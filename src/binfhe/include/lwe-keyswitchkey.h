@@ -42,7 +42,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief Class that stores the LWE scheme switching key
  */
@@ -108,7 +108,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
 
@@ -128,6 +128,6 @@ private:
     std::vector<std::vector<std::vector<NativeInteger>>> m_keyB;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -29,18 +29,18 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BFVRNS_FHE_H
-#define LBCRYPTO_CRYPTO_BFVRNS_FHE_H
+#ifndef LUX_FHE_CRYPTO_BFVRNS_FHE_H
+#define LUX_FHE_CRYPTO_BFVRNS_FHE_H
 
 #include "schemerns/rns-fhe.h"
 
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class FHEBFVRNS : public FHERNS {
 public:
@@ -64,6 +64,6 @@ public:
         return "FHEBFVRNS";
     }
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

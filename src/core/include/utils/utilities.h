@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_UTILS_UTILITIES_H
-#define LBCRYPTO_UTILS_UTILITIES_H
+#ifndef LUX_FHE_UTILS_UTILITIES_H
+#define LUX_FHE_UTILS_UTILITIES_H
 
 #include "config_core.h"
 #include "utils/inttypes.h"
@@ -42,10 +42,10 @@
 #include <type_traits>  // std::is_integral
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * Determines if a number is a power of 2.
@@ -130,6 +130,6 @@ inline bool isConvertableToNativeInt(double d) {
 #endif
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

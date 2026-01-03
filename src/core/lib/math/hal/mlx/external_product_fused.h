@@ -28,8 +28,8 @@
 // Copyright (C) 2024-2025 Lux Industries Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_EXTERNAL_PRODUCT_FUSED_H
-#define LBCRYPTO_MATH_HAL_MLX_EXTERNAL_PRODUCT_FUSED_H
+#ifndef LUX_FHE_MATH_HAL_MLX_EXTERNAL_PRODUCT_FUSED_H
+#define LUX_FHE_MATH_HAL_MLX_EXTERNAL_PRODUCT_FUSED_H
 
 #include <cstdint>
 #include <vector>
@@ -42,7 +42,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 // =============================================================================
@@ -984,6 +984,6 @@ private:
 #endif // WITH_MLX
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_EXTERNAL_PRODUCT_FUSED_H
+#endif // LUX_FHE_MATH_HAL_MLX_EXTERNAL_PRODUCT_FUSED_H

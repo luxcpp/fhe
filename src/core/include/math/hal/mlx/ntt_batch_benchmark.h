@@ -11,8 +11,8 @@
 // Copyright (C) 2024-2025 Lux Industries Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_NTT_BATCH_BENCHMARK_H
-#define LBCRYPTO_MATH_HAL_MLX_NTT_BATCH_BENCHMARK_H
+#ifndef LUX_FHE_MATH_HAL_MLX_NTT_BATCH_BENCHMARK_H
+#define LUX_FHE_MATH_HAL_MLX_NTT_BATCH_BENCHMARK_H
 
 #include <chrono>
 #include <iostream>
@@ -26,7 +26,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace metal {
 
@@ -320,6 +320,6 @@ inline void run_ntt_benchmark_suite() {
 
 }  // namespace metal
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_NTT_BATCH_BENCHMARK_H
+#endif // LUX_FHE_MATH_HAL_MLX_NTT_BATCH_BENCHMARK_H

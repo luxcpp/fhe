@@ -35,7 +35,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace threshold {
 
 // ============================================================================
@@ -531,6 +531,6 @@ uint64_t BenchmarkTranspose(
 );
 
 } // namespace threshold
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // THRESHOLD_BATCH_GPU_LAYOUT_H

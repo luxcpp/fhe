@@ -33,8 +33,8 @@
   This file contains the functionality to switch between math backends
  */
 
-#ifndef LBCRYPTO_INC_MATH_HAL_H
-#define LBCRYPTO_INC_MATH_HAL_H
+#ifndef LUX_FHE_INC_MATH_HAL_H
+#define LUX_FHE_INC_MATH_HAL_H
 
 // use of MS VC is not permitted because of various incompatibilities
 #ifdef _MSC_VER
@@ -48,11 +48,11 @@
 #include "math/hal/bigintbackend.h"
 #include "math/hal/nativeintbackend.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 // Promote BigInteger and BigVector to lbcrypto namespace
 using BigInteger = bigintbackend::BigInteger;
 using BigVector  = bigintbackend::BigVector;
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 //==============================================================================================
 // TODO: total hack ... move this!!!!!

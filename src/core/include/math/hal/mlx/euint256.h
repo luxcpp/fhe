@@ -40,8 +40,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // =============================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_EUINT256_H
-#define LBCRYPTO_MATH_HAL_MLX_EUINT256_H
+#ifndef LUX_FHE_MATH_HAL_MLX_EUINT256_H
+#define LUX_FHE_MATH_HAL_MLX_EUINT256_H
 
 #include <algorithm>
 #include <array>
@@ -60,7 +60,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 // Forward declarations
@@ -3141,6 +3141,6 @@ inline LWECiphertext euint256Engine::pbsCombineBytes(const LWECiphertext& high, 
 }
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_MATH_HAL_MLX_EUINT256_H
+#endif  // LUX_FHE_MATH_HAL_MLX_EUINT256_H

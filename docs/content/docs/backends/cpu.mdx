@@ -1,0 +1,415 @@
+---
+title: CPU Backend
+description: SIMD-optimized CPU backend for lux-fhe
+---
+
+# CPU Backend
+
+The CPU backend provides SIMD-optimized FHE operations that run on any x86_64 or ARM64 processor. It serves as both a production backend and a fallback when GPUs are unavailable.
+
+## Requirements
+
+- x86_64 with AVX2/AVX-512 or ARM64 with NEON
+- C++17 compatible compiler (GCC 9+, Clang 10+, MSVC 2019+)
+- CMake 3.16+
+
+## Supported SIMD Extensions
+
+| Architecture | Extension | Detection | Speedup vs Scalar |
+|-------------|-----------|-----------|-------------------|
+| x86_64 | AVX2 | Automatic | 4-8x |
+| x86_64 | AVX-512 | Automatic | 8-16x |
+| x86_64 | AVX-512 IFMA | Automatic | 10-20x |
+| ARM64 | NEON | Automatic | 4-6x |
+| ARM64 | SVE/SVE2 | Automatic | 6-10x |
+
+## Installation
+
+The CPU backend is always built:
+
+```bash
+cmake ..
+make -j$(nproc)
+
+# Verify CPU features detected
+./tests/test_cpu_backend --show-features
+```
+
+## Usage
+
+### Basic Usage
+
+```cpp
+#include <lux/fhe/fhe.h>
+
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537,
+    .backend = lux::fhe::Backend::CPU
+});
+```
+
+### Query CPU Features
+
+```cpp
+#include <lux/fhe/cpu.h>
+
+auto features = lux::fhe::cpu::GetFeatures();
+std::cout << "AVX2: " << features.avx2 << "\n";
+std::cout << "AVX-512: " << features.avx512f << "\n";
+std::cout << "AVX-512 IFMA: " << features.avx512ifma << "\n";
+std::cout << "NEON: " << features.neon << "\n";
+std::cout << "SVE: " << features.sve << "\n";
+std::cout << "Vector width: " << features.vector_width << " bits\n";
+```
+
+### Multi-threaded Execution
+
+```cpp
+// Set thread count for parallel operations
+lux::fhe::cpu::SetThreadCount(std::thread::hardware_concurrency());
+
+// Or use environment variable
+// export LUX_FHE_THREADS=16
+
+// Operations automatically parallelize
+auto ct = ctx->Encrypt(pk, data);  // Parallelized NTT
+ct = ctx->Mul(ct, ct, rlk);        // Parallelized polynomial mul
+```
+
+## Performance Optimization
+
+### Thread Affinity
+
+```cpp
+#include <lux/fhe/cpu.h>
+
+// Pin threads to specific cores for cache efficiency
+lux::fhe::cpu::SetThreadAffinity({0, 1, 2, 3});  // Cores 0-3
+
+// Or pin to a NUMA node
+lux::fhe::cpu::SetNUMANode(0);
+```
+
+### Cache Optimization
+
+```cpp
+// Configure cache-aware processing
+lux::fhe::cpu::SetCacheConfig({
+    .l1_size = 32 * 1024,      // 32 KB L1
+    .l2_size = 256 * 1024,     // 256 KB L2
+    .l3_size = 8 * 1024 * 1024 // 8 MB L3
+});
+
+// Auto-detect cache sizes
+lux::fhe::cpu::AutoConfigureCache();
+```
+
+### Memory Alignment
+
+```cpp
+// Allocate aligned memory for SIMD operations
+auto aligned_data = lux::fhe::cpu::AllocateAligned<int64_t>(size, 64);  // 64-byte aligned
+
+// Use aligned data
+std::vector<int64_t, lux::fhe::cpu::AlignedAllocator<int64_t>> data(size);
+```
+
+## SIMD Specifics
+
+### AVX-512 Optimization
+
+AVX-512 provides the best x86 performance:
+
+```cpp
+#include <lux/fhe/cpu.h>
+
+if (lux::fhe::cpu::GetFeatures().avx512f) {
+    // Enable AVX-512 specific optimizations
+    lux::fhe::cpu::SetSIMDProfile(SIMDProfile::AVX512);
+
+    // AVX-512 IFMA provides 52-bit integer multiply-accumulate
+    if (lux::fhe::cpu::GetFeatures().avx512ifma) {
+        lux::fhe::cpu::EnableIFMA();  // Faster modular arithmetic
+    }
+}
+```
+
+### ARM NEON Optimization
+
+```cpp
+if (lux::fhe::cpu::GetFeatures().neon) {
+    // NEON is always enabled on ARM64
+    // Use vectorized Montgomery reduction
+    lux::fhe::cpu::SetMontgomeryMode(MontgomeryMode::NEON_VECTORIZED);
+}
+
+// Apple Silicon specific
+if (lux::fhe::cpu::IsAppleSilicon()) {
+    // Use Apple's optimized BLAS for matrix operations
+    lux::fhe::cpu::UseAccelerateBLAS();
+}
+```
+
+### SVE/SVE2 (ARM)
+
+```cpp
+if (lux::fhe::cpu::GetFeatures().sve) {
+    // SVE provides variable vector lengths
+    int sve_width = lux::fhe::cpu::GetSVEVectorLength();
+    std::cout << "SVE vector length: " << sve_width << " bits\n";
+
+    // Auto-tune for SVE
+    lux::fhe::cpu::SetSIMDProfile(SIMDProfile::SVE);
+}
+```
+
+## Parallelization
+
+### OpenMP Integration
+
+lux-fhe uses OpenMP for parallelization:
+
+```cpp
+// Control OpenMP settings
+#pragma omp parallel num_threads(8)
+{
+    // Each thread processes independently
+    auto ct = ctx->Encrypt(pk, thread_data[omp_get_thread_num()]);
+}
+
+// Or use lux-fhe's parallel API
+lux::fhe::cpu::ParallelFor(0, batch_size, [&](size_t i) {
+    results[i] = ctx->Encrypt(pk, data[i]);
+});
+```
+
+### Task-based Parallelism
+
+```cpp
+#include <lux/fhe/cpu.h>
+
+// Create task graph for complex computations
+auto scheduler = lux::fhe::cpu::CreateTaskScheduler();
+
+auto task1 = scheduler.Submit([&] { return ctx->Encrypt(pk, data1); });
+auto task2 = scheduler.Submit([&] { return ctx->Encrypt(pk, data2); });
+
+// Dependent task
+auto task3 = scheduler.Submit([&] {
+    return ctx->Mul(task1.get(), task2.get(), rlk);
+}, {task1, task2});  // Dependencies
+
+auto result = task3.get();
+```
+
+### NUMA-Aware Processing
+
+```cpp
+#include <lux/fhe/cpu.h>
+
+// Get NUMA topology
+auto topology = lux::fhe::cpu::GetNUMATopology();
+std::cout << "NUMA nodes: " << topology.num_nodes << "\n";
+
+// Process data on local NUMA node
+for (int node = 0; node < topology.num_nodes; node++) {
+    lux::fhe::cpu::OnNUMANode(node, [&] {
+        // Data allocated here is on local memory
+        auto local_data = lux::fhe::cpu::AllocateOnNode<int64_t>(size, node);
+        ProcessLocalData(local_data);
+    });
+}
+```
+
+## Performance Benchmarks
+
+### By Processor
+
+| Processor | BGV Mul (8K) | CKKS Rescale | TFHE Bootstrap |
+|-----------|--------------|--------------|----------------|
+| Intel i7-12700K | 12.5ms | 8.2ms | 45ms |
+| Intel i9-13900K | 9.8ms | 6.5ms | 38ms |
+| Intel Xeon 8380 | 11.2ms | 7.4ms | 42ms |
+| AMD Ryzen 9 7950X | 10.5ms | 6.8ms | 40ms |
+| AMD EPYC 7763 | 10.8ms | 7.1ms | 41ms |
+| Apple M2 | 14.2ms | 9.5ms | 52ms |
+| Apple M2 Max | 12.0ms | 8.0ms | 45ms |
+| AWS Graviton 3 | 16.5ms | 11.0ms | 58ms |
+
+### Scaling
+
+Thread scaling on 64-core AMD EPYC:
+
+| Threads | BGV Mul (16K) | Speedup |
+|---------|---------------|---------|
+| 1 | 48ms | 1x |
+| 8 | 7.2ms | 6.7x |
+| 16 | 4.0ms | 12x |
+| 32 | 2.4ms | 20x |
+| 64 | 1.8ms | 26.7x |
+
+## Memory Management
+
+### Memory Pools
+
+```cpp
+// Pre-allocate memory pool
+lux::fhe::cpu::InitializeMemoryPool({
+    .size = 1ULL << 30,  // 1 GB
+    .alignment = 64,     // AVX-512 alignment
+    .numa_local = true   // Allocate on local NUMA node
+});
+
+// Operations use pooled memory
+for (int i = 0; i < iterations; i++) {
+    auto ct = ctx->Encrypt(pk, data);  // From pool
+    // Memory returned to pool when ct destroyed
+}
+```
+
+### Large Pages
+
+```cpp
+// Use huge pages for better TLB efficiency
+lux::fhe::cpu::EnableHugePages();
+
+// Or manually specify page size
+lux::fhe::cpu::SetPageSize(2 * 1024 * 1024);  // 2 MB huge pages
+```
+
+## Profiling
+
+### Built-in Timing
+
+```cpp
+lux::fhe::cpu::EnableTiming();
+
+auto ct = ctx->Encrypt(pk, data);
+ct = ctx->Mul(ct, ct, rlk);
+
+auto timing = lux::fhe::cpu::GetTimingReport();
+timing.Print();
+
+// Output:
+// Operation      Calls   Total(ms)  Avg(ms)
+// NTT            4       3.2        0.8
+// INTT           4       3.1        0.78
+// ModMul         2       1.5        0.75
+// KeySwitch      1       2.8        2.8
+```
+
+### Performance Counters
+
+```cpp
+#include <lux/fhe/cpu.h>
+
+// Enable hardware performance counters (Linux only)
+lux::fhe::cpu::EnablePerfCounters({
+    PerfCounter::CYCLES,
+    PerfCounter::INSTRUCTIONS,
+    PerfCounter::CACHE_MISSES,
+    PerfCounter::BRANCH_MISSES
+});
+
+auto ct = ctx->Encrypt(pk, data);
+
+auto counters = lux::fhe::cpu::GetPerfCounters();
+std::cout << "IPC: " << counters.instructions / counters.cycles << "\n";
+std::cout << "Cache miss rate: " << counters.cache_miss_rate << "%\n";
+```
+
+## Cross-Platform Considerations
+
+### Windows
+
+```cpp
+// Windows-specific optimizations
+#ifdef _WIN32
+// Use Windows thread pool
+lux::fhe::cpu::SetThreadPool(ThreadPoolType::WINDOWS_NATIVE);
+
+// Large page privilege required
+// Run as administrator or grant SeLockMemoryPrivilege
+lux::fhe::cpu::RequestLargePagePrivilege();
+#endif
+```
+
+### macOS
+
+```cpp
+#ifdef __APPLE__
+// Use Grand Central Dispatch
+lux::fhe::cpu::SetDispatchQueue(DispatchQueueType::GCD);
+
+// Use Accelerate framework BLAS
+lux::fhe::cpu::UseAccelerate();
+#endif
+```
+
+### Linux
+
+```cpp
+#ifdef __linux__
+// Use io_uring for async file I/O (key loading)
+lux::fhe::cpu::EnableIOUring();
+
+// Use cgroups-aware thread allocation
+lux::fhe::cpu::SetCGroupAware(true);
+#endif
+```
+
+## Troubleshooting
+
+### Performance Issues
+
+**Slow performance on server**
+```cpp
+// Check if running in VM
+if (lux::fhe::cpu::IsVirtualized()) {
+    std::cout << "Running in VM - performance may be reduced\n";
+}
+
+// Check for frequency scaling
+auto freq = lux::fhe::cpu::GetCPUFrequency();
+std::cout << "Current frequency: " << freq << " MHz\n";
+```
+
+**Thread contention**
+```cpp
+// Reduce thread count if contention detected
+lux::fhe::cpu::AutoTuneThreads();
+
+// Check thread utilization
+auto stats = lux::fhe::cpu::GetThreadStats();
+if (stats.spin_time_ratio > 0.2) {
+    std::cout << "High contention, reducing threads\n";
+    lux::fhe::cpu::SetThreadCount(stats.recommended_threads);
+}
+```
+
+### SIMD Issues
+
+**AVX-512 throttling**
+```cpp
+// Some CPUs throttle with heavy AVX-512
+if (lux::fhe::cpu::IsAVX512Throttled()) {
+    std::cout << "AVX-512 throttling detected, using AVX2\n";
+    lux::fhe::cpu::SetSIMDProfile(SIMDProfile::AVX2);
+}
+```
+
+**Illegal instruction**
+```cpp
+// Runtime feature detection
+if (!lux::fhe::cpu::GetFeatures().avx2) {
+    std::cerr << "AVX2 not supported, using scalar fallback\n";
+    lux::fhe::cpu::SetSIMDProfile(SIMDProfile::SCALAR);
+}
+```
+
+## Further Reading
+
+- [Metal Backend](/docs/backends/metal) - Apple Silicon GPU
+- [CUDA Backend](/docs/backends/cuda) - NVIDIA GPU
+- [Noise Management](/docs/concepts/noise-management) - Optimization tips

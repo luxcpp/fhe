@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Exceptions thrown inside of a critical region, or inside of an omp thread,
 // must be caught in the same thread where thrown, or Bad Things Happen
@@ -204,17 +204,17 @@ public:
 };
 
 // ATTN:
-// 1. OPENFHE_THROW is to be overloaded for the period of transition to OpenFHEException only.
-// 2. After that openfhe_error, all classes derived from it and OPENFHE_THROW_OLD must be removed
-// 3. All the macros below should be removed except OPENFHE_THROW_NEW. OPENFHE_THROW_NEW should
-//    be renamed to OPENFHE_THROW
-// #define OPENFHE_THROW(expr) throw lbcrypto::OpenFHEException(expr)
-#define OPENFHE_THROW_OLD(exc, expr) throw exc(__FILE__, __LINE__, (expr))
-#define OPENFHE_THROW_NEW(expr)      throw lbcrypto::OpenFHEException(expr)
+// 1. LUX_FHE_THROW is to be overloaded for the period of transition to OpenFHEException only.
+// 2. After that openfhe_error, all classes derived from it and LUX_FHE_THROW_OLD must be removed
+// 3. All the macros below should be removed except LUX_FHE_THROW_NEW. LUX_FHE_THROW_NEW should
+//    be renamed to LUX_FHE_THROW
+// #define LUX_FHE_THROW(expr) throw lux::fhe::OpenFHEException(expr)
+#define LUX_FHE_THROW_OLD(exc, expr) throw exc(__FILE__, __LINE__, (expr))
+#define LUX_FHE_THROW_NEW(expr)      throw lux::fhe::OpenFHEException(expr)
 
 #define GET_CORRECT_MACRO(_1, _2, NAME, ...) NAME
-#define OPENFHE_THROW(...)                   GET_CORRECT_MACRO(__VA_ARGS__, OPENFHE_THROW_OLD, OPENFHE_THROW_NEW)(__VA_ARGS__)
+#define LUX_FHE_THROW(...)                   GET_CORRECT_MACRO(__VA_ARGS__, LUX_FHE_THROW_OLD, LUX_FHE_THROW_NEW)(__VA_ARGS__)
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif /* SRC_CORE_LIB_UTILS_EXCEPTION_H_ */

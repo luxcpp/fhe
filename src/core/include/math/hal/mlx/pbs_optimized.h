@@ -26,8 +26,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // =============================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_PBS_OPTIMIZED_H
-#define LBCRYPTO_MATH_HAL_MLX_PBS_OPTIMIZED_H
+#ifndef LUX_FHE_MATH_HAL_MLX_PBS_OPTIMIZED_H
+#define LUX_FHE_MATH_HAL_MLX_PBS_OPTIMIZED_H
 
 #include <cstdint>
 #include <vector>
@@ -44,7 +44,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 #ifdef WITH_MLX
@@ -1129,6 +1129,6 @@ inline std::vector<mx::array> FusedPBSChain::execute() {
 #endif // WITH_MLX
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_PBS_OPTIMIZED_H
+#endif // LUX_FHE_MATH_HAL_MLX_PBS_OPTIMIZED_H

@@ -44,7 +44,7 @@
 #include <iostream>
 #include <iterator>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTGENERAL_MULTIHOP_PRE : public ::testing::TestWithParam<uint32_t> {
 protected:
@@ -88,7 +88,7 @@ protected:
             parameters.SetNumAdversarialQueries(1048576);
         }
         else {
-            OPENFHE_THROW("invalid security model");
+            LUX_FHE_THROW("invalid security model");
         }
 
         parameters.SetMultiplicativeDepth(0);
@@ -110,7 +110,7 @@ protected:
 
         auto keyPair1 = cc->KeyGen();
         if (!keyPair1.good())
-            OPENFHE_THROW("key generation failed!");
+            LUX_FHE_THROW("key generation failed!");
 
         ////////////////////////////////////////////////////////////
         // Encode source data
@@ -171,7 +171,7 @@ protected:
                         reEncryptedCT = cc->ModReduce(reEncryptedCT);  // mod reduction for noise flooding
                     break;
                 default:
-                    OPENFHE_THROW("Not a valid security mode");
+                    LUX_FHE_THROW("Not a valid security mode");
             }
             reEncryptedCTs.push_back(reEncryptedCT);
         }

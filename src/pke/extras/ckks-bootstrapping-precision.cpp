@@ -40,14 +40,14 @@ Specifically, we used this to choose the default correction factor for 64-bit FL
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 double MeasureBootstrapPrecision(uint32_t numSlots, uint32_t correctionFactor);
 
 double CalculateApproximationError(const std::vector<std::complex<double>>& result,
                                    const std::vector<std::complex<double>>& expectedResult) {
     if (result.size() != expectedResult.size())
-        OPENFHE_THROW("Cannot compare vectors with different numbers of elements");
+        LUX_FHE_THROW("Cannot compare vectors with different numbers of elements");
 
     // using the Euclidean norm
     double avrg = 0;

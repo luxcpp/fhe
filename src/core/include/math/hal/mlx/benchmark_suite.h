@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // =============================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_BENCHMARK_SUITE_H
-#define LBCRYPTO_MATH_HAL_MLX_BENCHMARK_SUITE_H
+#ifndef LUX_FHE_MATH_HAL_MLX_BENCHMARK_SUITE_H
+#define LUX_FHE_MATH_HAL_MLX_BENCHMARK_SUITE_H
 
 #include <chrono>
 #include <cmath>
@@ -38,7 +38,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace benchmark {
 
@@ -1060,6 +1060,6 @@ inline bool verify_fhe_performance() {
 
 }  // namespace benchmark
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_MATH_HAL_MLX_BENCHMARK_SUITE_H
+#endif  // LUX_FHE_MATH_HAL_MLX_BENCHMARK_SUITE_H

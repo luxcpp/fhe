@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_KEYSWITCH_BV_H
-#define LBCRYPTO_CRYPTO_KEYSWITCH_BV_H
+#ifndef LUX_FHE_CRYPTO_KEYSWITCH_BV_H
+#define LUX_FHE_CRYPTO_KEYSWITCH_BV_H
 
 #include "keyswitch/keyswitch-rns.h"
 #include "schemebase/rlwe-cryptoparameters.h"
@@ -40,10 +40,10 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Implements BV key switching method from [Fully Homomorphic Encryption from
@@ -109,6 +109,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

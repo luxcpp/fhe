@@ -41,7 +41,7 @@
 #include <cctype>
 #include <cstdint>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 extern const char to_base64_char[];
 
@@ -64,12 +64,12 @@ inline unsigned char base64_to_value(unsigned char b64) {
 inline unsigned char get_6bits_atoffset(uint64_t m_value, uint32_t index) {
     static unsigned char smallmask[] = {0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f};
     if (index == 0)
-        OPENFHE_THROW("Zero index in GetBitAtIndex");
+        LUX_FHE_THROW("Zero index in GetBitAtIndex");
     if (index <= 6)
         return m_value & smallmask[index];
     return (m_value >> (index - 6)) & 0x3f;
 }
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */
 
 #endif /* SRC_CORE_LIB_UTILS_OPENFHEBASE64_H_ */

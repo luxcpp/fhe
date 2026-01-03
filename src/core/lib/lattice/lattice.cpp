@@ -53,7 +53,7 @@
 #include DCRTPOLY_IMPLEMENTATION
 
 //---------------------------------------------------------------------------------------------
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class ElemParams<NativeInteger>;
 
@@ -69,16 +69,16 @@ template Matrix<NativeInteger> Rotate(Matrix<NativePoly> const& inMat);
 
 template class Matrix<Field2n>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-CEREAL_CLASS_VERSION(lbcrypto::ElemParams<NativeInteger>, lbcrypto::ElemParams<NativeInteger>::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::ILNativeParams, lbcrypto::ILNativeParams::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::NativePoly, lbcrypto::NativePoly::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::Field2n, lbcrypto::Field2n::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::ElemParams<NativeInteger>, lux::fhe::ElemParams<NativeInteger>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::ILNativeParams, lux::fhe::ILNativeParams::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::NativePoly, lux::fhe::NativePoly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::Field2n, lux::fhe::Field2n::SerializedVersion());
 
 //---------------------------------------------------------------------------------------------
 #ifdef WITH_BE2
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class ElemParams<M2Integer>;
 
@@ -101,18 +101,18 @@ SPLIT32ALT_FOR_TYPE(M2DCRTPoly)
 template Matrix<M2Vector> RotateVecResult(Matrix<M2DCRTPoly> const& inMat);
 template Matrix<M2Integer> Rotate(Matrix<M2DCRTPoly> const& inMat);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-CEREAL_CLASS_VERSION(lbcrypto::ElemParams<M2Integer>, lbcrypto::ElemParams<M2Integer>::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M2Params, lbcrypto::M2Params::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M2DCRTParams, lbcrypto::M2DCRTParams::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M2Poly, lbcrypto::M2Poly::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M2DCRTPoly, lbcrypto::M2DCRTPoly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::ElemParams<M2Integer>, lux::fhe::ElemParams<M2Integer>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M2Params, lux::fhe::M2Params::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M2DCRTParams, lux::fhe::M2DCRTParams::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M2Poly, lux::fhe::M2Poly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M2DCRTPoly, lux::fhe::M2DCRTPoly::SerializedVersion());
 #endif
 
 //---------------------------------------------------------------------------------------------
 #ifdef WITH_BE4
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class ElemParams<M4Integer>;
 
@@ -135,18 +135,18 @@ SPLIT32ALT_FOR_TYPE(M4DCRTPoly)
 template Matrix<M4Vector> RotateVecResult(Matrix<M4DCRTPoly> const& inMat);
 template Matrix<M4Integer> Rotate(Matrix<M4DCRTPoly> const& inMat);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-CEREAL_CLASS_VERSION(lbcrypto::ElemParams<M4Integer>, lbcrypto::ElemParams<M4Integer>::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M4Params, lbcrypto::M4Params::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M4DCRTParams, lbcrypto::M4DCRTParams::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M4Poly, lbcrypto::M4Poly::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M4DCRTPoly, lbcrypto::M4DCRTPoly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::ElemParams<M4Integer>, lux::fhe::ElemParams<M4Integer>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M4Params, lux::fhe::M4Params::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M4DCRTParams, lux::fhe::M4DCRTParams::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M4Poly, lux::fhe::M4Poly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M4DCRTPoly, lux::fhe::M4DCRTPoly::SerializedVersion());
 #endif
 
 //---------------------------------------------------------------------------------------------
 #ifdef WITH_NTL
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class ElemParams<M6Integer>;
 
@@ -169,11 +169,11 @@ SPLIT32ALT_FOR_TYPE(M6DCRTPoly)
 template Matrix<M6Vector> RotateVecResult(Matrix<M6DCRTPoly> const& inMat);
 template Matrix<M6Integer> Rotate(Matrix<M6DCRTPoly> const& inMat);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-CEREAL_CLASS_VERSION(lbcrypto::ElemParams<M6Integer>, lbcrypto::ElemParams<M6Integer>::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M6Params, lbcrypto::M6Params::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M6DCRTParams, lbcrypto::M6DCRTParams::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M6Poly, lbcrypto::M6Poly::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::M6DCRTPoly, lbcrypto::M6DCRTPoly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::ElemParams<M6Integer>, lux::fhe::ElemParams<M6Integer>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M6Params, lux::fhe::M6Params::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M6DCRTParams, lux::fhe::M6DCRTParams::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M6Poly, lux::fhe::M6Poly::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::M6DCRTPoly, lux::fhe::M6DCRTPoly::SerializedVersion());
 #endif

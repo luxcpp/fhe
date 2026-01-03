@@ -56,7 +56,7 @@
 #include "utils/blockAllocator/xstring.h"
 #include "utils/blockAllocator/xvector.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UnitTestBinInt : public ::testing::Test {
 protected:

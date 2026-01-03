@@ -42,7 +42,7 @@ namespace default_prng {
 Blake2Engine::~Blake2Engine() {
     // IMPORTANT: re-init seed for security reasons
     const size_t bytes_to_clear = (m_seed.size() * sizeof(m_seed[0]));
-    lbcrypto::secure_memset(m_seed.data(), 0, bytes_to_clear);
+    lux::fhe::secure_memset(m_seed.data(), 0, bytes_to_clear);
 }
 
 void Blake2Engine::Generate() {
@@ -50,7 +50,7 @@ void Blake2Engine::Generate() {
     // m_buffer is the output
     if (blake2xb(static_cast<void*>(m_buffer.data()), m_buffer.size() * sizeof(PRNG::result_type), &m_counter, sizeof(m_counter),
     static_cast<const void*>(m_seed.data()), m_seed.size() * sizeof(PRNG::result_type)) != 0) {
-        OPENFHE_THROW("PRNG: blake2xb failed");
+        LUX_FHE_THROW("PRNG: blake2xb failed");
     }
     m_counter++;
 }
@@ -132,14 +132,14 @@ static void Blake2SeedGenerator(Blake2Engine::blake2_seed_array_t& seed) {
         }
     }
     if (!rdGenPassed)
-        OPENFHE_THROW("std::random_device failed");
+        LUX_FHE_THROW("std::random_device failed");
 
     for (uint32_t i = 0; i < Blake2Engine::MAX_SEED_GENS; ++i)
         seed[i] += rdseed[i];
 
     // IMPORTANT: re-init rdseed for security reasons
     const size_t bytes_to_clear = (rdseed.size() * sizeof(rdseed[0]));
-    lbcrypto::secure_memset(rdseed.data(), 0, bytes_to_clear);
+    lux::fhe::secure_memset(rdseed.data(), 0, bytes_to_clear);
 #endif  // FIXED_SEED
 }
 }
@@ -151,7 +151,7 @@ PRNG* createEngineInstance() {
 
     // IMPORTANT: re-init seed for security reasons
     const size_t bytes_to_clear = (seed.size() * sizeof(seed[0]));
-    lbcrypto::secure_memset(seed.data(), 0, bytes_to_clear);
+    lux::fhe::secure_memset(seed.data(), 0, bytes_to_clear);
 
     return ptr;
 }

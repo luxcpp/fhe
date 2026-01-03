@@ -41,7 +41,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 int main() {
     std::vector<std::complex<double>> dftVec(64);

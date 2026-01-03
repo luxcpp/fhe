@@ -38,7 +38,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class CiphertextImpl;
@@ -91,6 +91,6 @@ struct seriesPowers {
           power2km1Im(power2km11) {}
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __CIPHERTEXT_FWD_H__

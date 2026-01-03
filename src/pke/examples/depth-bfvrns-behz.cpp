@@ -40,7 +40,7 @@
 #include "openfhe.h"
 #include "utils/debug.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 int main(int argc, char* argv[]) {
     ////////////////////////////////////////////////////////////

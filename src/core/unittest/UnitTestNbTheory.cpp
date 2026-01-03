@@ -45,7 +45,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // ---------------  TESTING METHODS OF NBTHEORY ---------------
 
@@ -340,7 +340,7 @@ void method_primitive_root_of_unity_VERY_LONG(const std::string& msg) {
 
     // Exception handling
     {
-        OPENFHE_DEBUG_FLAG(false);
+        LUX_FHE_DEBUG_FLAG(false);
         int m = 32;
         T modulus1("67108913"), modulus2("17729"), modulus3("2097169"), modulus4("8353"), modulus5("8369");
 
@@ -367,8 +367,8 @@ void method_primitive_root_of_unity_VERY_LONG(const std::string& msg) {
             primitiveRootOfUnity2 = RootOfUnity<T>(m, modulus2);)
             << msg << " RootOfUnity threw an error and should not have";
 
-        OPENFHE_DEBUG("RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1);
-        OPENFHE_DEBUG("RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2);
+        LUX_FHE_DEBUG("RootOfUnity for " << modulus1 << " is " << primitiveRootOfUnity1);
+        LUX_FHE_DEBUG("RootOfUnity for " << modulus2 << " is " << primitiveRootOfUnity2);
     }
 }
 

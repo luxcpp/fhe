@@ -37,7 +37,7 @@
 #include <string>
 #include <optional>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace zkp {
 
 // Use existing hash infrastructure
@@ -633,6 +633,6 @@ MerkleTree::InclusionProof DeserializeInclusionProof(const uint8_t* data, size_t
 } // namespace serial
 
 } // namespace zkp
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // ZKP_FHE_WITNESS_H

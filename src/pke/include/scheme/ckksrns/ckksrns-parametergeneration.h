@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_CKKSRNS_PARAMETERGENERATION_H
-#define LBCRYPTO_CRYPTO_CKKSRNS_PARAMETERGENERATION_H
+#ifndef LUX_FHE_CRYPTO_CKKSRNS_PARAMETERGENERATION_H
+#define LUX_FHE_CRYPTO_CKKSRNS_PARAMETERGENERATION_H
 
 #include "schemerns/rns-parametergeneration.h"
 
@@ -39,10 +39,10 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class ParameterGenerationCKKSRNS : public ParameterGenerationRNS {
 protected:
@@ -76,6 +76,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

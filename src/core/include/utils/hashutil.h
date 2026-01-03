@@ -40,7 +40,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 enum HashAlgorithm { SHA_256 = 0, SHA_512 = 1 };
 
@@ -58,7 +58,7 @@ public:
                 return;
 
             default:
-                OPENFHE_THROW("ERROR: Unknown Hash Algorithm");
+                LUX_FHE_THROW("ERROR: Unknown Hash Algorithm");
         }
     }
 
@@ -71,6 +71,6 @@ private:
     static const uint64_t k_512[80];
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -41,7 +41,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief Class that stores the LWE scheme secret key; contains a vector
  */
@@ -97,7 +97,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
 
@@ -115,6 +115,6 @@ private:
     NativeVector m_s{};
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _LWE_PRIVATEKEY_H_

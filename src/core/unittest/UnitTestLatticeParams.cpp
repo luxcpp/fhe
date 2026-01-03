@@ -43,7 +43,7 @@
 #include "utils/inttypes.h"
 #include "lattice/stdlatticeparms.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTLatticeParams : public ::testing::Test {
 protected:

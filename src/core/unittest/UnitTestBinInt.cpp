@@ -48,7 +48,7 @@
 
 #define PROFILE
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 extern bool TestB2;
 extern bool TestB4;
@@ -949,7 +949,7 @@ TEST_F(UTBinInt, mod_arithmetic) {
 
 template <typename T>
 void big_modexp(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     TimeVar t;
 
     TIC(t);
@@ -962,7 +962,7 @@ void big_modexp(const std::string& msg) {
 
     EXPECT_EQ(expectedResult, calculatedResult) << msg << " Failure testing very big mod_exp_test";
 
-    OPENFHE_DEBUG("big_modexp time ns " << TOC_NS(t));
+    LUX_FHE_DEBUG("big_modexp time ns " << TOC_NS(t));
 }
 
 TEST_F(UTBinInt, big_modexp) {
@@ -1227,7 +1227,7 @@ TEST_F(UTBinInt, GetBitAtIndex) {
 
 template <typename T>
 void GetInternalRepresentation(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     T x(1);
 
     x <<= 100;  // x has one bit at 101
@@ -1237,9 +1237,9 @@ void GetInternalRepresentation(const std::string& msg) {
 
 #if !defined(NDEBUG)
     if (dbg_flag) {
-        OPENFHE_DEBUG(x_limbs);
-        OPENFHE_DEBUG("x_limbs " << x_limbs);
-        OPENFHE_DEBUG("x " << x);
+        LUX_FHE_DEBUG(x_limbs);
+        LUX_FHE_DEBUG("x_limbs " << x_limbs);
+        LUX_FHE_DEBUG("x " << x);
     }
 #endif
 

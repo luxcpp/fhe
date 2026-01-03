@@ -50,7 +50,7 @@
 #include <vector>
 #include <map>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class RingGSWACCKeyImpl;
 using RingGSWACCKey      = std::shared_ptr<RingGSWACCKeyImpl>;
@@ -141,7 +141,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("k", m_key));
@@ -162,6 +162,6 @@ private:
     std::vector<std::vector<std::vector<RingGSWEvalKey>>> m_key;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _RGSW_BTKEY_H_

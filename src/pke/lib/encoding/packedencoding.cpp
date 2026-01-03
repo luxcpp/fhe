@@ -37,7 +37,7 @@
 #include "math/math-hal.h"
 #include "utils/utilities.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // TODO (dsuponit): we should not have globals!
 std::map<ModulusM, NativeInteger> PackedEncoding::m_initRoot;
@@ -63,7 +63,7 @@ bool PackedEncoding::Encode() {
 
         for (size_t i = 0; i < value.size(); i++) {
             if ((PlaintextModulus)llabs(value[i]) >= mod) {
-                OPENFHE_THROW("Cannot encode integer " + std::to_string(value[i]) + " at position " +
+                LUX_FHE_THROW("Cannot encode integer " + std::to_string(value[i]) + " at position " +
                               std::to_string(i) + " that is > plaintext modulus " + std::to_string(mod));
             }
 
@@ -85,7 +85,7 @@ bool PackedEncoding::Encode() {
         if (this->typeFlag == IsNativePoly) {
             PlaintextModulus q = this->GetElementModulus().ConvertToInt();
             if (q < mod) {
-                OPENFHE_THROW(
+                LUX_FHE_THROW(
                     "the plaintext modulus size is larger than the size of "
                     "NativePoly modulus; increase the NativePoly modulus.");
             }
@@ -99,7 +99,7 @@ bool PackedEncoding::Encode() {
         else {
             PlaintextModulus q = this->encodedVectorDCRT.GetParams()->GetParams()[0]->GetModulus().ConvertToInt();
             if (q < mod) {
-                OPENFHE_THROW(
+                LUX_FHE_THROW(
                     "the plaintext modulus size is larger than the size of "
                     "CRT moduli; either decrease the plaintext modulus or "
                     "increase the CRT moduli.");
@@ -139,7 +139,7 @@ bool PackedEncoding::Encode() {
             BigInteger entry;
 
             if ((PlaintextModulus)llabs(value[i]) >= mod)
-                OPENFHE_THROW("Cannot encode integer " + std::to_string(value[i]) + " at position " +
+                LUX_FHE_THROW("Cannot encode integer " + std::to_string(value[i]) + " at position " +
                               std::to_string(i) + " that is > plaintext modulus " + std::to_string(mod));
 
             if (value[i] < 0) {
@@ -316,12 +316,12 @@ void PackedEncoding::SetParams(uint32_t m, EncodingParams params) {
     }
 
     if (hadEx)
-        OPENFHE_THROW(exception_message);
+        LUX_FHE_THROW(exception_message);
 }
 
 template <typename P>
 void PackedEncoding::Pack(P* ring, const PlaintextModulus& modulus) const {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
 
     uint32_t m = ring->GetCyclotomicOrder();  // cyclotomic order
     NativeInteger modulusNI(modulus);         // native int modulus
@@ -335,7 +335,7 @@ void PackedEncoding::Pack(P* ring, const PlaintextModulus& modulus) const {
 
     uint32_t phim = ring->GetRingDimension();
 
-    OPENFHE_DEBUG("Pack for order " << m << " phim " << phim << " modulus " << modulusNI);
+    LUX_FHE_DEBUG("Pack for order " << m << " phim " << phim << " modulus " << modulusNI);
 
     // copy values from ring to the vector
     NativeVector slotValues(phim, modulusNI);
@@ -343,8 +343,8 @@ void PackedEncoding::Pack(P* ring, const PlaintextModulus& modulus) const {
         slotValues[i] = (*ring)[i].ConvertToInt();
     }
 
-    OPENFHE_DEBUG(*ring);
-    OPENFHE_DEBUG(slotValues);
+    LUX_FHE_DEBUG(*ring);
+    LUX_FHE_DEBUG(slotValues);
 
     // Transform Eval to Coeff
     if (IsPowerOfTwo(m)) {
@@ -370,16 +370,16 @@ void PackedEncoding::Pack(P* ring, const PlaintextModulus& modulus) const {
             permutedSlots[i] = slotValues[m_toCRTPerm[m][i]];
         }
 
-        OPENFHE_DEBUG("permutedSlots " << permutedSlots);
-        OPENFHE_DEBUG("m_initRoot[modulusM] " << m_initRoot[modulusM]);
-        OPENFHE_DEBUG("m_bigModulus[modulusM] " << m_bigModulus[modulusM]);
-        OPENFHE_DEBUG("m_bigRoot[modulusM] " << m_bigRoot[modulusM]);
+        LUX_FHE_DEBUG("permutedSlots " << permutedSlots);
+        LUX_FHE_DEBUG("m_initRoot[modulusM] " << m_initRoot[modulusM]);
+        LUX_FHE_DEBUG("m_bigModulus[modulusM] " << m_bigModulus[modulusM]);
+        LUX_FHE_DEBUG("m_bigRoot[modulusM] " << m_bigRoot[modulusM]);
 
         slotValues = ChineseRemainderTransformArb<NativeVector>().InverseTransform(
             permutedSlots, m_initRoot[modulusM], m_bigModulus[modulusM], m_bigRoot[modulusM], m);
     }
 
-    OPENFHE_DEBUG("slotvalues now " << slotValues);
+    LUX_FHE_DEBUG("slotvalues now " << slotValues);
     // copy values into the slotValuesRing
     typename P::Vector slotValuesRing(phim, ring->GetModulus());
     for (uint32_t i = 0; i < phim; i++) {
@@ -388,7 +388,7 @@ void PackedEncoding::Pack(P* ring, const PlaintextModulus& modulus) const {
 
     ring->SetValues(std::move(slotValuesRing), Format::COEFFICIENT);
 
-    OPENFHE_DEBUG(*ring);
+    LUX_FHE_DEBUG(*ring);
 }
 
 void PackedEncoding::PackNativeVector(const PlaintextModulus& modulus, uint32_t m, NativeVector* values) const {
@@ -434,7 +434,7 @@ void PackedEncoding::PackNativeVector(const PlaintextModulus& modulus, uint32_t 
 
 template <typename P>
 void PackedEncoding::Unpack(P* ring, const PlaintextModulus& modulus) const {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
 
     uint32_t m = ring->GetCyclotomicOrder();  // cyclotomic order
     NativeInteger modulusNI(modulus);         // native int modulus
@@ -448,7 +448,7 @@ void PackedEncoding::Unpack(P* ring, const PlaintextModulus& modulus) const {
 
     uint32_t phim = ring->GetRingDimension();  // ring dimension
 
-    OPENFHE_DEBUG("Unpack for order " << m << " phim " << phim << " modulus " << modulusNI);
+    LUX_FHE_DEBUG("Unpack for order " << m << " phim " << phim << " modulus " << modulusNI);
 
     // copy aggregate plaintext values
     NativeVector packedVector(phim, modulusNI);
@@ -456,7 +456,7 @@ void PackedEncoding::Unpack(P* ring, const PlaintextModulus& modulus) const {
         packedVector[i] = NativeInteger((*ring)[i].ConvertToInt());
     }
 
-    OPENFHE_DEBUG(packedVector);
+    LUX_FHE_DEBUG(packedVector);
 
     // Transform Coeff to Eval
     NativeVector permutedSlots(phim, modulusNI);
@@ -479,7 +479,7 @@ void PackedEncoding::Unpack(P* ring, const PlaintextModulus& modulus) const {
         packedVector = permutedSlots;
     }
 
-    OPENFHE_DEBUG(packedVector);
+    LUX_FHE_DEBUG(packedVector);
 
     // copy values into the slotValuesRing
     typename P::Vector packedVectorRing(phim, ring->GetModulus());
@@ -492,7 +492,7 @@ void PackedEncoding::Unpack(P* ring, const PlaintextModulus& modulus) const {
 
 void PackedEncoding::SetParams_2n(uint32_t m, NativeInteger modulusNI) {
     if (!MillerRabinPrimalityTest(modulusNI)) {
-        OPENFHE_THROW("The modulus value is [" + modulusNI.ToString() + "]. It must be prime.");
+        LUX_FHE_THROW("The modulus value is [" + modulusNI.ToString() + "]. It must be prime.");
     }
 
     const ModulusM modulusM = {modulusNI, m};
@@ -529,7 +529,7 @@ void PackedEncoding::SetParams_2n(uint32_t m, EncodingParams params) {
     NativeInteger modulusNI(params->GetPlaintextModulus());  // native int modulus
 
     if (!MillerRabinPrimalityTest(modulusNI)) {
-        OPENFHE_THROW("The modulus value is [" + modulusNI.ToString() + "]. It must be prime.");
+        LUX_FHE_THROW("The modulus value is [" + modulusNI.ToString() + "]. It must be prime.");
     }
 
     const ModulusM modulusM = {modulusNI, m};
@@ -566,4 +566,4 @@ void PackedEncoding::SetParams_2n(uint32_t m, EncodingParams params) {
         curr_index = curr_index * 5 % m;
     }
 }
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -44,7 +44,7 @@
 #include "scheme/ckksrns/gen-cryptocontext-ckksrns-params.h"
 #include "scheme/gen-cryptocontext-params-validation.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class CryptoContextCKKSRNS {
     using Element = DCRTPoly;
@@ -61,6 +61,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GEN_CRYPTOCONTEXT_CKKSRNS_H__

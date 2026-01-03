@@ -34,7 +34,7 @@
 #include "UnitTestMetadataTest.h"
 #include "utils/serial.h"
 
-CEREAL_REGISTER_TYPE(lbcrypto::MetadataTest);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::Metadata, lbcrypto::MetadataTest);
+CEREAL_REGISTER_TYPE(lux::fhe::MetadataTest);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::Metadata, lux::fhe::MetadataTest);
 
 #endif  // __UNITTESTMETADATATESTSER_H__

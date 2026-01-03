@@ -47,7 +47,7 @@
 #include "key/key-ser.h"
 #include "scheme/ckksrns/ckksrns-ser.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /////////////////////////////////////////////////////////////////
 // NOTE:
@@ -226,7 +226,7 @@ void clientProcess() {
     CryptoContext<DCRTPoly> clientCC;
     clientCC->ClearEvalMultKeys();
     clientCC->ClearEvalAutomorphismKeys();
-    lbcrypto::CryptoContextFactory<lbcrypto::DCRTPoly>::ReleaseAllContexts();
+    lux::fhe::CryptoContextFactory<lux::fhe::DCRTPoly>::ReleaseAllContexts();
     if (!Serial::DeserializeFromFile(DATAFOLDER + ccLocation, clientCC, SerType::BINARY)) {
         std::cerr << "I cannot read serialized data from: " << DATAFOLDER << "/cryptocontext.txt" << std::endl;
         std::exit(1);

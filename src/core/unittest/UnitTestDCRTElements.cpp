@@ -42,7 +42,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void testDCRTPolyConstructorNegative(std::vector<NativePoly>& towers);
 
@@ -51,7 +51,7 @@ void testDCRTPolyConstructorNegative(std::vector<NativePoly>& towers);
 
 template <typename Element>
 void DCRT_constructors(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     uint32_t m         = 8;
     uint32_t towersize = 3;
 
@@ -87,7 +87,7 @@ void DCRT_constructors(const std::string& msg) {
     ilvector2nVector.push_back(ilv1);
     ilvector2nVector.push_back(ilv2);
 
-    OPENFHE_DEBUG("1");
+    LUX_FHE_DEBUG("1");
     float stdDev = 4.0;
     typename Element::DggType dgg(stdDev);
 
@@ -100,17 +100,17 @@ void DCRT_constructors(const std::string& msg) {
         EXPECT_EQ(towersize, ilva.GetNumOfElements()) << msg << " Failure: ildcrtparams ctor ilva.GetNumOfElements()";
     }
 
-    OPENFHE_DEBUG("2");
+    LUX_FHE_DEBUG("2");
     {
         Element ilva(ilvector2nVector);
 
-        OPENFHE_DEBUG("2.0");
+        LUX_FHE_DEBUG("2.0");
         EXPECT_EQ(Format::EVALUATION, ilva.GetFormat()) << msg << " Failure: ctor ilva.GetFormat()";
         EXPECT_EQ(modulus, ilva.GetModulus()) << msg << " Failure: ctor ilva.GetModulus()";
         EXPECT_EQ(m, ilva.GetCyclotomicOrder()) << msg << " Failure: ctor ilva.GetCyclotomicOrder()";
         EXPECT_EQ(towersize, ilva.GetNumOfElements()) << msg << " Failure: ctor ilva.GetNumOfElements()";
 
-        OPENFHE_DEBUG("2.1");
+        LUX_FHE_DEBUG("2.1");
         std::vector<NativePoly> ilvector2nVectorInconsistent(towersize);
         auto ilparamsNegativeTestCase =
             std::make_shared<ILNativeParams>(128, NativeInteger("1231"), NativeInteger("213"));
@@ -119,15 +119,15 @@ void DCRT_constructors(const std::string& msg) {
         ilvector2nVectorInconsistent[1] = ilv1;
         ilvector2nVectorInconsistent[2] = ilv2;
 
-        OPENFHE_DEBUG("2.2");
+        LUX_FHE_DEBUG("2.2");
         for (size_t ii = 0; ii < ilvector2nVectorInconsistent.size(); ii++) {
-            OPENFHE_DEBUG(ii << " item " << ilvector2nVectorInconsistent.at(ii).GetParams().use_count());
+            LUX_FHE_DEBUG(ii << " item " << ilvector2nVectorInconsistent.at(ii).GetParams().use_count());
         }
         EXPECT_THROW(testDCRTPolyConstructorNegative(ilvector2nVectorInconsistent), OpenFHEException)
             << msg << " Failure: ilvector2nVectorInconsistent";
     }
 
-    OPENFHE_DEBUG("4");
+    LUX_FHE_DEBUG("4");
     {
         Element ilva0;
         Element ilva1(ildcrtparams);
@@ -162,9 +162,9 @@ void DCRT_constructors(const std::string& msg) {
         }
     }
 
-    OPENFHE_DEBUG("5");
+    LUX_FHE_DEBUG("5");
     {
-        OPENFHE_DEBUG("ild mod " << ildcrtparams->GetModulus());
+        LUX_FHE_DEBUG("ild mod " << ildcrtparams->GetModulus());
         Element ilva(dgg, ildcrtparams);
 
         EXPECT_EQ(Format::EVALUATION, ilva.GetFormat()) << msg << " Failure: ctor(dgg, ldcrtparams) ilva.GetFormat()";
@@ -174,7 +174,7 @@ void DCRT_constructors(const std::string& msg) {
             << msg << " Failure: ctor(dgg, ildcrtparams) ilva.GetNumOfElements()";
     }
 
-    OPENFHE_DEBUG("6");
+    LUX_FHE_DEBUG("6");
     {
         Element ilva(dgg, ildcrtparams);
         Element ilvaClone(ilva.CloneParametersOnly());
@@ -490,7 +490,7 @@ void DCRT_arithmetic_ops_element(const std::string& msg) {
 
         Element ilvaS(ilvector2nVectorS);
         typename Element::Integer modulus2("113");
-        typename Element::Integer rootOfUnity2(lbcrypto::RootOfUnity<typename Element::Integer>(m, modulus2));
+        typename Element::Integer rootOfUnity2(lux::fhe::RootOfUnity<typename Element::Integer>(m, modulus2));
 
         ilvaS.SwitchModulus(modulus2, rootOfUnity2, 0, 0);
 
@@ -523,7 +523,7 @@ void DCRT_arithmetic_ops_element(const std::string& msg) {
     {
         Element ilvaCopy(ilva);
         typename Element::Integer modulus2("113");
-        typename Element::Integer rootOfUnity2(lbcrypto::RootOfUnity<typename Element::Integer>(m, modulus2));
+        typename Element::Integer rootOfUnity2(lux::fhe::RootOfUnity<typename Element::Integer>(m, modulus2));
         ilvaCopy.SwitchModulusAtIndex(0, modulus2, rootOfUnity2);
 
         for (uint32_t i = 0; i < ilvaCopy.GetNumOfElements(); ++i) {

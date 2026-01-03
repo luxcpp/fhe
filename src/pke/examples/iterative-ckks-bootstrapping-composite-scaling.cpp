@@ -49,7 +49,7 @@ double the precision of a single bootstrapping.
 #include <vector>
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void IterativeBootstrapExample();
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 double CalculateApproximationError(const std::vector<std::complex<double>>& result,
                                    const std::vector<std::complex<double>>& expectedResult) {
     if (result.size() != expectedResult.size())
-        OPENFHE_THROW("Cannot compare vectors with different numbers of elements");
+        LUX_FHE_THROW("Cannot compare vectors with different numbers of elements");
 
     // using the infinity norm
     double maxError = 0;

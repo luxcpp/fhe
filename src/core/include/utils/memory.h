@@ -33,8 +33,8 @@
   Memory utlities
  */
 
-#ifndef LBCRYPTO_UTILS_MEMORY_H
-#define LBCRYPTO_UTILS_MEMORY_H
+#ifndef LUX_FHE_UTILS_MEMORY_H
+#define LUX_FHE_UTILS_MEMORY_H
 
 #include <cstdint>
 #include <cstddef>
@@ -42,7 +42,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <class X>
 void MoveAppend(std::vector<X>& dst, std::vector<X>& src) {
@@ -63,6 +63,6 @@ void MoveAppend(std::vector<X>& dst, std::vector<X>& src) {
  */
 void secure_memset(volatile void* mem, uint8_t c, size_t len);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_UTILS_MEMORY_H
+#endif  // LUX_FHE_UTILS_MEMORY_H

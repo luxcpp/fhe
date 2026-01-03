@@ -33,8 +33,8 @@
   Represents and defines plaintext encodings in OpenFHE with packing capabilities
  */
 
-#ifndef LBCRYPTO_UTILS_PACKEDEXTENCODING_H
-#define LBCRYPTO_UTILS_PACKEDEXTENCODING_H
+#ifndef LUX_FHE_UTILS_PACKEDEXTENCODING_H
+#define LUX_FHE_UTILS_PACKEDEXTENCODING_H
 
 #include "encoding/encodingparams.h"
 #include "encoding/plaintext.h"
@@ -48,7 +48,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // STL pair used as a key for some tables in PackedEncoding
 using ModulusM = std::pair<NativeInteger, uint64_t>;
@@ -243,6 +243,6 @@ private:
     void Unpack(P* ring, const PlaintextModulus& modulus) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

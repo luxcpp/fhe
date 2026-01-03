@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 SecurityLevel convertToSecurityLevel(const std::string& str) {
     if (str == "HEStd_128_classic")
@@ -62,7 +62,7 @@ SecurityLevel convertToSecurityLevel(const std::string& str) {
         return HEStd_NotSet;
 
     std::string errMsg(std::string("Unknown SecurityLevel ") + str);
-    OPENFHE_THROW(errMsg);
+    LUX_FHE_THROW(errMsg);
 }
 SecurityLevel convertToSecurityLevel(uint32_t num) {
     auto secLevel = static_cast<SecurityLevel>(num);
@@ -80,7 +80,7 @@ SecurityLevel convertToSecurityLevel(uint32_t num) {
     }
 
     std::string errMsg(std::string("Unknown value for SecurityLevel ") + std::to_string(num));
-    OPENFHE_THROW(errMsg);
+    LUX_FHE_THROW(errMsg);
 }
 
 std::ostream& operator<<(std::ostream& s, SecurityLevel sl) {
@@ -261,4 +261,4 @@ std::vector<StdLatticeParm> StdLatticeParm::StandardLatticeParmSets({
     StdLatticeParm(HEStd_ternary, 131072, HEStd_256_quantum, 1784),
 });
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */

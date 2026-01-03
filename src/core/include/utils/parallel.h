@@ -40,7 +40,7 @@
     #include <omp.h>
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class ParallelControls {
 public:
@@ -131,6 +131,6 @@ private:
 
 extern ParallelControls OpenFHEParallelControls;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif /* SRC_CORE_LIB_UTILS_PARALLEL_H_ */

@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_RNS_SCHEME_H
-#define LBCRYPTO_CRYPTO_RNS_SCHEME_H
+#ifndef LUX_FHE_CRYPTO_RNS_SCHEME_H
+#define LUX_FHE_CRYPTO_RNS_SCHEME_H
 
 #include "constants.h"
 #include "keyswitch/keyswitch-bv.h"
@@ -50,10 +50,10 @@
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract interface class for LBC PRE algorithms
@@ -73,7 +73,7 @@ public:
             m_KeySwitch = std::make_shared<KeySwitchHYBRID>();
         }
         else
-            OPENFHE_THROW("ksTech is invalid");
+            LUX_FHE_THROW("ksTech is invalid");
     }
 
     /////////////////////////////////////
@@ -95,6 +95,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

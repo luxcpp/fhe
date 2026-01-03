@@ -43,7 +43,7 @@
     #include <mach-o/dyld.h>
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Helper function to get the absolute path to the running unittests executable
 std::filesystem::path getProgramPath() {
@@ -54,7 +54,7 @@ std::filesystem::path getProgramPath() {
     const DWORD cap = static_cast<DWORD>(sizeof(buf) / sizeof(buf[0]));
     const DWORD len = GetModuleFileNameW(nullptr, buf, cap);
     if (len == 0 || len >= cap)
-        OPENFHE_THROW("Cannot get the executable path for Windows/MinGW.");
+        LUX_FHE_THROW("Cannot get the executable path for Windows/MinGW.");
 
     return std::filesystem::path(buf, buf + len);
 #elif defined(__APPLE__)
@@ -62,18 +62,18 @@ std::filesystem::path getProgramPath() {
     _NSGetExecutablePath(nullptr, &size);           // ask required size
     std::string tmp(size, '\0');
     if (_NSGetExecutablePath(tmp.data(), &size) != 0)
-        OPENFHE_THROW("Can not get the executable path for macOS.");
+        LUX_FHE_THROW("Can not get the executable path for macOS.");
 
     return std::filesystem::path(tmp.c_str());
 #elif defined(__linux__)
     std::error_code ec;
     auto p = std::filesystem::read_symlink("/proc/self/exe", ec);
     if (ec)
-        OPENFHE_THROW("Cannot read /proc/self/exe.");
+        LUX_FHE_THROW("Cannot read /proc/self/exe.");
 
     return p;
 #else
-    OPENFHE_THROW("This architecture is not supported.");
+    LUX_FHE_THROW("This architecture is not supported.");
 #endif
 }
 
@@ -92,7 +92,7 @@ std::string DataAndLocation::getDataDir() {
         abs = std::filesystem::absolute(dataDir, ec);  // fallback
     }
     if (ec || abs.empty()) {
-        OPENFHE_THROW(std::string("Cannot resolve data directory: ") + dataDir.string());
+        LUX_FHE_THROW(std::string("Cannot resolve data directory: ") + dataDir.string());
     }
 
     // Uncomment, if you want to ensure that the dir exists
@@ -102,23 +102,23 @@ std::string DataAndLocation::getDataDir() {
 }
 
 // Macros to be used in this source file only
-#define THROW_SERIALIZATION_ERROR   OPENFHE_THROW(std::string("Error serializing to ") + outFile)
-#define THROW_DESERIALIZATION_ERROR OPENFHE_THROW(std::string("Error deserializing from ") + outFile)
-#define THROW_CAN_NOT_OPEN_FILE     OPENFHE_THROW(std::string("Can not open ") + outFile)
+#define THROW_SERIALIZATION_ERROR   LUX_FHE_THROW(std::string("Error serializing to ") + outFile)
+#define THROW_DESERIALIZATION_ERROR LUX_FHE_THROW(std::string("Error deserializing from ") + outFile)
+#define THROW_CAN_NOT_OPEN_FILE     LUX_FHE_THROW(std::string("Can not open ") + outFile)
 #define SERTYPE                     SerType::BINARY
 
 void SchemeSwitchingDataSerializer::Serialize() {
     // check if all 5 data memebers to be serialized are valid (not NULL)
     if (nullptr == cryptoContext)
-        OPENFHE_THROW("cryptoContext is nullptr");
+        LUX_FHE_THROW("cryptoContext is nullptr");
     else if (nullptr == publicKey)
-        OPENFHE_THROW("publicKey is nullptr");
+        LUX_FHE_THROW("publicKey is nullptr");
     else if (nullptr == binFHECryptoContext)
-        OPENFHE_THROW("binFHECryptoContext is nullptr");
+        LUX_FHE_THROW("binFHECryptoContext is nullptr");
     else if (nullptr == FHEWtoCKKSSwitchKey)
-        OPENFHE_THROW("FHEWtoCKKSSwitchKey is nullptr");
+        LUX_FHE_THROW("FHEWtoCKKSSwitchKey is nullptr");
     else if (nullptr == RAWCiphertext)
-        OPENFHE_THROW("RAWCiphertext is nullptr");
+        LUX_FHE_THROW("RAWCiphertext is nullptr");
 
     std::string outFile;
     //=============================================================================================================
@@ -278,7 +278,7 @@ void SchemeSwitchingDataDeserializer::Deserialize() {
     }
     else if (!indices.size()) {
         std::string errMsg(std::string("Error deserializing from ") + outFile + ". No indices found.");
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
     for (uint32_t index : indices) {
         RingGSWBTKey thekey;
@@ -299,4 +299,4 @@ void SchemeSwitchingDataDeserializer::Deserialize() {
     //=============================================================================================================
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -37,7 +37,7 @@ BFV implementation. See https://eprint.iacr.org/2021/204 for details.
 
 #include "scheme/bfvrns/bfvrns-scheme.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void SchemeBFVRNS::Enable(PKESchemeFeature feature) {
     switch (feature) {
@@ -71,8 +71,8 @@ void SchemeBFVRNS::Enable(PKESchemeFeature feature) {
         default:
             std::stringstream ss;
             ss << feature;
-            OPENFHE_THROW(std::string("This feature [") + ss.str() + "] is not supported for BFVRNS scheme");
+            LUX_FHE_THROW(std::string("This feature [") + ss.str() + "] is not supported for BFVRNS scheme");
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

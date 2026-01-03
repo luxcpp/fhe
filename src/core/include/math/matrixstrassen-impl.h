@@ -33,8 +33,8 @@
   matrix strassen operations
  */
 
-#ifndef LBCRYPTO_INC_MATH_MATRIXSTRASSEN_IMPL_H
-#define LBCRYPTO_INC_MATH_MATRIXSTRASSEN_IMPL_H
+#ifndef LUX_FHE_INC_MATH_MATRIXSTRASSEN_IMPL_H
+#define LUX_FHE_INC_MATH_MATRIXSTRASSEN_IMPL_H
 
 #include "math/matrixstrassen.h"
 
@@ -45,7 +45,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <class Element>
 MatrixStrassen<Element>::MatrixStrassen(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen)
@@ -145,7 +145,7 @@ void MatrixStrassen<Element>::SetFormat(Format format) {
 template <class Element>
 MatrixStrassen<Element>& MatrixStrassen<Element>::operator+=(MatrixStrassen<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
-        OPENFHE_THROW("Addition operands have incompatible dimensions");
+        LUX_FHE_THROW("Addition operands have incompatible dimensions");
     }
 #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
@@ -159,7 +159,7 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::operator+=(MatrixStrassen<Elem
 template <class Element>
 inline MatrixStrassen<Element>& MatrixStrassen<Element>::operator-=(MatrixStrassen<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
-        OPENFHE_THROW("Subtraction operands have incompatible dimensions");
+        LUX_FHE_THROW("Subtraction operands have incompatible dimensions");
     }
 #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
@@ -193,10 +193,10 @@ MatrixStrassen<Element> MatrixStrassen<Element>::Transpose() const {
 template <class Element>
 void MatrixStrassen<Element>::Determinant(Element* determinant) const {
     if (rows != cols)
-        OPENFHE_THROW("Supported only for square matrix");
+        LUX_FHE_THROW("Supported only for square matrix");
     // auto determinant = *allocZero();
     if (rows < 1)
-        OPENFHE_THROW("Dimension should be at least one");
+        LUX_FHE_THROW("Dimension should be at least one");
 
     if (rows == 1) {
         *determinant = *data[0][0];
@@ -250,7 +250,7 @@ void MatrixStrassen<Element>::Determinant(Element* determinant) const {
 template <class Element>
 MatrixStrassen<Element> MatrixStrassen<Element>::CofactorMatrixStrassen() const {
     if (rows != cols)
-        OPENFHE_THROW("Supported only for square matrix");
+        LUX_FHE_THROW("Supported only for square matrix");
 
     size_t ii, jj, iNew, jNew;
 
@@ -297,7 +297,7 @@ MatrixStrassen<Element> MatrixStrassen<Element>::CofactorMatrixStrassen() const 
 template <class Element>
 MatrixStrassen<Element>& MatrixStrassen<Element>::VStack(MatrixStrassen<Element> const& other) {
     if (cols != other.cols) {
-        OPENFHE_THROW("VStack rows not equal size");
+        LUX_FHE_THROW("VStack rows not equal size");
     }
     for (size_t row = 0; row < other.rows; ++row) {
         std::vector<std::unique_ptr<Element>> rowElems;
@@ -314,7 +314,7 @@ MatrixStrassen<Element>& MatrixStrassen<Element>::VStack(MatrixStrassen<Element>
 template <class Element>
 inline MatrixStrassen<Element>& MatrixStrassen<Element>::HStack(MatrixStrassen<Element> const& other) {
     if (rows != other.rows) {
-        OPENFHE_THROW("HStack cols not equal size");
+        LUX_FHE_THROW("HStack cols not equal size");
     }
     for (size_t row = 0; row < rows; ++row) {
         std::vector<std::unique_ptr<Element>> rowElems;
@@ -484,7 +484,7 @@ inline std::ostream& operator<<(std::ostream& os, const MatrixStrassen<Element>&
 MatrixStrassen<double> Cholesky(const MatrixStrassen<int32_t>& input) {
     //  http://eprint.iacr.org/2013/297.pdf
     if (input.GetRows() != input.GetCols()) {
-        OPENFHE_THROW("not square");
+        LUX_FHE_THROW("not square");
     }
     size_t rows = input.GetRows();
     MatrixStrassen<double> result([]() { return 0; }, rows, rows);
@@ -1229,6 +1229,6 @@ long long MatrixStrassen<Element>::numEntriesPerProc(MatDescriptor desc) const {
     return ((lda * lda) / desc.nproc / desc.nproc_summa);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

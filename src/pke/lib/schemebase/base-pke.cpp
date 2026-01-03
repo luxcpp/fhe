@@ -40,7 +40,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // makeSparse is not used by this scheme
 template <class Element>
@@ -49,7 +49,7 @@ KeyPair<Element> PKEBase<Element>::KeyGenInternal(CryptoContext<Element> cc, boo
     const auto elementParams = cryptoParams->GetElementParams();
     const auto paramsPK      = cryptoParams->GetParamsPK();
     if (!paramsPK)
-        OPENFHE_THROW("PrecomputeCRTTables() must be called before using precomputed params.");
+        LUX_FHE_THROW("PrecomputeCRTTables() must be called before using precomputed params.");
 
     // Private Key Generation
 
@@ -70,7 +70,7 @@ KeyPair<Element> PKEBase<Element>::KeyGenInternal(CryptoContext<Element> cc, boo
             s = Element(tug, paramsPK, Format::EVALUATION, 192);
             break;
         default:
-            OPENFHE_THROW("Unknown SecretKeyDist.");
+            LUX_FHE_THROW("Unknown SecretKeyDist.");
     }
 
     // Public Key Generation
@@ -200,11 +200,11 @@ Element PKEBase<Element>::DecryptCore(const std::vector<Element>& cv, const Priv
     return b;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 // the code below is from base-pke-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 template class PKEBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

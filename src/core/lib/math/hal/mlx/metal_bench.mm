@@ -20,7 +20,7 @@
 
 #include "metal_dispatch_optimized.h"
 
-using namespace lbcrypto::gpu::metal;
+using namespace lux::gpu::metal;
 
 // Time a function in microseconds
 template<typename Func>

@@ -33,8 +33,8 @@
   matrix strassen operations
  */
 
-#ifndef LBCRYPTO_INC_MATH_MATRIXSTRASSEN_H
-#define LBCRYPTO_INC_MATH_MATRIXSTRASSEN_H
+#ifndef LUX_FHE_INC_MATH_MATRIXSTRASSEN_H
+#define LUX_FHE_INC_MATH_MATRIXSTRASSEN_H
 
 #include "lattice/lat-hal.h"
 
@@ -47,7 +47,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <class Element>
 class MatrixStrassen {  // TODO : public Serializable {
@@ -98,7 +98,7 @@ public:
 
     void SetSize(size_t rows, size_t cols) {
         if (this->rows != 0 || this->cols != 0) {
-            OPENFHE_THROW("You cannot SetSize on a non-empty matrix");
+            LUX_FHE_THROW("You cannot SetSize on a non-empty matrix");
         }
 
         this->rows = rows;
@@ -299,7 +299,7 @@ public:
    */
     inline MatrixStrassen<Element> Add(MatrixStrassen<Element> const& other) const {
         if (rows != other.rows || cols != other.cols) {
-            OPENFHE_THROW("Addition operands have incompatible dimensions");
+            LUX_FHE_THROW("Addition operands have incompatible dimensions");
         }
         MatrixStrassen<Element> result(*this);
 #pragma omp parallel for
@@ -338,7 +338,7 @@ public:
    */
     inline MatrixStrassen<Element> Sub(MatrixStrassen<Element> const& other) const {
         if (rows != other.rows || cols != other.cols) {
-            OPENFHE_THROW("Subtraction operands have incompatible dimensions");
+            LUX_FHE_THROW("Subtraction operands have incompatible dimensions");
         }
         MatrixStrassen<Element> result(allocZero, rows, other.cols);
 #pragma omp parallel for
@@ -637,6 +637,6 @@ inline MatrixStrassen<Poly> SplitInt32IntoPolyElements(MatrixStrassen<int32_t> c
  */
 inline MatrixStrassen<Poly> SplitInt32AltIntoPolyElements(MatrixStrassen<int32_t> const& other, size_t n,
                                                           const std::shared_ptr<ILParams> params);
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_INC_MATH_MATRIXSTRASSEN_H
+#endif  // LUX_FHE_INC_MATH_MATRIXSTRASSEN_H

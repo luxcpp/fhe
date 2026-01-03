@@ -40,7 +40,7 @@
 /* defining NDEBUG in the compile line turns everything off.
    unless PROFILE is defined in the file before all includes,'
    in which case TIC/TOC will still work and PROFILELOG() can be
-   used for logging results to std::cout, and OPENFHE_DEBUG() will remain
+   used for logging results to std::cout, and LUX_FHE_DEBUG() will remain
    silent. dbg_flag does not get used by PROFILELOG()
  */
 
@@ -53,11 +53,11 @@
 #if !defined(NDEBUG)
 
     // note that for the following dbg_flag needs to be defined in some scope using
-    // OPENFHE_DEBUG_FLAG
-    #define OPENFHE_DEBUG_FLAG(x) bool dbg_flag = x;
+    // LUX_FHE_DEBUG_FLAG
+    #define LUX_FHE_DEBUG_FLAG(x) bool dbg_flag = x;
 
     // debugging macro prints value of x on cerr
-    #define OPENFHE_DEBUG(x)                 \
+    #define LUX_FHE_DEBUG(x)                 \
         do {                                 \
             if (dbg_flag) {                  \
                 std::cerr << x << std::endl; \
@@ -65,7 +65,7 @@
         } while (0)
 
     // debugging macro prints typography of x and value of x on cerr
-    #define OPENFHE_DEBUGEXP(x)                           \
+    #define LUX_FHE_DEBUGEXP(x)                           \
         do {                                              \
             if (dbg_flag) {                               \
                 std::cerr << #x << ":" << x << std::endl; \
@@ -73,7 +73,7 @@
         } while (0)
 
     // debugging macro prints value of x and location in codex on cerr
-    #define OPENFHE_DEBUGWHERE(x)                                                                \
+    #define LUX_FHE_DEBUGWHERE(x)                                                                \
         do {                                                                                     \
             if (dbg_flag) {                                                                      \
                 std::cerr << __FILE__ << ":" << __LINE__ << ": " << #x << ":" << x << std::endl; \
@@ -81,7 +81,7 @@
         } while (0)
 
     // debugging macro prints location in codex on cerr
-    #define OPENFHE_DEBUGHERE()                                                \
+    #define LUX_FHE_DEBUGHERE()                                                \
         do {                                                                   \
             if (dbg_flag) {                                                    \
                 std::cerr << __FILE__ << ":" << __LINE__ << ": " << std::endl; \
@@ -135,11 +135,11 @@
 
         // these are turned off functions
 
-        #define OPENFHE_DEBUG_FLAG(x)
-        #define OPENFHE_DEBUG(x)
-        #define OPENFHE_DEBUGEXP(x)
-        #define OPENFHE_DEBUGWHERE(x)
-        #define OPENFHE_DEBUGHERE()
+        #define LUX_FHE_DEBUG_FLAG(x)
+        #define LUX_FHE_DEBUG(x)
+        #define LUX_FHE_DEBUGEXP(x)
+        #define LUX_FHE_DEBUGWHERE(x)
+        #define LUX_FHE_DEBUGHERE()
 
         #define PROFILELOG(x)
         #define PROFILELOGEXP(x)
@@ -154,11 +154,11 @@
     #else  // PROFILE
         // if PROFILE is turned on, then TIC TOC still work and
 
-        #define OPENFHE_DEBUG_FLAG(x)
-        #define OPENFHE_DEBUG(x)
-        #define OPENFHE_DEBUGEXP(x)
-        #define OPENFHE_DEBUGWHERE(x)
-        #define OPENFHE_DEBUGHERE()
+        #define LUX_FHE_DEBUG_FLAG(x)
+        #define LUX_FHE_DEBUG(x)
+        #define LUX_FHE_DEBUGEXP(x)
+        #define LUX_FHE_DEBUGWHERE(x)
+        #define LUX_FHE_DEBUGHERE()
 
         #define PROFILELOG(x)                    \
             do {                                 \

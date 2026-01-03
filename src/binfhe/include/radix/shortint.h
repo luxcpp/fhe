@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace radix {
 
 // Message space configuration
@@ -269,6 +269,6 @@ void BatchMul(
 void BatchBootstrap(std::vector<ShortInt>& values);
 
 } // namespace radix
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // RADIX_SHORTINT_H

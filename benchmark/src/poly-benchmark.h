@@ -43,7 +43,7 @@
 #include <utility>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 constexpr size_t POLY_NUM    = 16;
 constexpr size_t POLY_NUM_M1 = (POLY_NUM - 1);

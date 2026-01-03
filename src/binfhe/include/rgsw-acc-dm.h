@@ -36,7 +36,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Ring GSW accumulator schemes described in
@@ -92,6 +92,6 @@ private:
                     RLWECiphertext& acc) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _RGSW_ACC_DM_H_

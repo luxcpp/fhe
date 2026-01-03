@@ -50,7 +50,7 @@
 #include "scheme/ckksrns/gen-cryptocontext-ckksrns.h"
 #include "gen-cryptocontext.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void CKKS_serialize(benchmark::State& state) {
     // create a cryptocontext

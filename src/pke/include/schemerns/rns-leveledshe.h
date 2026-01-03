@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_RNS_LEVELEDSHE_H
-#define LBCRYPTO_CRYPTO_RNS_LEVELEDSHE_H
+#ifndef LUX_FHE_CRYPTO_RNS_LEVELEDSHE_H
+#define LUX_FHE_CRYPTO_RNS_LEVELEDSHE_H
 
 #include "lattice/lat-hal.h"
 #include "schemebase/base-leveledshe.h"
@@ -38,10 +38,10 @@
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract interface class for LBC SHE algorithms
@@ -323,7 +323,7 @@ protected:
    * @details \p cipherText will have modulus reduction performed in-place.
    */
     void ModReduceInternalInPlace(Ciphertext<DCRTPoly>& ciphertext, size_t levels) const override {
-        OPENFHE_THROW("ModReduceInternalInPlace is not supported for this scheme");
+        LUX_FHE_THROW("ModReduceInternalInPlace is not supported for this scheme");
     }
 
     /**
@@ -347,7 +347,7 @@ protected:
    * @param levels the number of towers to drop.
    */
     void LevelReduceInternalInPlace(Ciphertext<DCRTPoly>& ciphertext, size_t levels) const override {
-        OPENFHE_THROW("LevelReduceInternalInPlace is not supported for this scheme");
+        LUX_FHE_THROW("LevelReduceInternalInPlace is not supported for this scheme");
     }
 
     void AdjustLevelsInPlace(Ciphertext<DCRTPoly>& ciphertext1, Ciphertext<DCRTPoly>& ciphertext2) const override;
@@ -375,6 +375,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

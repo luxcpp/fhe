@@ -190,7 +190,7 @@ ubint<limb_t> ubint<limb_t>::Mul(const ubint& b) const {
 template <typename limb_t>
 ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const {
     if (b.m_MSB == 0)
-        OPENFHE_THROW("Divisor is zero");
+        LUX_FHE_THROW("Divisor is zero");
     if (b.m_MSB > m_MSB)
         return ubint();
     if ((b.m_MSB == m_MSB) && (b.m_value.back() == m_value.back()))
@@ -203,7 +203,7 @@ ubint<limb_t> ubint<limb_t>::DividedBy(const ubint& b) const {
 template <typename limb_t>
 ubint<limb_t>& ubint<limb_t>::DividedByEq(const ubint& b) {
     if (b.m_MSB == 0)
-        OPENFHE_THROW("Divisor is zero");
+        LUX_FHE_THROW("Divisor is zero");
     if (b.m_MSB > m_MSB) {
         m_MSB = 0;
         m_value.resize(1);
@@ -237,7 +237,7 @@ ubint<limb_t> ubint<limb_t>::Exp(usint p) const {
 template <typename limb_t>
 ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint& p, const ubint& q) const {
     if (q.m_MSB == 0)
-        OPENFHE_THROW("MultiplyAndRound() Divisor is zero");
+        LUX_FHE_THROW("MultiplyAndRound() Divisor is zero");
     auto t{ubint<limb_t>::Mul(p)};
     ubint halfQ(q >> 1);
     if (t <= halfQ)
@@ -254,7 +254,7 @@ ubint<limb_t> ubint<limb_t>::MultiplyAndRound(const ubint& p, const ubint& q) co
 template <typename limb_t>
 ubint<limb_t> ubint<limb_t>::DivideAndRound(const ubint& q) const {
     if (q.m_MSB == 0)
-        OPENFHE_THROW("DivideAndRound() Divisor is zero");
+        LUX_FHE_THROW("DivideAndRound() Divisor is zero");
     ubint halfQ(q >> 1);
     if (*this <= halfQ)
         return ubint();
@@ -270,7 +270,7 @@ ubint<limb_t> ubint<limb_t>::DivideAndRound(const ubint& q) const {
 template <typename limb_t>
 ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const {
     if (modulus.m_MSB == 0)
-        OPENFHE_THROW("Mod() using zero modulus");
+        LUX_FHE_THROW("Mod() using zero modulus");
     if (*this < modulus)
         return *this;
     if (modulus.m_MSB == 2 && modulus.m_value[0] == 2)
@@ -283,7 +283,7 @@ ubint<limb_t> ubint<limb_t>::Mod(const ubint& modulus) const {
 template <typename limb_t>
 ubint<limb_t>& ubint<limb_t>::ModEq(const ubint& modulus) {
     if (modulus.m_MSB == 0)
-        OPENFHE_THROW("Mod() using zero modulus");
+        LUX_FHE_THROW("Mod() using zero modulus");
     if (*this < modulus)
         return *this;
     if (modulus.m_MSB == 2 && modulus.m_value[0] == 2) {
@@ -417,7 +417,7 @@ ubint<limb_t> ubint<limb_t>::ModMulFast(const ubint& b, const ubint& modulus) co
 template <typename limb_t>
 ubint<limb_t> ubint<limb_t>::ModInverse(const ubint& modulus) const {
     if (m_MSB == 0)
-        OPENFHE_THROW("Zero has no inverse");
+        LUX_FHE_THROW("Zero has no inverse");
 
     ubint second(*this);
     if (second >= modulus)
@@ -436,7 +436,7 @@ ubint<limb_t> ubint<limb_t>::ModInverse(const ubint& modulus) const {
 
     if (mod_back.m_MSB == 0) {
         std::string msg = ubint<limb_t>::ToString() + " does not have a ModInverse using " + modulus.ToString();
-        OPENFHE_THROW(msg);
+        LUX_FHE_THROW(msg);
     }
 
     // max number of iterations should be < 2^k where k == min(bitsize(inputs))
@@ -600,7 +600,7 @@ float ubint<limb_t>::ConvertToFloat() const {
         ans = std::stof(ubint<limb_t>::ToString());
     }
     catch (const std::exception& e) {
-        OPENFHE_THROW("ConvertToFloat() parse error converting to float");
+        LUX_FHE_THROW("ConvertToFloat() parse error converting to float");
     }
     return ans;
 }
@@ -619,7 +619,7 @@ double ubint<limb_t>::ConvertToDouble() const {
             ans += power * m_value[i];
     }
     catch (const std::exception& e) {
-        OPENFHE_THROW("ConvertToDouble() parse error converting to double");
+        LUX_FHE_THROW("ConvertToDouble() parse error converting to double");
     }
     return ans;
 }
@@ -632,7 +632,7 @@ long double ubint<limb_t>::ConvertToLongDouble() const {
         ans = std::stold(ubint<limb_t>::ToString());
     }
     catch (const std::exception& e) {
-        OPENFHE_THROW("ConvertToLongDouble() parse error converting to long double");
+        LUX_FHE_THROW("ConvertToLongDouble() parse error converting to long double");
     }
     return ans;
 }
@@ -745,7 +745,7 @@ void ubint<limb_t>::divqr_vect(ubint& qin, ubint& rin, const ubint& uin, const u
 
         r.resize(1);
         r[0]      = static_cast<limb_t>(ofl);
-        rin.m_MSB = lbcrypto::GetMSB(r[0]);
+        rin.m_MSB = lux::fhe::GetMSB(r[0]);
         return;
     }
 
@@ -753,7 +753,7 @@ void ubint<limb_t>::divqr_vect(ubint& qin, ubint& rin, const ubint& uin, const u
     // bit is set, and shift u left the same amount. We may have to append a
     // high-order digit on the dividend; we do that unconditionally.
 
-    auto sl{m_limbBitLength - lbcrypto::GetMSB(v.back())};
+    auto sl{m_limbBitLength - lux::fhe::GetMSB(v.back())};
     std::vector<limb_t> vn(n);
     ofl = 0;
     for (int i = 0; i < n; ++i, ofl >>= m_limbBitLength) {
@@ -832,7 +832,7 @@ void ubint<limb_t>::divq_vect(ubint& qin, const ubint& uin, const ubint& vin) co
         return;
     }
 
-    auto sl{m_limbBitLength - lbcrypto::GetMSB(v.back())};
+    auto sl{m_limbBitLength - lux::fhe::GetMSB(v.back())};
     std::vector<limb_t> vn(n);
     ofl = 0;
     for (int i = 0; i < n; ++i, ofl >>= m_limbBitLength) {
@@ -898,11 +898,11 @@ void ubint<limb_t>::divr_vect(ubint& rin, const ubint& uin, const ubint& vin) co
             ofl %= v[0];
         }
         r[0]      = static_cast<limb_t>(ofl);
-        rin.m_MSB = lbcrypto::GetMSB(r[0]);
+        rin.m_MSB = lux::fhe::GetMSB(r[0]);
         return;
     }
 
-    auto sl{m_limbBitLength - lbcrypto::GetMSB(v.back())};
+    auto sl{m_limbBitLength - lux::fhe::GetMSB(v.back())};
     std::vector<limb_t> vn(n);
     ofl = 0;
     for (int i = 0; i < n; ++i, ofl >>= m_limbBitLength) {

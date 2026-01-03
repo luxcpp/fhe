@@ -79,7 +79,7 @@ static void BitReverseTwoHalves(typeT& vals) {
     }
 }
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 namespace {
 
@@ -314,4 +314,4 @@ BigInteger SchemeletRLWEMP::GetQPrime(const PublicKey<DCRTPoly>& pubKey, uint32_
     return QPrime;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

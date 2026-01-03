@@ -33,8 +33,8 @@
   Represents and defines parameters for plaintext encoding
  */
 
-#ifndef LBCRYPTO_ENCODING_ENCODINGPARAMS_H
-#define LBCRYPTO_ENCODING_ENCODINGPARAMS_H
+#ifndef LUX_FHE_ENCODING_ENCODINGPARAMS_H
+#define LUX_FHE_ENCODING_ENCODINGPARAMS_H
 
 #include "lattice/lat-hal.h"
 #include "utils/inttypes.h"
@@ -44,7 +44,7 @@
 #include <string>
 #include <utility>
 
-namespace lbcrypto {
+namespace lux::fhe {
 class EncodingParamsImpl;
 
 typedef std::shared_ptr<EncodingParamsImpl> EncodingParams;
@@ -53,7 +53,7 @@ typedef std::shared_ptr<EncodingParamsImpl> EncodingParams;
  * @class EncodingParamsImpl
  * @brief All parameters for plaintext encodings into ciphertext space.
  */
-class EncodingParamsImpl : public lbcrypto::Serializable {
+class EncodingParamsImpl : public lux::fhe::Serializable {
 public:
     /**
    * Main constructor. Supports (1) default constructor, (2) regular encoding
@@ -266,7 +266,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("m", m_plaintextModulus));
@@ -321,6 +321,6 @@ inline bool operator==(const std::shared_ptr<EncodingParamsImpl>& o1, const std:
     return false;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

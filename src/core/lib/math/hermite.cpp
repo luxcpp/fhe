@@ -48,13 +48,13 @@ static bool IsNotEqualZero(std::complex<double> v) {
     return (std::fabs(v.real()) >= delta) || (std::fabs(v.imag()) >= delta);
 }
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 std::vector<std::complex<double>> GetHermiteTrigCoefficients(std::function<int64_t(int64_t)> func, uint32_t p,
                                                              size_t order, double scale) {
     using namespace std::complex_literals;
     if (p == 0)
-        OPENFHE_THROW("The degree of approximation can not be zero");
+        LUX_FHE_THROW("The degree of approximation can not be zero");
 
     switch (order) {
         case 1: {
@@ -180,8 +180,8 @@ std::vector<std::complex<double>> GetHermiteTrigCoefficients(std::function<int64
             return coeffs;
         } break;
         default:
-            OPENFHE_THROW("Order must be 1, 2, or 3");
+            LUX_FHE_THROW("Order must be 1, 2, or 3");
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

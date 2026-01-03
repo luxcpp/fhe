@@ -13,7 +13,7 @@
 #include <thread>
 #include <atomic>
 
-using namespace lbcrypto::gpu;
+using namespace lux::gpu;
 using namespace std::chrono;
 
 class FHETest : public ::testing::Test {

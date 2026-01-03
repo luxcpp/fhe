@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BASE_PKE_H
-#define LBCRYPTO_CRYPTO_BASE_PKE_H
+#ifndef LUX_FHE_CRYPTO_BASE_PKE_H
+#define LUX_FHE_CRYPTO_BASE_PKE_H
 
 #include "ciphertext-fwd.h"
 #include "cryptocontext-fwd.h"
@@ -42,10 +42,10 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 template <class Element>
 class KeyPair;
 
@@ -112,7 +112,7 @@ public:
    */
     virtual DecryptResult Decrypt(ConstCiphertext<Element> ciphertext, const PrivateKey<Element> privateKey,
                                   NativePoly* plaintext) const {
-        OPENFHE_THROW("Decryption to NativePoly is not supported");
+        LUX_FHE_THROW("Decryption to NativePoly is not supported");
     }
 
     /**
@@ -125,7 +125,7 @@ public:
    */
     virtual DecryptResult Decrypt(ConstCiphertext<Element> ciphertext, const PrivateKey<Element> privateKey,
                                   Poly* plaintext) const {
-        OPENFHE_THROW("Decryption to Poly is not supported");
+        LUX_FHE_THROW("Decryption to Poly is not supported");
     }
 
     /////////////////////////////////////////
@@ -141,6 +141,6 @@ public:
     virtual Element DecryptCore(const std::vector<Element>& cv, const PrivateKey<Element> privateKey) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

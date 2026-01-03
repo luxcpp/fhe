@@ -33,8 +33,8 @@
   Wraps parameters for integer lattice operations. Inherits from ElemParams
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_ILPARAMS_H
-#define LBCRYPTO_INC_LATTICE_ILPARAMS_H
+#ifndef LUX_FHE_INC_LATTICE_ILPARAMS_H
+#define LUX_FHE_INC_LATTICE_ILPARAMS_H
 
 #include "lattice/hal/elemparams.h"
 
@@ -48,7 +48,7 @@
 #include <string>
 #include <utility>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @class ILParamsImpl
@@ -143,7 +143,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion())
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         ar(::cereal::base_class<ElemParams<IntType>>(this));
     }
@@ -164,6 +164,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

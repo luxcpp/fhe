@@ -18,7 +18,7 @@
 #include <vector>
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -307,6 +307,6 @@ bool ValidatePackedHeader(const uint8_t* data, size_t size);
 PackedType GetPackedType(const uint8_t* data, size_t size);
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // BACKEND_PACKED_H

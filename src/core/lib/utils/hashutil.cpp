@@ -37,7 +37,7 @@
 #include <sstream>
 #include "utils/hashutil.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 #define RIGHT_ROT(x, n) ((x >> (n % (sizeof(x) * 8)) | (x << ((sizeof(x) * 8) - (n % (sizeof(x) * 8))))))
 
@@ -240,8 +240,8 @@ std::string HashUtil::HashString(std::string message) {
 }
 
 #if 0
-lbcrypto::BytePlaintextEncoding HashUtil::SHA512(
-    lbcrypto::BytePlaintextEncoding message) {
+lux::fhe::BytePlaintextEncoding HashUtil::SHA512(
+    lux::fhe::BytePlaintextEncoding message) {
   uint64_t h_512[8] = {0x6a09e667f3bcc908, 0xbb67ae8584caa73b,
                        0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
                        0x510e527fade682d1, 0x9b05688c2b3e6c1f,
@@ -340,7 +340,7 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA512(
     h_512[7] += h;
   }
 
-  lbcrypto::BytePlaintextEncoding digest;
+  lux::fhe::BytePlaintextEncoding digest;
   for (int i = 0; i < 8; i++) {
     digest.push_back((uint8_t)((h_512[i] & 0xff00000000000000) >> 56));
     digest.push_back((uint8_t)((h_512[i] & 0x00ff000000000000) >> 48));
@@ -356,4 +356,4 @@ lbcrypto::BytePlaintextEncoding HashUtil::SHA512(
 }
 #endif
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

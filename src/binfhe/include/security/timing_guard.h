@@ -46,7 +46,7 @@
     #define LUX_RDTSC() (std::chrono::high_resolution_clock::now().time_since_epoch().count())
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace security {
 
 // ============================================================================
@@ -636,6 +636,6 @@ private:
 };
 
 } // namespace security
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // LUX_FHE_SECURITY_TIMING_GUARD_H

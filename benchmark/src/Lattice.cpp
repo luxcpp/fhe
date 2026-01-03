@@ -45,18 +45,18 @@
 #include <memory>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 std::vector<uint32_t> os({16, 1024, 2048, 4096, 8192, 16384, 32768});
 
 template <typename E>
-static E makeElement(std::shared_ptr<lbcrypto::ILParamsImpl<typename E::Integer>> params) {
+static E makeElement(std::shared_ptr<lux::fhe::ILParamsImpl<typename E::Integer>> params) {
     typename E::DugType dug;
     return E(dug, params);
 }
 
 template <typename E>
-static E makeElement(std::shared_ptr<lbcrypto::ILDCRTParams<typename E::Integer>> params) {
+static E makeElement(std::shared_ptr<lux::fhe::ILDCRTParams<typename E::Integer>> params) {
     typename E::DugType dug;
     return E(dug, params);
 }

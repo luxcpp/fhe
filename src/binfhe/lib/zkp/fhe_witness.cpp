@@ -10,7 +10,7 @@
 #include <random>
 #include <unordered_set>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace zkp {
 
 // ============================================================================
@@ -1121,4 +1121,4 @@ MerkleTree::InclusionProof DeserializeInclusionProof(const uint8_t* data, size_t
 } // namespace serial
 
 } // namespace zkp
-} // namespace lbcrypto
+} // namespace lux::fhe

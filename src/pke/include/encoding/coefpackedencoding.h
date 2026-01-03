@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class CoefPackedEncoding : public PlaintextImpl {
 private:
@@ -154,6 +154,6 @@ public:
     }
 };
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */
 
 #endif /* SRC_CORE_LIB_ENCODING_COEFPACKEDENCODING_H_ */

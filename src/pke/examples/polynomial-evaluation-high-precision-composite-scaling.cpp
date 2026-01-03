@@ -40,7 +40,7 @@
 #include <vector>
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void printPrimeModuliChain(const DCRTPoly& poly) {
     int num_primes       = poly.GetNumOfElements();

@@ -33,18 +33,18 @@
   serialize bgvrns; include this in any app that needs to serialize this scheme
  */
 
-#ifndef LBCRYPTO_CRYPTO_BGVRNSSER_H
-#define LBCRYPTO_CRYPTO_BGVRNSSER_H
+#ifndef LUX_FHE_CRYPTO_BGVRNSSER_H
+#define LUX_FHE_CRYPTO_BGVRNSSER_H
 
 #include "scheme/bgvrns/bgvrns-scheme.h"
 #include "scheme/bgvrns/bgvrns-fhe.h"
 #include "scheme/bgvrns/bgvrns-cryptoparameters.h"
 #include "utils/serial.h"
 
-CEREAL_REGISTER_TYPE(lbcrypto::CryptoParametersBGVRNS);
-CEREAL_REGISTER_TYPE(lbcrypto::SchemeBGVRNS);
-CEREAL_REGISTER_TYPE(lbcrypto::FHEBGVRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::CryptoParametersBGVRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::SchemeBGVRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::FHEBGVRNS);
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::FHERNS, lbcrypto::FHEBGVRNS);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::CryptoParametersRNS, lbcrypto::CryptoParametersBGVRNS);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::FHERNS, lux::fhe::FHEBGVRNS);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::CryptoParametersRNS, lux::fhe::CryptoParametersBGVRNS);
 #endif

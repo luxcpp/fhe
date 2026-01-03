@@ -39,7 +39,7 @@
 #include "gtest/gtest.h"
 #include <sstream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 #if defined(__EMSCRIPTEN__)
     #define UNIT_TEST_EXCEPTION_TYPE_NAME_BINFHE "EMSCRIPTEN_UNKNOWN"

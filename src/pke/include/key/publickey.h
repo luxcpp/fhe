@@ -33,8 +33,8 @@
   Public key type for lattice crypto operations
  */
 
-#ifndef LBCRYPTO_CRYPTO_KEY_PUBLICKEY_H
-#define LBCRYPTO_CRYPTO_KEY_PUBLICKEY_H
+#ifndef LUX_FHE_CRYPTO_KEY_PUBLICKEY_H
+#define LUX_FHE_CRYPTO_KEY_PUBLICKEY_H
 
 #include "key/key.h"
 #include "key/publickey-fwd.h"
@@ -45,10 +45,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Class for public key
@@ -157,7 +157,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::base_class<Key<Element>>(this));
@@ -173,6 +173,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

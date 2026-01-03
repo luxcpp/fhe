@@ -37,7 +37,7 @@
 #ifndef __GLOBALS_H__
 #define __GLOBALS_H__
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
      * PrecomputeCRTTablesAfterDeserializaton() will be executed during CryptoContext deserialization.
      * Deserializing without this precomputation can speed up the procedure by a factor of 100.
@@ -54,6 +54,6 @@ bool PrecomputeCRTTablesAfterDeserializaton();
 void EnablePrecomputeCRTTablesAfterDeserializaton();
 void DisablePrecomputeCRTTablesAfterDeserializaton();
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GLOBALS_H__

@@ -38,7 +38,7 @@
 // these header files are needed for serialization
 #include "binfhecontext-ser.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <typename ST>
 void UnitTestFHEWSerial(const ST& sertype, BINFHE_PARAMSET secLevel, BINFHE_METHOD variant,

@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_CKKSRNS_SCHEME_H
-#define LBCRYPTO_CRYPTO_CKKSRNS_SCHEME_H
+#ifndef LUX_FHE_CRYPTO_CKKSRNS_SCHEME_H
+#define LUX_FHE_CRYPTO_CKKSRNS_SCHEME_H
 
 #include "schemerns/rns-scheme.h"
 
@@ -48,10 +48,10 @@
 #include <string>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class SchemeCKKSRNS : public SchemeRNS {
 public:
@@ -86,6 +86,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

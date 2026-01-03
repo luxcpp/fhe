@@ -39,7 +39,7 @@
 #include <iosfwd>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 //====================================================================================================================
 enum SCHEME {
@@ -65,6 +65,6 @@ inline bool isBGVRNS(SCHEME schemeId) {
     return (schemeId == BGVRNS_SCHEME);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _SCHEME_ID_H_

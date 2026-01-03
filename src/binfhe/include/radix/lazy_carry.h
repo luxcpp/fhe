@@ -24,7 +24,7 @@
 #include <vector>
 #include <limits>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace radix {
 
 /**
@@ -380,6 +380,6 @@ struct NormalizationLUTs {
 };
 
 } // namespace radix
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // RADIX_LAZY_CARRY_H

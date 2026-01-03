@@ -31,7 +31,7 @@
 
 #include "rgsw-cryptoparameters.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void RingGSWCryptoParams::PreCompute(bool signEval) {
     // Computes baseR^i (only for AP bootstrapping)
@@ -127,4 +127,4 @@ void RingGSWCryptoParams::PreCompute(bool signEval) {
     }
 }
 
-};  // namespace lbcrypto
+};  // namespace lux::fhe

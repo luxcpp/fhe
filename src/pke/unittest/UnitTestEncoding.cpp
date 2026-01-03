@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTGENERAL_ENCODING : public ::testing::Test {
 protected:

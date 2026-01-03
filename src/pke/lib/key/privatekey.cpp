@@ -32,6 +32,6 @@
 #include "key/privatekey.h"
 
 // the code below is from privatekey-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 template class PrivateKeyImpl<DCRTPoly>;
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_METADATA_H
-#define LBCRYPTO_CRYPTO_METADATA_H
+#ifndef LUX_FHE_CRYPTO_METADATA_H
+#define LUX_FHE_CRYPTO_METADATA_H
 
 #include "utils/exception.h"
 
@@ -39,7 +39,7 @@
 #include <string>
 #include <ostream>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class Metadata;
 using MetadataMap = std::shared_ptr<std::map<std::string, std::shared_ptr<Metadata>>>;
@@ -112,7 +112,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
     }
@@ -137,10 +137,10 @@ protected:
     * Please override in subclasses to print all members.
     */
     virtual std::ostream& PrintMetadata(std::ostream& out) const {
-        OPENFHE_THROW("Not implemented");
+        LUX_FHE_THROW("Not implemented");
     }
 };
 
-}  // end namespace lbcrypto
+}  // end namespace lux::fhe
 
 #endif

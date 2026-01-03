@@ -34,7 +34,7 @@
 #include <functional>
 #include <optional>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace threshold {
 
 // ============================================================================
@@ -486,6 +486,6 @@ std::vector<NativeInteger> BatchCombinePartials(
 );
 
 } // namespace threshold
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // THRESHOLD_BATCH_THRESHOLD_H

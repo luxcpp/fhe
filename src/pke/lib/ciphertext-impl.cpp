@@ -33,7 +33,7 @@
 #include "cryptocontext.h"
 #include "scheme/ckksrns/ckksrns-cryptoparameters.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <>
 void CiphertextImpl<DCRTPoly>::SetLevel(size_t level) {
@@ -47,7 +47,7 @@ void CiphertextImpl<DCRTPoly>::SetLevel(size_t level) {
         uint32_t limbNum = m_elements[0].GetNumOfElements();
         if (limbNum < GetNoiseScaleDeg()) {
             uint32_t multDepth = cryptoParams->GetMultiplicativeDepth();
-            OPENFHE_THROW("The current multiplicative depth [" + std::to_string(multDepth) +
+            LUX_FHE_THROW("The current multiplicative depth [" + std::to_string(multDepth) +
                           "] is insufficient; increase it.");
         }
     }
@@ -57,4 +57,4 @@ template class CiphertextImpl<Poly>;
 template class CiphertextImpl<NativePoly>;
 template class CiphertextImpl<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

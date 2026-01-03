@@ -25,7 +25,7 @@
 #include <chrono>
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 // =============================================================================
@@ -588,4 +588,4 @@ private:
 #endif // WITH_MLX
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe

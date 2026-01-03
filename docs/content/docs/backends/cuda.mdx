@@ -1,0 +1,413 @@
+---
+title: CUDA Backend
+description: NVIDIA GPU acceleration for lux-fhe
+---
+
+# CUDA Backend
+
+The CUDA backend provides high-performance GPU acceleration on NVIDIA GPUs, delivering the best throughput for production FHE workloads.
+
+## Requirements
+
+- NVIDIA GPU with Compute Capability 7.0+ (Volta or later)
+- CUDA Toolkit 11.0+
+- NVIDIA Driver 450+
+- Linux or Windows (WSL2 supported)
+
+## Installation
+
+### Build from Source
+
+```bash
+# Install CUDA Toolkit (if not already installed)
+# Ubuntu/Debian
+sudo apt install nvidia-cuda-toolkit
+
+# Build with CUDA support
+cmake -DLUX_FHE_CUDA=ON \
+      -DCMAKE_CUDA_ARCHITECTURES="70;75;80;86;89;90" \
+      ..
+make -j$(nproc)
+
+# Verify CUDA support
+./tests/test_cuda_backend
+```
+
+### Docker
+
+```dockerfile
+FROM nvidia/cuda:12.0-devel-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    cmake git build-essential
+
+# Build lux-fhe with CUDA
+COPY . /lux-fhe
+WORKDIR /lux-fhe/build
+RUN cmake -DLUX_FHE_CUDA=ON .. && make -j$(nproc)
+```
+
+## Usage
+
+### Basic Usage
+
+```cpp
+#include <lux/fhe/fhe.h>
+
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 16384,
+    .plaintext_modulus = 65537,
+    .backend = lux::fhe::Backend::CUDA
+});
+```
+
+### Query CUDA Devices
+
+```cpp
+#include <lux/fhe/cuda.h>
+
+// Get device count
+int count = lux::fhe::cuda::GetDeviceCount();
+std::cout << "Found " << count << " CUDA devices\n";
+
+// Query each device
+for (int i = 0; i < count; i++) {
+    auto info = lux::fhe::cuda::GetDeviceInfo(i);
+    std::cout << "Device " << i << ": " << info.name << "\n";
+    std::cout << "  Memory: " << (info.total_memory / 1024 / 1024 / 1024) << " GB\n";
+    std::cout << "  Compute: " << info.major << "." << info.minor << "\n";
+    std::cout << "  SMs: " << info.multiprocessor_count << "\n";
+}
+```
+
+### Multi-GPU
+
+```cpp
+// Create contexts for each GPU
+std::vector<std::unique_ptr<BGVContext>> contexts;
+int device_count = lux::fhe::cuda::GetDeviceCount();
+
+for (int i = 0; i < device_count; i++) {
+    contexts.push_back(BGVContext::Create({
+        .ring_dim = 16384,
+        .backend = Backend::CUDA,
+        .device_id = i
+    }));
+}
+
+// Distribute work across GPUs
+#pragma omp parallel for
+for (size_t i = 0; i < work.size(); i++) {
+    int device = i % device_count;
+    auto& ctx = contexts[device];
+    results[i] = ProcessOnGPU(ctx, work[i]);
+}
+```
+
+## Performance Optimization
+
+### Stream Management
+
+CUDA streams enable concurrent execution:
+
+```cpp
+#include <lux/fhe/cuda.h>
+
+// Create multiple streams for pipelining
+auto stream1 = lux::fhe::cuda::CreateStream();
+auto stream2 = lux::fhe::cuda::CreateStream();
+
+// Pipeline operations
+for (int i = 0; i < batches; i++) {
+    auto& stream = (i % 2 == 0) ? stream1 : stream2;
+
+    // Async encryption on stream
+    auto ct = ctx->EncryptAsync(pk, data[i], stream);
+
+    // Async computation
+    ct = ctx->MulAsync(ct, ct, rlk, stream);
+
+    // Queue decryption
+    results[i] = ctx->DecryptAsync(sk, ct, stream);
+}
+
+// Synchronize all streams
+stream1.Synchronize();
+stream2.Synchronize();
+```
+
+### Memory Transfer Optimization
+
+```cpp
+// Use pinned memory for faster transfers
+auto pinned_data = lux::fhe::cuda::AllocatePinned<int64_t>(size);
+
+// Copy to pinned memory
+std::copy(host_data.begin(), host_data.end(), pinned_data.get());
+
+// Encrypt with pinned source (faster H2D transfer)
+auto ct = ctx->Encrypt(pk, {pinned_data.get(), size});
+```
+
+### Kernel Fusion
+
+Enable kernel fusion for reduced memory traffic:
+
+```cpp
+// Enable fusion mode
+lux::fhe::cuda::SetFusionMode(true);
+
+// These operations will be fused into a single kernel
+auto ct = ctx->Encrypt(pk, data);
+ct = ctx->Mul(ct, ct, rlk);      // Fused with next op
+ct = ctx->Add(ct, ct2);          // Single memory pass
+```
+
+## GPU Architecture Optimization
+
+### Compute Capability Specific
+
+```cpp
+// Auto-tune for specific GPU
+lux::fhe::cuda::AutoTune();
+
+// Or manually select optimization profile
+auto device_info = lux::fhe::cuda::GetDeviceInfo(0);
+if (device_info.major >= 9) {
+    // H100/H200 specific optimizations
+    lux::fhe::cuda::SetProfile(Profile::HOPPER);
+} else if (device_info.major >= 8) {
+    // A100/A10 optimizations
+    lux::fhe::cuda::SetProfile(Profile::AMPERE);
+}
+```
+
+### Tensor Core Acceleration
+
+Enable Tensor Core for specific operations:
+
+```cpp
+// Tensor Cores accelerate NTT and polynomial operations
+lux::fhe::cuda::SetTensorCoreMode(true);
+
+// Check if beneficial for your workload
+auto metrics = lux::fhe::cuda::Benchmark();
+std::cout << "Tensor Core speedup: " << metrics.tc_speedup << "x\n";
+```
+
+### Performance by GPU
+
+| GPU | BGV Mul (16K) | CKKS Rescale | TFHE Bootstrap | Memory |
+|-----|---------------|--------------|----------------|--------|
+| RTX 3080 | 1.4ms | 0.8ms | 4.5ms | 10 GB |
+| RTX 3090 | 1.1ms | 0.6ms | 3.8ms | 24 GB |
+| RTX 4080 | 1.0ms | 0.5ms | 3.2ms | 16 GB |
+| RTX 4090 | 0.9ms | 0.5ms | 3.0ms | 24 GB |
+| A10 | 1.2ms | 0.7ms | 4.0ms | 24 GB |
+| A100 40GB | 0.6ms | 0.3ms | 2.0ms | 40 GB |
+| A100 80GB | 0.6ms | 0.3ms | 2.0ms | 80 GB |
+| H100 | 0.4ms | 0.2ms | 1.2ms | 80 GB |
+
+## Memory Management
+
+### Device Memory
+
+```cpp
+// Query memory usage
+auto mem_info = lux::fhe::cuda::GetMemoryInfo();
+std::cout << "Free: " << (mem_info.free / 1024 / 1024) << " MB\n";
+std::cout << "Used: " << (mem_info.used / 1024 / 1024) << " MB\n";
+std::cout << "Total: " << (mem_info.total / 1024 / 1024) << " MB\n";
+```
+
+### Memory Pool
+
+```cpp
+// Configure memory pool for reduced allocation overhead
+lux::fhe::cuda::ConfigureMemoryPool({
+    .initial_size = 1ULL << 30,      // 1 GB initial
+    .max_size = 8ULL << 30,          // 8 GB max
+    .release_threshold = 0.9         // Release at 90% usage
+});
+
+// Operations use pooled memory
+for (int i = 0; i < iterations; i++) {
+    auto ct = ctx->Encrypt(pk, data);
+    // Memory reused from pool
+}
+```
+
+### Out-of-Memory Handling
+
+```cpp
+try {
+    auto ct = ctx->Encrypt(pk, large_data);
+} catch (const lux::fhe::cuda::OutOfMemoryError& e) {
+    // Handle OOM
+    std::cerr << "GPU OOM: " << e.what() << "\n";
+    std::cerr << "Requested: " << e.requested_bytes << "\n";
+    std::cerr << "Available: " << e.available_bytes << "\n";
+
+    // Fallback to CPU
+    auto cpu_ctx = BGVContext::Create({.backend = Backend::CPU});
+    auto ct = cpu_ctx->Encrypt(pk, large_data);
+}
+```
+
+## Multi-GPU Strategies
+
+### Data Parallelism
+
+```cpp
+// Distribute data across GPUs
+void DataParallel(const std::vector<Data>& all_data) {
+    int num_gpus = lux::fhe::cuda::GetDeviceCount();
+    size_t chunk_size = all_data.size() / num_gpus;
+
+    #pragma omp parallel num_threads(num_gpus)
+    {
+        int gpu = omp_get_thread_num();
+        lux::fhe::cuda::SetDevice(gpu);
+
+        auto ctx = BGVContext::Create({
+            .backend = Backend::CUDA,
+            .device_id = gpu
+        });
+
+        size_t start = gpu * chunk_size;
+        size_t end = (gpu == num_gpus - 1) ? all_data.size() : start + chunk_size;
+
+        for (size_t i = start; i < end; i++) {
+            ProcessItem(ctx, all_data[i]);
+        }
+    }
+}
+```
+
+### Peer-to-Peer Transfer
+
+```cpp
+// Enable P2P for direct GPU-GPU transfers
+lux::fhe::cuda::EnablePeerAccess(0, 1);  // GPU 0 can access GPU 1
+lux::fhe::cuda::EnablePeerAccess(1, 0);  // GPU 1 can access GPU 0
+
+// Transfer ciphertext between GPUs
+auto ct_gpu0 = ctx0->Encrypt(pk, data);
+auto ct_gpu1 = lux::fhe::cuda::TransferToDevice(ct_gpu0, 1);
+```
+
+### NVLink Optimization
+
+```cpp
+// Check NVLink topology
+auto topology = lux::fhe::cuda::GetTopology();
+for (int i = 0; i < topology.num_gpus; i++) {
+    for (int j = 0; j < topology.num_gpus; j++) {
+        std::cout << "GPU " << i << " -> " << j << ": ";
+        std::cout << topology.link_type[i][j] << "\n";  // NVLink, PCIe, etc.
+    }
+}
+
+// Automatically use fastest paths
+lux::fhe::cuda::OptimizeForTopology();
+```
+
+## Profiling
+
+### Built-in Profiling
+
+```cpp
+// Enable profiling
+lux::fhe::cuda::StartProfiling();
+
+// Run operations
+for (int i = 0; i < 100; i++) {
+    auto ct = ctx->Encrypt(pk, data);
+    ct = ctx->Mul(ct, ct, rlk);
+}
+
+// Get results
+auto profile = lux::fhe::cuda::StopProfiling();
+profile.Print();
+
+// Output:
+// Operation       Calls   Total(ms)  Avg(ms)  Memory(MB)
+// Encrypt         100     45.2       0.45     4.0
+// Multiply        100     89.1       0.89     8.0
+// NTT             400     32.0       0.08     2.0
+```
+
+### NVIDIA Nsight Integration
+
+```bash
+# Profile with Nsight Compute
+ncu --target-processes all ./your_app
+
+# Profile with Nsight Systems
+nsys profile --trace=cuda,nvtx ./your_app
+```
+
+```cpp
+// Add NVTX markers
+lux::fhe::cuda::PushRange("Encrypt batch");
+for (auto& data : batch) {
+    ctx->Encrypt(pk, data);
+}
+lux::fhe::cuda::PopRange();
+```
+
+## Troubleshooting
+
+### Common Errors
+
+**CUDA out of memory**
+```cpp
+// Reduce batch size
+constexpr size_t SAFE_BATCH = 50;
+
+// Or use smaller ring dimension
+auto ctx = BGVContext::Create({
+    .ring_dim = 8192,  // Instead of 16384
+    .backend = Backend::CUDA
+});
+```
+
+**Driver version mismatch**
+```bash
+# Check driver version
+nvidia-smi
+
+# Rebuild with matching CUDA toolkit
+export CUDA_PATH=/usr/local/cuda-12.0
+cmake -DLUX_FHE_CUDA=ON ..
+```
+
+**Compute capability not supported**
+```cpp
+// Check compute capability
+auto info = lux::fhe::cuda::GetDeviceInfo(0);
+if (info.major < 7) {
+    std::cerr << "GPU too old, need Volta or newer\n";
+    // Fallback to CPU
+}
+```
+
+### Error Checking
+
+```cpp
+// Enable verbose error checking
+lux::fhe::cuda::SetDebugMode(true);
+
+// Check last error
+auto error = lux::fhe::cuda::GetLastError();
+if (error != CudaError::Success) {
+    std::cerr << "CUDA error: " << error.message << "\n";
+    std::cerr << "Location: " << error.file << ":" << error.line << "\n";
+}
+```
+
+## Further Reading
+
+- [Metal Backend](/docs/backends/metal) - Apple Silicon acceleration
+- [CPU Backend](/docs/backends/cpu) - SIMD optimization
+- [Noise Management](/docs/concepts/noise-management) - Performance optimization

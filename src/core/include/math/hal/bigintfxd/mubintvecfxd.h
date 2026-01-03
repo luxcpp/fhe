@@ -36,8 +36,8 @@
 #include "config_core.h"
 #ifdef WITH_BE2
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTFXD_MUBINVECFXD_H
-        #define LBCRYPTO_MATH_HAL_BIGINTFXD_MUBINVECFXD_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTFXD_MUBINVECFXD_H
+        #define LUX_FHE_MATH_HAL_BIGINTFXD_MUBINVECFXD_H
 
         #include "math/hal/bigintfxd/ubintfxd.h"
 
@@ -63,8 +63,8 @@ using BigVector = BigVectorFixedT<BigInteger>;
  * @brief The class for representing vectors of big binary integers.
  */
 template <class IntegerType>
-class BigVectorFixedT final : public lbcrypto::BigVectorInterface<BigVectorFixedT<IntegerType>, IntegerType>,
-                              public lbcrypto::Serializable {
+class BigVectorFixedT final : public lux::fhe::BigVectorInterface<BigVectorFixedT<IntegerType>, IntegerType>,
+                              public lux::fhe::Serializable {
 public:
     ~BigVectorFixedT() {
         delete[] m_data;
@@ -193,14 +193,14 @@ public:
    */
     IntegerType& at(size_t i) {
         if (!this->IndexCheck(i)) {
-            OPENFHE_THROW("BigVector index out of range");
+            LUX_FHE_THROW("BigVector index out of range");
         }
         return this->m_data[i];
     }
 
     const IntegerType& at(size_t i) const {
         if (!this->IndexCheck(i)) {
-            OPENFHE_THROW("BigVector index out of range");
+            LUX_FHE_THROW("BigVector index out of range");
         }
         return this->m_data[i];
     }
@@ -235,7 +235,7 @@ public:
     void LazySwitchModulus(const IntegerType& value);
 
     BigVectorFixedT& MultAccEqNoCheck(const BigVectorFixedT& v, const IntegerType& i) {
-        OPENFHE_THROW("MultAccEqNoCheck() not implemented for mubintvecfxd");
+        LUX_FHE_THROW("MultAccEqNoCheck() not implemented for mubintvecfxd");
     }
 
     /**
@@ -561,7 +561,7 @@ public:
     typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("m", m_modulus));
@@ -574,7 +574,7 @@ public:
     typename std::enable_if<cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("m", m_modulus));
@@ -609,6 +609,6 @@ private:
 
 }  // namespace bigintfxd
 
-    #endif  // LBCRYPTO_MATH_HAL_BIGINTFXD_MUBINVECFXD_H
+    #endif  // LUX_FHE_MATH_HAL_BIGINTFXD_MUBINVECFXD_H
 
 #endif

@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BASE_PRE_H
-#define LBCRYPTO_CRYPTO_BASE_PRE_H
+#ifndef LUX_FHE_CRYPTO_BASE_PRE_H
+#define LUX_FHE_CRYPTO_BASE_PRE_H
 
 #include "key/privatekey-fwd.h"
 #include "key/publickey-fwd.h"
@@ -42,10 +42,10 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract interface class for LBC PRE algorithms
@@ -88,6 +88,6 @@ public:
                                           const PublicKey<Element> publicKey) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

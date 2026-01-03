@@ -39,7 +39,7 @@
 #include <iosfwd>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 //======================================================================================================================
 std::ostream& operator<<(std::ostream& s, PKESchemeFeature f);
@@ -87,6 +87,6 @@ CKKSDataType convertToCKKSDataType(uint32_t num);
 std::ostream& operator<<(std::ostream& s, CKKSDataType t);
 //======================================================================================================================
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _CONSTANTS_H_

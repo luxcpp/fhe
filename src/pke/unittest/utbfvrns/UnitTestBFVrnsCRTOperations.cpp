@@ -42,7 +42,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UTBFVRNS_CRT : public ::testing::Test {
 protected:

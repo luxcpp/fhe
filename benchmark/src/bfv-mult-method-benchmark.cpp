@@ -48,7 +48,7 @@
 #include <iterator>
 #include <random>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 constexpr usint RING_DIM             = 16384;
 constexpr usint MULT_DEPTH           = 7;

@@ -39,7 +39,7 @@ BGV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include "scheme/bgvrns/bgvrns-cryptoparameters.h"
 #include "scheme/bgvrns/bgvrns-leveledshe.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void LeveledSHEBGVRNS::ModReduceInternalInPlace(Ciphertext<DCRTPoly>& ciphertext, size_t levels) const {
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersBGVRNS>(ciphertext->GetCryptoParameters());
@@ -59,7 +59,7 @@ void LeveledSHEBGVRNS::ModReduceInternalInPlace(Ciphertext<DCRTPoly>& ciphertext
         }
     }
     else {
-        OPENFHE_THROW("Too few towers to support ModReduce.");
+        LUX_FHE_THROW("Too few towers to support ModReduce.");
     }
 
     ciphertext->SetLevel(ciphertext->GetLevel() + levels);
@@ -260,4 +260,4 @@ uint32_t LeveledSHEBGVRNS::FindAutomorphismIndex(uint32_t index, uint32_t m) con
     return FindAutomorphismIndex2n(index, m);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

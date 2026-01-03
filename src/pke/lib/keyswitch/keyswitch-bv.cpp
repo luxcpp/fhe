@@ -46,7 +46,7 @@
 #include "schemerns/rns-cryptoparameters.h"
 #include "cryptocontext.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 EvalKey<DCRTPoly> KeySwitchBV::KeySwitchGenInternal(const PrivateKey<DCRTPoly> oldKey,
                                                     const PrivateKey<DCRTPoly> newKey) const {
@@ -333,4 +333,4 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchBV::EvalFastKeySwitchCore(
     return std::make_shared<std::vector<DCRTPoly>>(std::initializer_list<DCRTPoly>{std::move(ct0), std::move(ct1)});
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

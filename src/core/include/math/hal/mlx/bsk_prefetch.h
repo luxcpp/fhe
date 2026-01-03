@@ -27,8 +27,8 @@
 // Copyright (C) 2024-2025 Lux Partners Limited
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_BSK_PREFETCH_H
-#define LBCRYPTO_MATH_HAL_MLX_BSK_PREFETCH_H
+#ifndef LUX_FHE_MATH_HAL_MLX_BSK_PREFETCH_H
+#define LUX_FHE_MATH_HAL_MLX_BSK_PREFETCH_H
 
 #include <cstdint>
 #include <vector>
@@ -41,7 +41,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 // =============================================================================
@@ -601,6 +601,6 @@ inline PrefetchingBlindRotate create_prefetching_blind_rotate(
 #endif // WITH_MLX
 
 }  // namespace gpu
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_BSK_PREFETCH_H
+#endif // LUX_FHE_MATH_HAL_MLX_BSK_PREFETCH_H

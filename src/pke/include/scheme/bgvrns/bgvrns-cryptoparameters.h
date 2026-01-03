@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BGVRNS_CRYPTOPARAMETERS_H
-#define LBCRYPTO_CRYPTO_BGVRNS_CRYPTOPARAMETERS_H
+#ifndef LUX_FHE_CRYPTO_BGVRNS_CRYPTOPARAMETERS_H
+#define LUX_FHE_CRYPTO_BGVRNS_CRYPTOPARAMETERS_H
 
 #include "schemerns/rns-cryptoparameters.h"
 #include "globals.h"
@@ -39,14 +39,14 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 class CryptoParametersBGVRNS : public CryptoParametersRNS {
     using ParmType = typename DCRTPoly::Params;
-    #define DISABLED_FOR_BGVRNS_PARAMS OPENFHE_THROW("This parameter is not available for BGVRNS.");
+    #define DISABLED_FOR_BGVRNS_PARAMS LUX_FHE_THROW("This parameter is not available for BGVRNS.");
 
 public:
     CryptoParametersBGVRNS() : CryptoParametersRNS() {}
@@ -104,7 +104,7 @@ public:
         if (version > SerializedVersion()) {
             std::string errMsg("serialized object version " + std::to_string(version) +
                                " is from a later version of the library");
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
         ar(cereal::base_class<CryptoParametersRNS>(this));
 
@@ -122,6 +122,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

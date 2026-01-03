@@ -73,8 +73,8 @@ static void checkColumnNamesForCryptocontextParameters(std::ifstream& testData) 
     auto row = tokenize(line, DELIMITER);
     // skip the first 2 fields as they are for the test name
     auto start = row.begin() + 2;
-    std::vector<std::string> columnNames(start, start + lbcrypto::Params::getAllParamsDataMembers().size());
-    if (columnNames != lbcrypto::Params::getAllParamsDataMembers()) {
+    std::vector<std::string> columnNames(start, start + lux::fhe::Params::getAllParamsDataMembers().size());
+    if (columnNames != lux::fhe::Params::getAllParamsDataMembers()) {
         std::string s;
         for (const auto& n : columnNames) {
             s += n + ',';
@@ -83,14 +83,14 @@ static void checkColumnNamesForCryptocontextParameters(std::ifstream& testData) 
             std::string(
                 "Check the number and names of the columns for cryptoparameters as they do not match the expected: ") +
             s);
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 }
 //===========================================================================================================
 std::vector<std::vector<std::string>> readDataFile(const std::string& dataFileName) {
     std::ifstream testData(dataFileName);
     if (!testData.is_open()) {
-        OPENFHE_THROW("Cannot read file " + dataFileName);
+        LUX_FHE_THROW("Cannot read file " + dataFileName);
     }
 
     try {
@@ -109,12 +109,12 @@ std::vector<std::vector<std::string>> readDataFile(const std::string& dataFileNa
     }
     catch (std::exception& e) {
         std::string errMsg(std::string("Exception for data file ") + dataFileName + ": " + e.what());
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
     catch (...) {
         std::string errMsg(std::string("Unknown exception for data file ") + dataFileName + ": type " +
                            UNIT_TEST_EXCEPTION_TYPE_NAME);
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 }
 //===========================================================================================================

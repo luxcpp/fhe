@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class PublicKeyImpl;
@@ -45,6 +45,6 @@ class PublicKeyImpl;
 template <typename Element>
 using PublicKey = std::shared_ptr<PublicKeyImpl<Element>>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __PUBLICKEY_FWD_H__

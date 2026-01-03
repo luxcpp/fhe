@@ -40,7 +40,7 @@
 #include <string>
 #include <ostream>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 //====================================================================================================================
 #define SET_TO_SCHEME_DEFAULT(SCHEME, var) this->var = SCHEME##_DEFAULTS::var  // see cryptocontextparams-defaults.h
@@ -93,7 +93,7 @@ void Params::SetToDefaults(SCHEME scheme) {
             break;
         default:
             std::string errorMsg(std::string("Invalid scheme id: ") + std::to_string(scheme));
-            OPENFHE_THROW(errorMsg);
+            LUX_FHE_THROW(errorMsg);
             break;
     }
 }
@@ -102,7 +102,7 @@ Params::Params(const std::vector<std::string>& vals) {
     if (getAllParamsDataMembers().size() != vals.size()) {
         std::string errMsg(std::string("The number of data members and the number of values do not match: ") +
                            std::to_string(getAllParamsDataMembers().size()) + " != " + std::to_string(vals.size()));
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     auto it = vals.begin();
@@ -215,4 +215,4 @@ std::ostream& operator<<(std::ostream& os, const Params& obj) {
 // clang-format on
 //====================================================================================================================
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

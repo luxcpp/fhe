@@ -43,7 +43,7 @@
     #include <dlfcn.h>
 #endif
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 #if defined(WITH_OPENMP)
     std::shared_ptr<PRNG> PseudoRandomNumberGenerator::m_prng = nullptr;
@@ -60,7 +60,7 @@ void PseudoRandomNumberGenerator::InitPRNGEngine(const std::string& libPath) {
         // use the default OpenFHE PRNG that comes with the library
         genPRNGEngine = default_prng::createEngineInstance;
         if (!genPRNGEngine)
-            OPENFHE_THROW("Cannot find symbol: default_prng::createEngineInstance");
+            LUX_FHE_THROW("Cannot find symbol: default_prng::createEngineInstance");
         // std::cerr << "InitPRNGEngine: using local PRNG" << std::endl;
     }
     else {
@@ -72,7 +72,7 @@ void PseudoRandomNumberGenerator::InitPRNGEngine(const std::string& libPath) {
             std::string errMsg{std::string("Cannot open ") + libPath + ": "};
             const char* dlsym_error = dlerror();
             errMsg += dlsym_error;
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
         genPRNGEngine = (GenPRNGEngineFuncPtr)dlsym(libraryHandle, "createEngineInstance");
         if (!genPRNGEngine) {
@@ -81,11 +81,11 @@ void PseudoRandomNumberGenerator::InitPRNGEngine(const std::string& libPath) {
             errMsg += ": ";
             errMsg += dlsym_error;
             dlclose(libraryHandle);
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
         std::cerr << __FUNCTION__ << ": using external PRNG" << std::endl;
 #else
-        OPENFHE_THROW("OpenFHE may use an external PRNG library linked with g++ on Linux only");
+        LUX_FHE_THROW("OpenFHE may use an external PRNG library linked with g++ on Linux only");
 #endif
     }
 }
@@ -99,14 +99,14 @@ PRNG& PseudoRandomNumberGenerator::GetPRNG() {
             if (!genPRNGEngine)
                 InitPRNGEngine();
             if (!genPRNGEngine)
-                OPENFHE_THROW("Failure to initialize the PRNG engine");
+                LUX_FHE_THROW("Failure to initialize the PRNG engine");
 
             m_prng = std::shared_ptr<PRNG>(genPRNGEngine());
             if (!m_prng)
-                OPENFHE_THROW("Cannot create a PRNG engine");
+                LUX_FHE_THROW("Cannot create a PRNG engine");
         }  // pragma omp critical
     }
     return *m_prng;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

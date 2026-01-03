@@ -40,7 +40,7 @@
 #include <cstdint>
 #include <iosfwd>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class SchSwchParams {
     // security level for CKKS cryptocontext
@@ -81,7 +81,7 @@ class SchSwchParams {
 
     void VerifyObjectData() const {
         if (!setParamsFromCKKSCryptocontextCalled) {
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "Objects of class SchSwchParams may be used only after having called SetParamsFromCKKSCryptocontext()");
         }
     }
@@ -228,6 +228,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __SCHEME_SWCH_PARAMS_H__

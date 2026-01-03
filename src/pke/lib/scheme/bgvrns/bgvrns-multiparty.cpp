@@ -57,7 +57,7 @@ Archive, Report 2020/1118, 2020. https://eprint.iacr.org/2020/
 #include "scheme/bgvrns/bgvrns-cryptoparameters.h"
 #include "ciphertext.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 DecryptResult MultipartyBGVRNS::MultipartyDecryptFusion(const std::vector<Ciphertext<DCRTPoly>>& ciphertextVec,
                                                         NativePoly* plaintext) const {
@@ -115,4 +115,4 @@ DecryptResult MultipartyBGVRNS::MultipartyDecryptFusion(const std::vector<Cipher
     return DecryptResult(plaintext->GetLength());
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

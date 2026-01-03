@@ -33,18 +33,18 @@
  * This code provides Chebyshev approximation utilities.
  */
 
-#ifndef LBCRYPTO_INC_MATH_CHEBYSHEV_H
-#define LBCRYPTO_INC_MATH_CHEBYSHEV_H
+#ifndef LUX_FHE_INC_MATH_CHEBYSHEV_H
+#define LUX_FHE_INC_MATH_CHEBYSHEV_H
 
 #include <cstdint>
 #include <functional>
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * Method for calculating Chebyshev coefficients for an input function
@@ -76,6 +76,6 @@ std::vector<double> EvalChebyshevCoefficients(std::function<double(double)> f, d
 std::vector<double> EvalChebyshevFunctionPtxt(std::function<double(double)> f, const std::vector<double>& ptxt,
                                               double a, double b, size_t d);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

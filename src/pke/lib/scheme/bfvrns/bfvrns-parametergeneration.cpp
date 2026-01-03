@@ -44,17 +44,17 @@ BFV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include <memory>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 bool ParameterGenerationBFVRNS::ParamsGenBFVRNSInternal(std::shared_ptr<CryptoParametersBase<DCRTPoly>> cryptoParams,
                                                         uint32_t evalAddCount, uint32_t multiplicativeDepth,
                                                         uint32_t keySwitchCount, size_t dcrtBits, uint32_t nCustom,
                                                         uint32_t numDigits) const {
     if (!cryptoParams)
-        OPENFHE_THROW("No crypto parameters are supplied to BFVrns ParamsGen");
+        LUX_FHE_THROW("No crypto parameters are supplied to BFVrns ParamsGen");
 
     if ((dcrtBits < DCRT_MODULUS::MIN_SIZE) || (dcrtBits > DCRT_MODULUS::MAX_SIZE))
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "BFVrns.ParamsGen: Number of bits in CRT moduli should be "
             "in the range from 30 to 60");
 
@@ -70,7 +70,7 @@ bool ParameterGenerationBFVRNS::ParamsGenBFVRNSInternal(std::shared_ptr<CryptoPa
     if ((PREMode != INDCPA) && (PREMode != NOT_SET)) {
         std::stringstream s;
         s << "This PRE mode " << PREMode << " is not supported for BFVRNS";
-        OPENFHE_THROW(s.str());
+        LUX_FHE_THROW(s.str());
     }
 
     double sigma           = cryptoParamsBFVRNS->GetDistributionParameter();
@@ -311,18 +311,18 @@ bool ParameterGenerationBFVRNS::ParamsGenBFVRNSInternal(std::shared_ptr<CryptoPa
         errMsg += std::to_string(evalAddCount) + ", ";
         errMsg += std::to_string(keySwitchCount) + " ]. Only one of them can be non-zero.";
 
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     if ((n > nCustom) && (nCustom != 0))
-        OPENFHE_THROW("Ring dimension " + std::to_string(nCustom) +
+        LUX_FHE_THROW("Ring dimension " + std::to_string(nCustom) +
                       " specified by the user does not meet the "
                       "security requirement. Please increase it to " +
                       std::to_string(n) + ".");
 
     const size_t numInitialModuli = static_cast<size_t>(std::ceil(std::ceil(logq) / dcrtBits));
     if (numInitialModuli < 1)
-        OPENFHE_THROW("numInitialModuli must be greater than 0.");
+        LUX_FHE_THROW("numInitialModuli must be greater than 0.");
     const size_t sizeQ = multipartyMode == NOISE_FLOODING_MULTIPARTY ?
                              numInitialModuli + NoiseFlooding::NUM_MODULI_MULTIPARTY :
                              numInitialModuli;
@@ -369,10 +369,10 @@ bool ParameterGenerationBFVRNS::ParamsGenBFVRNSInternal(std::shared_ptr<CryptoPa
 
     const EncodingParams encodingParams = cryptoParamsBFVRNS->GetEncodingParams();
     if (encodingParams->GetBatchSize() > n)
-        OPENFHE_THROW("The batch size cannot be larger than the ring dimension.");
+        LUX_FHE_THROW("The batch size cannot be larger than the ring dimension.");
 
     if (encodingParams->GetBatchSize() & (encodingParams->GetBatchSize() - 1))
-        OPENFHE_THROW("The batch size can only be set to zero (for full packing) or a power of two.");
+        LUX_FHE_THROW("The batch size can only be set to zero (for full packing) or a power of two.");
 
     // if no batch size was specified, we set batchSize = n by default (for full
     // packing)
@@ -404,11 +404,11 @@ bool ParameterGenerationBFVRNS::ParamsGenBFVRNSInternal(std::shared_ptr<CryptoPa
             errMsg += "Report this problem to OpenFHE developers and set the ring dimension manually to ";
             errMsg += std::to_string(nActual) + ".";
 
-            OPENFHE_THROW(errMsg);
+            LUX_FHE_THROW(errMsg);
         }
     }
 
     return true;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

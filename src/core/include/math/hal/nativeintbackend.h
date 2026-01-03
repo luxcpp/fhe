@@ -37,14 +37,14 @@
 #include "math/hal/intnat/mubintvecnat.h"
 #include "math/hal/intnat/transformnat.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 using NativeInteger = intnat::NativeInteger;
 using NativeVector  = intnat::NativeVector;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-using NativeInteger = lbcrypto::NativeInteger;
-using NativeVector  = lbcrypto::NativeVector;
+using NativeInteger = lux::fhe::NativeInteger;
+using NativeVector  = lux::fhe::NativeVector;
 
 #endif

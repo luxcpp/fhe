@@ -41,7 +41,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class CryptoContextBGVRNS;
 
@@ -96,6 +96,6 @@ public:
 };
 //====================================================================================================================
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GEN_CRYPTOCONTEXT_BGVRNS_PARAMS_H__

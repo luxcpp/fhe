@@ -40,7 +40,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /**
  * @brief Class that stores a LWE scheme ciphertext; composed of a vector "a"
  * and integer "b"
@@ -140,7 +140,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
 
@@ -161,6 +161,6 @@ private:
     NativeInteger m_p = 4;  // pt modulus
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _LWE_CIPHERTEXT_H_

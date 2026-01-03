@@ -261,9 +261,9 @@ mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModAddAtIndexEq(size_t i, const ub
 template <class ubint_el_t>
 mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAdd(const mubintvec& b) const {
     if (m_modulus != b.m_modulus)
-        OPENFHE_THROW("mubintvec adding vectors of different moduli");
+        LUX_FHE_THROW("mubintvec adding vectors of different moduli");
     if (m_data.size() != b.m_data.size())
-        OPENFHE_THROW("mubintvec adding vectors of different lengths");
+        LUX_FHE_THROW("mubintvec adding vectors of different lengths");
     auto ans(*this);
     for (size_t i = 0; i < ans.m_data.size(); ++i)
         ans[i].ModAddEq(b.m_data[i], ans.m_modulus);
@@ -273,9 +273,9 @@ mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModAdd(const mubintvec& b) const {
 template <class ubint_el_t>
 mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModAddEq(const mubintvec& b) {
     if (m_modulus != b.m_modulus)
-        OPENFHE_THROW("mubintvec adding vectors of different moduli");
+        LUX_FHE_THROW("mubintvec adding vectors of different moduli");
     if (m_data.size() != b.m_data.size())
-        OPENFHE_THROW("mubintvec adding vectors of different lengths");
+        LUX_FHE_THROW("mubintvec adding vectors of different lengths");
     for (size_t i = 0; i < m_data.size(); ++i)
         m_data[i].ModAddEq(b.m_data[i], m_modulus);
     return *this;
@@ -314,9 +314,9 @@ mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModSubEq(const ubint_el_t& b) {
 template <class ubint_el_t>
 mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const mubintvec& b) const {
     if (m_modulus != b.m_modulus)
-        OPENFHE_THROW("mubintvec subtractiong vectors of different moduli");
+        LUX_FHE_THROW("mubintvec subtractiong vectors of different moduli");
     if (m_data.size() != b.m_data.size())
-        OPENFHE_THROW("mubintvec subtractiong vectors of different lengths");
+        LUX_FHE_THROW("mubintvec subtractiong vectors of different lengths");
     auto ans(*this);
     for (size_t i = 0; i < ans.m_data.size(); ++i)
         ans[i].ModSubEq(b.m_data[i], ans.m_modulus);
@@ -326,9 +326,9 @@ mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModSub(const mubintvec& b) const {
 template <class ubint_el_t>
 mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModSubEq(const mubintvec& b) {
     if (m_modulus != b.m_modulus)
-        OPENFHE_THROW("mubintvec subtractiong vectors of different moduli");
+        LUX_FHE_THROW("mubintvec subtractiong vectors of different moduli");
     if (m_data.size() != b.m_data.size())
-        OPENFHE_THROW("mubintvec subtractiong vectors of different lengths");
+        LUX_FHE_THROW("mubintvec subtractiong vectors of different lengths");
     for (size_t i = 0; i < m_data.size(); ++i)
         m_data[i].ModSubEq(b.m_data[i], m_modulus);
     return *this;
@@ -370,9 +370,9 @@ mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModMulEq(const ubint_el_t& b) {
 template <class ubint_el_t>
 mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const mubintvec& b) const {
     if (m_modulus != b.m_modulus)
-        OPENFHE_THROW("mubintvec multiplying vectors of different moduli");
+        LUX_FHE_THROW("mubintvec multiplying vectors of different moduli");
     if (m_data.size() != b.m_data.size())
-        OPENFHE_THROW("mubintvec multiplying vectors of different lengths");
+        LUX_FHE_THROW("mubintvec multiplying vectors of different lengths");
     auto ans(*this);
     #ifdef NO_BARRETT
     for (size_t i = 0; i < m_data.size(); ++i)
@@ -388,9 +388,9 @@ mubintvec<ubint_el_t> mubintvec<ubint_el_t>::ModMul(const mubintvec& b) const {
 template <class ubint_el_t>
 mubintvec<ubint_el_t>& mubintvec<ubint_el_t>::ModMulEq(const mubintvec& b) {
     if (m_modulus != b.m_modulus)
-        OPENFHE_THROW("mubintvec multiplying vectors of different moduli");
+        LUX_FHE_THROW("mubintvec multiplying vectors of different moduli");
     if (m_data.size() != b.m_data.size())
-        OPENFHE_THROW("mubintvec multiplying vectors of different lengths");
+        LUX_FHE_THROW("mubintvec multiplying vectors of different lengths");
     #ifdef NO_BARRETT
     for (size_t i = 0; i < m_data.size(); ++i)
         m_data[i].ModMulFastEq(b[i], m_modulus);

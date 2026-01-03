@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::chrono;
 
 template<typename F>

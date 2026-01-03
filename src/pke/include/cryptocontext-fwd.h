@@ -38,7 +38,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class CryptoContextImpl;
@@ -46,7 +46,7 @@ class CryptoContextImpl;
 template <typename Element>
 using CryptoContext = std::shared_ptr<CryptoContextImpl<Element>>;
 
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // __CRYPTOCONTEXT_FWD_H__
 

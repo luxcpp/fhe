@@ -13,7 +13,7 @@
 #include <random>
 #include <cassert>
 
-using namespace lbcrypto::gpu;
+using namespace lux::gpu;
 
 // =============================================================================
 // Test Helpers

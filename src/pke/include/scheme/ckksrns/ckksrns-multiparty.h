@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_CKKSRNS_MULTIPARTY_H
-#define LBCRYPTO_CRYPTO_CKKSRNS_MULTIPARTY_H
+#ifndef LUX_FHE_CRYPTO_CKKSRNS_MULTIPARTY_H
+#define LUX_FHE_CRYPTO_CKKSRNS_MULTIPARTY_H
 
 #include "schemerns/rns-multiparty.h"
 #include "ckksrns-cryptoparameters.h"
@@ -40,10 +40,10 @@
 #include <memory>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 class MultipartyCKKSRNS : public MultipartyRNS {
 public:
     virtual ~MultipartyCKKSRNS() = default;
@@ -88,6 +88,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

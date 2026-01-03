@@ -7,19 +7,19 @@
 //
 // Example:
 //   #include "metal_ntt_wrapper.h"
-//   if (lbcrypto::gpu::metal::is_metal_ntt_available()) {
-//       lbcrypto::gpu::metal::metal_ntt_forward(data, N, Q, batch);
+//   if (lux::gpu::metal::is_metal_ntt_available()) {
+//       lux::gpu::metal::metal_ntt_forward(data, N, Q, batch);
 //   }
 //
 // Copyright (C) 2024-2025 Lux Industries Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_METAL_NTT_WRAPPER_H
-#define LBCRYPTO_MATH_HAL_MLX_METAL_NTT_WRAPPER_H
+#ifndef LUX_FHE_MATH_HAL_MLX_METAL_NTT_WRAPPER_H
+#define LUX_FHE_MATH_HAL_MLX_METAL_NTT_WRAPPER_H
 
 #include <cstdint>
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 namespace metal {
 
@@ -79,6 +79,6 @@ void clear_metal_ntt_cache();
 
 } // namespace metal
 } // namespace gpu
-} // namespace lbcrypto
+} // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_METAL_NTT_WRAPPER_H
+#endif // LUX_FHE_MATH_HAL_MLX_METAL_NTT_WRAPPER_H

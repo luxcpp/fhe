@@ -42,7 +42,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Class that stores all parameters for the LWE scheme
@@ -68,19 +68,19 @@ public:
                              SecretKeyDist keyDist = UNIFORM_TERNARY)
         : m_q(q), m_Q(Q), m_qKS(q_KS), m_n(n), m_N(N), m_baseKS(baseKS), m_keyDist(keyDist) {
         if (!m_n)
-            OPENFHE_THROW("m_n (lattice parameter) can not be zero");
+            LUX_FHE_THROW("m_n (lattice parameter) can not be zero");
         if (!m_N)
-            OPENFHE_THROW("m_N (ring dimension) can not be zero");
+            LUX_FHE_THROW("m_N (ring dimension) can not be zero");
         if (!m_q)
-            OPENFHE_THROW("m_q (modulus for additive LWE) can not be zero");
+            LUX_FHE_THROW("m_q (modulus for additive LWE) can not be zero");
         if (!m_Q)
-            OPENFHE_THROW("m_Q (modulus for RingGSW/RLWE) can not be zero");
+            LUX_FHE_THROW("m_Q (modulus for RingGSW/RLWE) can not be zero");
         if (!q_KS)
-            OPENFHE_THROW("q_KS (modulus for key switching) can not be zero");
+            LUX_FHE_THROW("q_KS (modulus for key switching) can not be zero");
         if (!m_baseKS)
-            OPENFHE_THROW("m_baseKS (the base used for key switching) can not be zero");
+            LUX_FHE_THROW("m_baseKS (the base used for key switching) can not be zero");
         if (m_Q.GetMSB() > MAX_MODULUS_SIZE)
-            OPENFHE_THROW("Q.GetMSB() > MAX_MODULUS_SIZE");
+            LUX_FHE_THROW("Q.GetMSB() > MAX_MODULUS_SIZE");
         m_dgg.SetStd(std);
         m_ks_dgg.SetStd(std);
     }
@@ -193,7 +193,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
 
@@ -239,6 +239,6 @@ private:
     DiscreteGaussianGeneratorImpl<NativeVector> m_ks_dgg;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _LWE_CRYPTOPARAMETERS_H_

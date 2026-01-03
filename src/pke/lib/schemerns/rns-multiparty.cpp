@@ -40,7 +40,7 @@
 #include <utility>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 Ciphertext<DCRTPoly> MultipartyRNS::MultipartyDecryptLead(ConstCiphertext<DCRTPoly> ciphertext,
                                                           const PrivateKey<DCRTPoly> privateKey) const {
@@ -60,7 +60,7 @@ Ciphertext<DCRTPoly> MultipartyRNS::MultipartyDecryptLead(ConstCiphertext<DCRTPo
     DCRTPoly noise;
     if (cryptoParams->GetMultipartyMode() == NOISE_FLOODING_MULTIPARTY) {
         if (sizeQl < 3) {
-            OPENFHE_THROW("sizeQl " + std::to_string(sizeQl) +
+            LUX_FHE_THROW("sizeQl " + std::to_string(sizeQl) +
                           " must be at least 3 in NOISE_FLOODING_MULTIPARTY mode.");
         }
         DugType dug;
@@ -126,7 +126,7 @@ Ciphertext<DCRTPoly> MultipartyRNS::MultipartyDecryptMain(ConstCiphertext<DCRTPo
     DCRTPoly noise;
     if (cryptoParams->GetMultipartyMode() == NOISE_FLOODING_MULTIPARTY) {
         if (sizeQl < 3) {
-            OPENFHE_THROW("sizeQl " + std::to_string(sizeQl) +
+            LUX_FHE_THROW("sizeQl " + std::to_string(sizeQl) +
                           " must be at least 3 in NOISE_FLOODING_MULTIPARTY mode.");
         }
         DugType dug;
@@ -241,7 +241,7 @@ EvalKey<DCRTPoly> MultipartyRNS::MultiMultEvalKey(PrivateKey<DCRTPoly> privateKe
 void PolynomialRound(DCRTPoly& dcrtpoly) {
     const uint32_t NUM_TOWERS = dcrtpoly.GetNumOfElements();
     if (2 != NUM_TOWERS) {
-        OPENFHE_THROW("The input polynomial has " + std::to_string(NUM_TOWERS) + " instead of 2 RNS limbs");
+        LUX_FHE_THROW("The input polynomial has " + std::to_string(NUM_TOWERS) + " instead of 2 RNS limbs");
     }
 
     std::vector<NativeInteger> q(NUM_TOWERS);
@@ -295,7 +295,7 @@ void PolynomialRound(DCRTPoly& dcrtpoly) {
 // https://eprint.iacr.org/2018/117 is used.
 void ExtendBasis(DCRTPoly& dcrtpoly, const std::shared_ptr<DCRTPoly::Params> paramsQP) {
     if (dcrtpoly.GetNumOfElements() != 2) {
-        OPENFHE_THROW(" The input polynomial should have 2 RNS limbs");
+        LUX_FHE_THROW(" The input polynomial should have 2 RNS limbs");
     }
 
     const auto paramsQ = dcrtpoly.GetParams();
@@ -376,7 +376,7 @@ Ciphertext<DCRTPoly> MultipartyRNS::IntBootDecrypt(const PrivateKey<DCRTPoly> pr
     if (NUM_POLYNOMIALS != 1 && NUM_POLYNOMIALS != 2) {
         std::string msg = "Ciphertext should contain either one or two polynomials. The input ciphertext has " +
                           std::to_string(NUM_POLYNOMIALS) + ".";
-        OPENFHE_THROW(msg);
+        LUX_FHE_THROW(msg);
     }
 
     std::vector<DCRTPoly> c = ciphertext->GetElements();
@@ -405,7 +405,7 @@ Ciphertext<DCRTPoly> MultipartyRNS::IntBootDecrypt(const PrivateKey<DCRTPoly> pr
 Ciphertext<DCRTPoly> MultipartyRNS::IntBootEncrypt(const PublicKey<DCRTPoly> publicKey,
                                                    ConstCiphertext<DCRTPoly> ctxt) const {
     if (ctxt->GetElements().empty()) {
-        OPENFHE_THROW("No polynomials found in the input ciphertext");
+        LUX_FHE_THROW("No polynomials found in the input ciphertext");
     }
 
     using DggType  = typename DCRTPoly::DggType;
@@ -483,10 +483,10 @@ Ciphertext<DCRTPoly> MultipartyRNS::IntBootEncrypt(const PublicKey<DCRTPoly> pub
 Ciphertext<DCRTPoly> MultipartyRNS::IntBootAdd(ConstCiphertext<DCRTPoly> ciphertext1,
                                                ConstCiphertext<DCRTPoly> ciphertext2) const {
     if (ciphertext1->GetElements().empty()) {
-        OPENFHE_THROW("No polynomials found in the input ciphertext1");
+        LUX_FHE_THROW("No polynomials found in the input ciphertext1");
     }
     if (ciphertext2->GetElements().empty()) {
-        OPENFHE_THROW("No polynomials found in the input ciphertext2");
+        LUX_FHE_THROW("No polynomials found in the input ciphertext2");
     }
 
     auto elements1 = ciphertext1->GetElements();
@@ -506,4 +506,4 @@ Ciphertext<DCRTPoly> MultipartyRNS::IntBootAdd(ConstCiphertext<DCRTPoly> ciphert
     return result;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

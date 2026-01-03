@@ -35,7 +35,7 @@
 #include "scheme/bgvrns/gen-cryptocontext-bgvrns.h"
 #include "gen-cryptocontext.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <typename U>
 static void setCryptoContextParametersFromUnitTestCCParams(const UnitTestCCParams& params, U& parameters) {
@@ -173,7 +173,7 @@ CryptoContext<Element> UnitTestGenerateContext(const UnitTestCCParams& params) {
     }
 
     if (!cc)
-        OPENFHE_THROW("Error generating crypto context.");
+        LUX_FHE_THROW("Error generating crypto context.");
 
     cc->Enable(PKE);
     cc->Enable(KEYSWITCH);
@@ -190,7 +190,7 @@ CryptoContext<Element> UnitTestGenerateContext(const UnitTestCCParams& params) {
 CryptoContext<Element> UnitTestGenerateContext(const BaseTestCase& testCase) {
     CryptoContext<Element> cc(nullptr);
     auto paramOverrides       = testCase.getCryptoContextParamOverrides();
-    lbcrypto::SCHEME schemeId = lbcrypto::convertToSCHEME(*paramOverrides.begin());
+    lux::fhe::SCHEME schemeId = lux::fhe::convertToSCHEME(*paramOverrides.begin());
     if (CKKSRNS_SCHEME == schemeId) {
         CCParams<CryptoContextCKKSRNS> parameters(paramOverrides);
         cc = GenCryptoContext(parameters);
@@ -205,7 +205,7 @@ CryptoContext<Element> UnitTestGenerateContext(const BaseTestCase& testCase) {
     }
 
     if (!cc)
-        OPENFHE_THROW("Error generating crypto context.");
+        LUX_FHE_THROW("Error generating crypto context.");
 
     cc->Enable(PKE);
     cc->Enable(KEYSWITCH);

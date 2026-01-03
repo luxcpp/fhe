@@ -1,0 +1,305 @@
+---
+title: BGV
+description: Brakerski-Gentry-Vaikuntanathan scheme for exact integer arithmetic
+---
+
+# BGV Scheme
+
+BGV (Brakerski-Gentry-Vaikuntanathan) is an FHE scheme for exact integer arithmetic. It uses modulus switching for noise management and supports SIMD-style batching for high throughput.
+
+## Key Features
+
+- **Exact arithmetic**: No approximation errors
+- **Modulus switching**: Efficient noise management
+- **Batching (SIMD)**: Process thousands of values in parallel
+- **Leveled FHE**: Plan computation depth in advance
+
+## Quick Start
+
+```cpp
+#include <lux/fhe/pke.h>
+
+int main() {
+    // Create BGV context
+    auto ctx = lux::fhe::BGVContext::Create({
+        .ring_dim = 8192,
+        .plaintext_modulus = 65537,
+        .multiplicative_depth = 4,
+        .backend = lux::fhe::Backend::METAL
+    });
+
+    // Generate keys
+    auto [pk, sk] = ctx->GenerateKeyPair();
+    auto rlk = ctx->GenerateRelinearizationKey(sk);
+
+    // Encrypt integers
+    std::vector<int64_t> a = {1, 2, 3, 4, 5, 6, 7, 8};
+    std::vector<int64_t> b = {10, 20, 30, 40, 50, 60, 70, 80};
+
+    auto ct_a = ctx->Encrypt(pk, a);
+    auto ct_b = ctx->Encrypt(pk, b);
+
+    // Homomorphic operations
+    auto ct_sum = ctx->Add(ct_a, ct_b);          // {11, 22, 33, ...}
+    auto ct_prod = ctx->Mul(ct_a, ct_b, rlk);    // {10, 40, 90, ...}
+    auto ct_sq = ctx->Square(ct_a, rlk);         // {1, 4, 9, ...}
+
+    // Decrypt
+    auto result = ctx->Decrypt(sk, ct_sum);
+    for (auto v : result) std::cout << v << " ";  // 11 22 33 44 55 66 77 88
+
+    return 0;
+}
+```
+
+## Operations
+
+### Arithmetic
+
+```cpp
+// Addition
+auto ct_add = ctx->Add(ct_a, ct_b);
+
+// Subtraction
+auto ct_sub = ctx->Sub(ct_a, ct_b);
+
+// Negation
+auto ct_neg = ctx->Negate(ct_a);
+
+// Multiplication (requires relinearization key)
+auto ct_mul = ctx->Mul(ct_a, ct_b, rlk);
+
+// Square
+auto ct_sq = ctx->Square(ct_a, rlk);
+```
+
+### Plaintext Operations
+
+```cpp
+// Add plaintext (no noise growth)
+std::vector<int64_t> constant = {1, 1, 1, 1, 1, 1, 1, 1};
+auto ct_add = ctx->AddPlain(ct_a, constant);
+
+// Multiply by plaintext (linear noise growth)
+auto ct_mul = ctx->MulPlain(ct_a, constant);
+
+// Multiply by scalar
+auto ct_scaled = ctx->MulScalar(ct_a, 5);
+```
+
+### Rotation (SIMD)
+
+```cpp
+// Generate rotation keys
+auto gk = ctx->GenerateGaloisKeys(sk);
+
+// Rotate left by k positions
+auto ct_rot = ctx->RotateLeft(ct_a, 2, gk);
+// {1,2,3,4,5,6,7,8} -> {3,4,5,6,7,8,1,2}
+
+// Rotate right
+auto ct_rot_r = ctx->RotateRight(ct_a, 2, gk);
+// {1,2,3,4,5,6,7,8} -> {7,8,1,2,3,4,5,6}
+```
+
+## Batching (SIMD)
+
+BGV supports packing multiple values into a single ciphertext:
+
+```cpp
+// With ring_dim = 8192 and plaintext_modulus = 65537
+// Can pack 8192 values in one ciphertext
+
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537,
+    .batching = true  // Enable SIMD
+});
+
+// Encrypt 8192 values at once
+std::vector<int64_t> data(8192);
+for (int i = 0; i < 8192; i++) data[i] = i;
+
+auto ct = ctx->Encrypt(pk, data);
+
+// Operations apply to all slots simultaneously
+auto ct_squared = ctx->Square(ct, rlk);  // All 8192 values squared
+```
+
+### Slot Operations
+
+```cpp
+// Sum all slots (log(n) rotations)
+auto ct_sum = ctx->SumSlots(ct, gk);  // Result in slot 0
+
+// Inner product
+auto ct_inner = ctx->InnerProduct(ct_a, ct_b, rlk, gk);
+
+// Replicate slot 0 to all slots
+auto ct_replicate = ctx->ReplicateSlot(ct, 0, gk);
+```
+
+## Modulus Switching
+
+Control noise growth with modulus management:
+
+```cpp
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537,
+    .coeff_modulus_bits = {60, 40, 40, 40, 60},  // 5 levels
+    .auto_mod_switch = true  // Automatic switching
+});
+
+// Multiplication automatically switches modulus
+auto ct = ctx->Mul(ct_a, ct_b, rlk);
+// Level decreased from 4 to 3
+
+// Manual control
+ctx->SetAutoModSwitch(false);
+auto ct_mul = ctx->Mul(ct_a, ct_b, rlk);  // Don't switch yet
+auto ct_mul2 = ctx->Mul(ct_mul, ct_c, rlk);
+ctx->ModSwitch(ct_mul2);  // Now switch
+```
+
+## Polynomial Evaluation
+
+Evaluate polynomials efficiently:
+
+```cpp
+// Evaluate p(x) = 3x³ + 2x² + x + 5
+std::vector<int64_t> coeffs = {5, 1, 2, 3};  // Constant to highest
+
+auto ct_result = ctx->EvaluatePolynomial(ct_x, coeffs, rlk);
+```
+
+### Optimized Polynomial Evaluation
+
+```cpp
+// Paterson-Stockmeyer algorithm for degree-d polynomial
+// Multiplicative depth: O(sqrt(d))
+auto ct_result = ctx->EvaluatePolynomialPS(ct_x, coeffs, rlk);
+
+// Baby-step giant-step for even lower depth
+auto ct_result = ctx->EvaluatePolynomialBSGS(ct_x, coeffs, rlk, gk);
+```
+
+## Matrix Operations
+
+```cpp
+// Encode matrix (row-major)
+std::vector<std::vector<int64_t>> matrix = {
+    {1, 2, 3, 4},
+    {5, 6, 7, 8},
+    {9, 10, 11, 12},
+    {13, 14, 15, 16}
+};
+auto ct_matrix = ctx->EncryptMatrix(pk, matrix);
+
+// Matrix-vector multiplication
+std::vector<int64_t> vec = {1, 2, 3, 4};
+auto ct_vec = ctx->Encrypt(pk, vec);
+auto ct_result = ctx->MatVecMul(ct_matrix, ct_vec, rlk, gk);
+
+// Matrix-matrix multiplication
+auto ct_matrix2 = ctx->EncryptMatrix(pk, matrix2);
+auto ct_product = ctx->MatMul(ct_matrix, ct_matrix2, rlk, gk);
+```
+
+## Performance
+
+### Benchmarks (M3 Max GPU)
+
+| Operation | Ring Dim | CPU | Metal GPU |
+|-----------|----------|-----|-----------|
+| Encrypt | 8192 | 2.5ms | 0.5ms |
+| Add | 8192 | 0.3ms | 0.1ms |
+| Multiply | 8192 | 12ms | 1.1ms |
+| Rotate | 8192 | 8ms | 0.8ms |
+| Decrypt | 8192 | 2ms | 0.4ms |
+| Key Gen | 8192 | 200ms | 40ms |
+
+### Throughput with Batching
+
+```cpp
+// Process 8192 integers in one operation
+// Effective throughput: 8192 / 1.1ms ≈ 7.4M ops/sec
+```
+
+## Parameter Selection
+
+### Security vs Performance
+
+| Ring Dim | Security | Slots | Multiply Time |
+|----------|----------|-------|---------------|
+| 4096 | 128-bit | 4096 | 0.5ms |
+| 8192 | 192-bit | 8192 | 1.1ms |
+| 16384 | 256-bit | 16384 | 2.5ms |
+
+### Plaintext Modulus
+
+```cpp
+// For mod p arithmetic
+auto ctx = lux::fhe::BGVContext::Create({
+    .plaintext_modulus = 65537,  // Prime, enables batching
+    // 65537 allows values in range [-32768, 32768]
+});
+
+// For larger range
+auto ctx = lux::fhe::BGVContext::Create({
+    .plaintext_modulus = 786433,  // Larger prime
+    // Allows values in range [-393216, 393216]
+});
+```
+
+## Use Cases
+
+### Encrypted Voting
+
+```cpp
+// Each voter encrypts their vote
+auto ct_vote = ctx->Encrypt(pk, vote ? 1 : 0);
+
+// Server tallies without seeing individual votes
+Ciphertext ct_tally = ct_votes[0];
+for (size_t i = 1; i < ct_votes.size(); i++) {
+    ct_tally = ctx->Add(ct_tally, ct_votes[i]);
+}
+
+// Only final tally is decrypted
+auto total = ctx->Decrypt(sk, ct_tally)[0];
+```
+
+### Private Statistics
+
+```cpp
+// Compute mean of encrypted values
+auto ct_sum = ctx->SumSlots(ct_data, gk);
+auto ct_mean = ctx->MulPlain(ct_sum, 1.0 / n);  // Scale by 1/n
+
+// Compute variance
+auto ct_squared = ctx->Square(ct_data, rlk);
+auto ct_sum_sq = ctx->SumSlots(ct_squared, gk);
+// variance = E[X²] - E[X]²
+```
+
+### Encrypted Database Query
+
+```cpp
+// Query: SELECT SUM(amount) WHERE category = target
+auto ct_amounts = ctx->Encrypt(pk, amounts);
+auto ct_categories = ctx->Encrypt(pk, categories);
+
+// Indicator vector: 1 where category matches
+auto ct_indicator = EncryptedEquals(ct_categories, target_category);
+
+// Filtered sum
+auto ct_filtered = ctx->Mul(ct_amounts, ct_indicator, rlk);
+auto ct_result = ctx->SumSlots(ct_filtered, gk);
+```
+
+## Further Reading
+
+- [BFV Scheme](/docs/schemes/bfv) - Alternative integer scheme
+- [Noise Management](/docs/concepts/noise-management) - Understanding modulus switching
+- [API Reference](/docs/api/cpp-api) - Complete API documentation

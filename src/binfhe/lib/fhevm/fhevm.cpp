@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <sstream>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace fhevm {
 
 // ============================================================================
@@ -673,4 +673,4 @@ std::string Version() {
 }
 
 } // namespace fhevm
-} // namespace lbcrypto
+} // namespace lux::fhe

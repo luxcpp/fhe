@@ -33,23 +33,23 @@
   serialize keys; include this in any app that needs to serialize these objects
  */
 
-#ifndef LBCRYPTO_CRYPTO_BASE_SER_H
-#define LBCRYPTO_CRYPTO_BASE_SER_H
+#ifndef LUX_FHE_CRYPTO_BASE_SER_H
+#define LUX_FHE_CRYPTO_BASE_SER_H
 
 #include "lattice/hal/default/lat-backend-default.h"
 #include "utils/serial.h"
 
-extern template class lbcrypto::CryptoParametersBase<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::CryptoParametersRLWE<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::SchemeBase<lbcrypto::DCRTPoly>;
-extern template class lbcrypto::FHEBase<lbcrypto::DCRTPoly>;
+extern template class lux::fhe::CryptoParametersBase<lux::fhe::DCRTPoly>;
+extern template class lux::fhe::CryptoParametersRLWE<lux::fhe::DCRTPoly>;
+extern template class lux::fhe::SchemeBase<lux::fhe::DCRTPoly>;
+extern template class lux::fhe::FHEBase<lux::fhe::DCRTPoly>;
 
-CEREAL_REGISTER_TYPE(lbcrypto::Serializable);
-CEREAL_REGISTER_TYPE(lbcrypto::CryptoParametersBase<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::CryptoParametersRLWE<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::SchemeBase<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_TYPE(lbcrypto::FHEBase<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lux::fhe::Serializable);
+CEREAL_REGISTER_TYPE(lux::fhe::CryptoParametersBase<lux::fhe::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lux::fhe::CryptoParametersRLWE<lux::fhe::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lux::fhe::SchemeBase<lux::fhe::DCRTPoly>);
+CEREAL_REGISTER_TYPE(lux::fhe::FHEBase<lux::fhe::DCRTPoly>);
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::CryptoParametersBase<lbcrypto::DCRTPoly>, lbcrypto::CryptoParametersRLWE<lbcrypto::DCRTPoly>);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::Serializable, lbcrypto::CryptoParametersBase<lbcrypto::DCRTPoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::CryptoParametersBase<lux::fhe::DCRTPoly>, lux::fhe::CryptoParametersRLWE<lux::fhe::DCRTPoly>);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::Serializable, lux::fhe::CryptoParametersBase<lux::fhe::DCRTPoly>);
 #endif

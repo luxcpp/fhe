@@ -48,7 +48,7 @@
 #include <iterator>
 #include <random>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 static std::vector<usint> depths({1, 2, 4, 8, 12});
 

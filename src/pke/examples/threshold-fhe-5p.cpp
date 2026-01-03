@@ -35,7 +35,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void RunBFVrns();
 void EvalNoiseBFV(PrivateKey<DCRTPoly> privateKey, ConstCiphertext<DCRTPoly> ciphertext, Plaintext ptxt, usint ptm,
@@ -52,14 +52,14 @@ int main(int argc, char* argv[]) {
 void RunBFVrns() {
     int plaintextModulus                  = 65537;
     double sigma                          = 3.2;
-    lbcrypto::SecurityLevel securityLevel = lbcrypto::SecurityLevel::HEStd_128_classic;
+    lux::fhe::SecurityLevel securityLevel = lux::fhe::SecurityLevel::HEStd_128_classic;
 
     usint batchSize = 16;
     usint multDepth = 4;
     usint digitSize = 30;
     usint dcrtBits  = 60;
 
-    lbcrypto::CCParams<lbcrypto::CryptoContextBFVRNS> parameters;
+    lux::fhe::CCParams<lux::fhe::CryptoContextBFVRNS> parameters;
 
     parameters.SetPlaintextModulus(plaintextModulus);
     parameters.SetSecurityLevel(securityLevel);

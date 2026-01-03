@@ -34,8 +34,8 @@
   the built-in C++ generator for 32-bit unsigned integers defined in <random>
  */
 
-#ifndef LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATOR_IMPL_H_
-#define LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATOR_IMPL_H_
+#ifndef LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATOR_IMPL_H_
+#define LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATOR_IMPL_H_
 
 #include "math/discretegaussiangenerator.h"
 #include "utils/exception.h"
@@ -45,7 +45,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecType>
 DiscreteGaussianGeneratorImpl<VecType>::DiscreteGaussianGeneratorImpl(double std) {
@@ -60,9 +60,9 @@ bool DiscreteGaussianGeneratorImpl<VecType>::IsInitialized() const {
 template <typename VecType>
 void DiscreteGaussianGeneratorImpl<VecType>::SetStd(double std) {
     if (std::log2(m_std) > 59) {
-        //    if (lbcrypto::GetMSB(static_cast<uint64_t>(std)) > 59) {
+        //    if (lux::fhe::GetMSB(static_cast<uint64_t>(std)) > 59) {
         std::string errorMsg(std::string("Standard deviation cannot exceed 59 bits"));
-        OPENFHE_THROW(errorMsg);
+        LUX_FHE_THROW(errorMsg);
     }
 
     if ((peikert = ((m_std = std) < KARNEY_THRESHOLD)))
@@ -138,7 +138,7 @@ uint32_t DiscreteGaussianGeneratorImpl<VecType>::FindInVector(const std::vector<
     if (lower != S.end()) {
         return lower - S.begin() + 1;
     }
-    OPENFHE_THROW("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
+    LUX_FHE_THROW("DGG Inversion Sampling. FindInVector value not found: " + std::to_string(search));
 }
 
 template <typename VecType>
@@ -192,9 +192,9 @@ typename VecType::Integer DiscreteGaussianGeneratorImpl<VecType>::GenerateIntege
 template <typename VecType>
 int32_t DiscreteGaussianGeneratorImpl<VecType>::GenerateInteger(double mean, double stddev, size_t n) const {
     if (std::isinf(mean))
-        OPENFHE_THROW("DiscreteGaussianGeneratorImpl called with mean == +-inf");
+        LUX_FHE_THROW("DiscreteGaussianGeneratorImpl called with mean == +-inf");
     if (std::isinf(stddev))
-        OPENFHE_THROW("DiscreteGaussianGeneratorImpl called with stddev == +-inf");
+        LUX_FHE_THROW("DiscreteGaussianGeneratorImpl called with stddev == +-inf");
 
     // this representation of log_2 is used for Visual Studio
     double t = std::log2(n) * stddev;
@@ -215,7 +215,7 @@ int32_t DiscreteGaussianGeneratorImpl<VecType>::GenerateInteger(double mean, dou
         //  check if dice land below pdf
         flagSuccess = (dice <= UnnormalizedGaussianPDFOptimized(mean, sigmaFactor, x));
         if (++count > limit)
-            OPENFHE_THROW("GenerateInteger could not find success after repeated attempts");
+            LUX_FHE_THROW("GenerateInteger could not find success after repeated attempts");
     }
     return x;
 }
@@ -382,6 +382,6 @@ bool DiscreteGaussianGeneratorImpl<VecType>::AlgorithmBDouble(PRNG& g, int32_t k
     return (n % 2) == 0;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

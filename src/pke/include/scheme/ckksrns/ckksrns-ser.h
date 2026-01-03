@@ -33,19 +33,19 @@
   serialize ckks; include this in any app that needs to serialize this scheme
  */
 
-#ifndef LBCRYPTO_CRYPTO_CKKSRNS_SER_H
-#define LBCRYPTO_CRYPTO_CKKSRNS_SER_H
+#ifndef LUX_FHE_CRYPTO_CKKSRNS_SER_H
+#define LUX_FHE_CRYPTO_CKKSRNS_SER_H
 
 #include "scheme/ckksrns/ckksrns-scheme.h"
 #include "utils/serial.h"
 
-CEREAL_REGISTER_TYPE(lbcrypto::CryptoParametersCKKSRNS);
-CEREAL_REGISTER_TYPE(lbcrypto::SchemeCKKSRNS);
-CEREAL_REGISTER_TYPE(lbcrypto::CKKSBootstrapPrecom);
-CEREAL_REGISTER_TYPE(lbcrypto::FHECKKSRNS);
-CEREAL_REGISTER_TYPE(lbcrypto::SWITCHCKKSRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::CryptoParametersCKKSRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::SchemeCKKSRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::CKKSBootstrapPrecom);
+CEREAL_REGISTER_TYPE(lux::fhe::FHECKKSRNS);
+CEREAL_REGISTER_TYPE(lux::fhe::SWITCHCKKSRNS);
 
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::CryptoParametersRNS, lbcrypto::CryptoParametersCKKSRNS);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::FHERNS, lbcrypto::FHECKKSRNS);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(lbcrypto::FHERNS, lbcrypto::SWITCHCKKSRNS);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::CryptoParametersRNS, lux::fhe::CryptoParametersCKKSRNS);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::FHERNS, lux::fhe::FHECKKSRNS);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(lux::fhe::FHERNS, lux::fhe::SWITCHCKKSRNS);
 #endif

@@ -7,7 +7,7 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -328,4 +328,4 @@ LWESwitchingKey UnpackSwitchingKey(
 }
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe

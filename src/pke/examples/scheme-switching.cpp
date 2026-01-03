@@ -36,7 +36,7 @@
 #include "openfhe.h"
 #include "binfhecontext.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void SwitchCKKSToFHEW();
 void SwitchFHEWtoCKKS();

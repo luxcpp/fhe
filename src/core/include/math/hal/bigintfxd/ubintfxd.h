@@ -41,8 +41,8 @@
 #include "config_core.h"
 #ifdef WITH_BE2
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTFXD_UBINTFXD_H
-        #define LBCRYPTO_MATH_HAL_BIGINTFXD_UBINTFXD_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTFXD_UBINTFXD_H
+        #define LUX_FHE_MATH_HAL_BIGINTFXD_UBINTFXD_H
 
         #include "math/hal/basicint.h"
         #include "math/hal/integer.h"
@@ -258,7 +258,7 @@ constexpr double LOG2_10 = 3.32192809;  //!< @brief A pre-computed constant of L
  * @tparam BITLENGTH maximum bitwidth supported for big integers
  */
 template <typename uint_type, usint BITLENGTH>
-class BigIntegerFixedT : public lbcrypto::BigIntegerInterface<BigIntegerFixedT<uint_type, BITLENGTH>> {
+class BigIntegerFixedT : public lux::fhe::BigIntegerInterface<BigIntegerFixedT<uint_type, BITLENGTH>> {
 public:
     // CONSTRUCTORS
 
@@ -779,12 +779,12 @@ public:
 
     BigIntegerFixedT ModMulFastConst(const BigIntegerFixedT& b, const BigIntegerFixedT& modulus,
                                      const BigIntegerFixedT& bInv) const {
-        OPENFHE_THROW("ModMulFastConst is not implemented for backend 2");
+        LUX_FHE_THROW("ModMulFastConst is not implemented for backend 2");
     }
 
     BigIntegerFixedT& ModMulFastConstEq(const BigIntegerFixedT& b, const BigIntegerFixedT& modulus,
                                         const BigIntegerFixedT& bInv) {
-        OPENFHE_THROW("ModMulFastConstEq is not implemented for backend 2");
+        LUX_FHE_THROW("ModMulFastConstEq is not implemented for backend 2");
     }
 
     /**
@@ -889,7 +889,7 @@ public:
             result += ((T)this->m_value[m_nSize - i - 1] << (m_uintBitLength * i));
         }
         if (this->m_MSB > bits) {
-            OPENFHE_THROW(std::string("MSB cannot be bigger than ") + std::to_string(bits));
+            LUX_FHE_THROW(std::string("MSB cannot be bigger than ") + std::to_string(bits));
         }
         return result;
     }
@@ -1071,7 +1071,7 @@ public:
     typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::binary_data(m_value, sizeof(m_value)));
@@ -1082,7 +1082,7 @@ public:
     typename std::enable_if<cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("v", m_value));
@@ -1209,6 +1209,6 @@ private:
 
 }  // namespace bigintfxd
 
-    #endif  // LBCRYPTO_MATH_HAL_BIGINTFXD_UBINTFXD_H
+    #endif  // LUX_FHE_MATH_HAL_BIGINTFXD_UBINTFXD_H
 
 #endif

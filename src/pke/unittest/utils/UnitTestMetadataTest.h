@@ -38,7 +38,7 @@
 #include <string>
 #include <ostream>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Example class inheriting from Metadata and adding a member.
@@ -104,7 +104,7 @@ public:
                                                     // any members are equal
         }
         catch (const std::bad_cast& e) {
-            OPENFHE_THROW("Tried to downcast an object of different class to MetadataTest");
+            LUX_FHE_THROW("Tried to downcast an object of different class to MetadataTest");
         }
     }
 
@@ -123,7 +123,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(cereal::base_class<Metadata>(this));
@@ -146,7 +146,7 @@ public:
             return std::dynamic_pointer_cast<MetadataTest>(ciphertext->GetMetadata(it)->Clone());
         }
         else {
-            OPENFHE_THROW("Attempt to access metadata (MetadataTest) that has not been set.");
+            LUX_FHE_THROW("Attempt to access metadata (MetadataTest) that has not been set.");
         }
     }
 
@@ -167,7 +167,7 @@ public:
             return std::dynamic_pointer_cast<MetadataTest>(ciphertext->GetMetadata(it));
         }
         else {
-            OPENFHE_THROW("Attempt to access metadata (MetadataTest) that has not been set.");
+            LUX_FHE_THROW("Attempt to access metadata (MetadataTest) that has not been set.");
         }
     }
 
@@ -204,6 +204,6 @@ protected:
     std::string m_s;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __UNITTESTMETADATATEST_H__

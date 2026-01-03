@@ -79,7 +79,7 @@
 #ifndef _GEN_CRYPTOCONTEXT_H_
 #define _GEN_CRYPTOCONTEXT_H_
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // forward declarations (don't include headers as compilation fails when you do)
 template <typename T>
@@ -90,6 +90,6 @@ typename T::ContextType GenCryptoContext(const CCParams<T>& params) {
     return T::genCryptoContext(params);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _GEN_CRYPTOCONTEXT_H_

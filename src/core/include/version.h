@@ -42,8 +42,8 @@
 // a string
 #define STR_EXPAND(tok) #tok
 #define STR(tok)        STR_EXPAND(tok)
-#ifndef OPENFHE_VERSION
-    #define OPENFHE_VERSION BASE_OPENFHE_VERSION
+#ifndef LUX_FHE_VERSION
+    #define LUX_FHE_VERSION BASE_LUX_FHE_VERSION
 #endif
 
 /**
@@ -51,7 +51,7 @@
  * @return
  */
 inline std::string GetOPENFHEVersion() {
-    return STR(OPENFHE_VERSION);
+    return STR(LUX_FHE_VERSION);
 }
 
 #endif /* SRC_VERSION_H_ */

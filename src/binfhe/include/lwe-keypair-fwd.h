@@ -33,13 +33,13 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class LWEKeyPairImpl;
 
 using LWEKeyPair      = std::shared_ptr<LWEKeyPairImpl>;
 using ConstLWEKeyPair = const std::shared_ptr<const LWEKeyPairImpl>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __LWE_KEYPAIR_FWD_H__

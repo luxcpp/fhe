@@ -40,8 +40,8 @@
 #include "config_core.h"
 #ifdef WITH_NTL
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTNTL_MUBINTVECNTL_H
-        #define LBCRYPTO_MATH_HAL_BIGINTNTL_MUBINTVECNTL_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTNTL_MUBINTVECNTL_H
+        #define LUX_FHE_MATH_HAL_BIGINTNTL_MUBINTVECNTL_H
 
         #include <NTL/SmartPtr.h>
         #include <NTL/vec_ZZ.h>
@@ -87,8 +87,8 @@ using BigVector = myVecP<BigInteger>;
 
 template <typename myT>
 class myVecP : public NTL::Vec<myT>,
-               public lbcrypto::BigVectorInterface<myVecP<myT>, myT>,
-               public lbcrypto::Serializable {
+               public lux::fhe::BigVectorInterface<myVecP<myT>, myT>,
+               public lux::fhe::Serializable {
 public:
     // CONSTRUCTORS
 
@@ -181,7 +181,7 @@ public:
     void LazySwitchModulus(const myT& newModulus);
 
     myT& MultAccEqNoCheck(const myVecP& v, const myT& i) {
-        OPENFHE_THROW("MultAccEqNoCheck() not implemented for mubintvecntl");
+        LUX_FHE_THROW("MultAccEqNoCheck() not implemented for mubintvecntl");
     }
 
     // public modulus accessors
@@ -197,7 +197,7 @@ public:
     // sets modulus and the NTL init function uint64_t argument
     inline void SetModulus(const uint64_t& value) {
         if (value == 0) {
-            OPENFHE_THROW("SetModulus(uint64_t) cannot be zero");
+            LUX_FHE_THROW("SetModulus(uint64_t) cannot be zero");
         }
         this->m_modulus       = myT(value);
         this->m_modulus_state = INITIALIZED;
@@ -206,7 +206,7 @@ public:
     // sets modulus and the NTL init function myT argument
     void SetModulus(const myT& value) {
         if (value == myT(0)) {
-            OPENFHE_THROW("SetModulus(myT) cannot be zero");
+            LUX_FHE_THROW("SetModulus(myT) cannot be zero");
         }
         this->m_modulus       = value;
         this->m_modulus_state = INITIALIZED;
@@ -216,7 +216,7 @@ public:
     inline void SetModulus(const std::string& value) {
         this->m_modulus = myT(value);
         if (this->m_modulus == myT(0)) {
-            OPENFHE_THROW("SetModulus(string) cannot be zero");
+            LUX_FHE_THROW("SetModulus(string) cannot be zero");
         }
         this->m_modulus_state = INITIALIZED;
     }
@@ -225,7 +225,7 @@ public:
     inline void SetModulus(const myVecP& value) {
         this->m_modulus = value.GetModulus();
         if (this->m_modulus == myT(0)) {
-            OPENFHE_THROW("SetModulus(myVecP) cannot be zero");
+            LUX_FHE_THROW("SetModulus(myVecP) cannot be zero");
         }
         this->m_modulus_state = INITIALIZED;
     }
@@ -235,7 +235,7 @@ public:
             return (this->m_modulus);
         }
         else {
-            OPENFHE_THROW("modulus not set");
+            LUX_FHE_THROW("modulus not set");
         }
     }
 
@@ -643,7 +643,7 @@ public:
     typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         // YSP. This was seg-faulting in MINGW
@@ -675,7 +675,7 @@ public:
     typename std::enable_if<cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         std::string m;
@@ -705,7 +705,7 @@ private:
     // use when argument to function is myT
     void ModulusCheck(std::string msg) const {
         if (!isModulusSet()) {
-            OPENFHE_THROW(msg + " uninitialized this->modulus");
+            LUX_FHE_THROW(msg + " uninitialized this->modulus");
         }
     }
 
@@ -713,13 +713,13 @@ private:
     // use when argument to function is myVecP
     void ArgCheckVector(const myVecP& b, std::string fname) const {
         if (this->m_modulus != b.m_modulus) {
-            OPENFHE_THROW(fname + " modulus vector modulus vector op of different moduli");
+            LUX_FHE_THROW(fname + " modulus vector modulus vector op of different moduli");
         }
         else if (!isModulusSet()) {
-            OPENFHE_THROW(fname + " modulus vector modulus vector op  GARBAGE  moduli");
+            LUX_FHE_THROW(fname + " modulus vector modulus vector op  GARBAGE  moduli");
         }
         else if (this->GetLength() != b.GetLength()) {
-            OPENFHE_THROW(fname + " vectors of different lengths");
+            LUX_FHE_THROW(fname + " vectors of different lengths");
         }
     }
 
@@ -749,6 +749,6 @@ protected:
 
 }  // namespace NTL
 
-    #endif  // LBCRYPTO_MATH_HAL_BIGINTNTL_MUBINTVECNTL_H
+    #endif  // LUX_FHE_MATH_HAL_BIGINTNTL_MUBINTVECNTL_H
 
 #endif  // WITH_NTL

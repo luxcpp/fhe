@@ -21,7 +21,7 @@
 #include <string>
 #include <functional>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -386,6 +386,6 @@ inline Backend* CurrentBackend() {
 }
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // BACKEND_BACKEND_H

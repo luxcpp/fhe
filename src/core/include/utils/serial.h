@@ -33,8 +33,8 @@
   Serialization utilities
  */
 
-#ifndef LBCRYPTO_SERIAL_H
-#define LBCRYPTO_SERIAL_H
+#ifndef LUX_FHE_SERIAL_H
+#define LUX_FHE_SERIAL_H
 
 #include "utils/sertype.h"
 
@@ -87,7 +87,7 @@
 #include <sstream>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 namespace Serial {
 //========================== BINARY serialization ==========================
@@ -211,6 +211,6 @@ void DeserializeFromString(T& obj, const std::string& json) {
 
 }  // namespace Serial
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -46,7 +46,7 @@
 #include <cmath>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 #ifdef WITH_NTL
 // native NTL version
@@ -248,7 +248,7 @@ uint32_t FindAutomorphismIndex2nComplex(int32_t i, uint32_t m) {
         return static_cast<uint32_t>(i);
     }
     if (!IsPowerOfTwo(m))
-        OPENFHE_THROW("m should be a power of two.");
+        LUX_FHE_THROW("m should be a power of two.");
 
     // conjugation automorphism
     // generator. the usage of uint64_t prevents occasional integer overflow if the result of (g*g0) is too high
@@ -274,4 +274,4 @@ void PrecomputeAutoMap(uint32_t n, uint32_t k, std::vector<uint32_t>* precomp) {
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

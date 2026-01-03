@@ -42,7 +42,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // --------------- TESTING METHODS OF LATTICE ELEMENTS ---------------
 // these tests only work on Poly, and have not been ported to DCRT
@@ -53,7 +53,7 @@ using namespace lbcrypto;
 
 template <typename Element>
 void rounding_ops(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
@@ -74,54 +74,54 @@ void rounding_ops(const std::string& msg) {
 
     Element ilvector2n1(ilparams, Format::COEFFICIENT);
     ilvector2n1 = {"31", "21", "15", "34"};
-    OPENFHE_DEBUGEXP(ilvector2n1);
+    LUX_FHE_DEBUGEXP(ilvector2n1);
     // test for bug where length was 0
     EXPECT_EQ(ilvector2n1.GetLength(), m / 2) << msg << " Failure: ={init list string}";
 
     Element ilvector2n2(ilparams, Format::COEFFICIENT);
     ilvector2n2 = {"21", "11", "35", "32"};
-    OPENFHE_DEBUGEXP(ilvector2n2);
+    LUX_FHE_DEBUGEXP(ilvector2n2);
 
-    OPENFHE_DEBUG("unit test for MultiplyAndRound");
+    LUX_FHE_DEBUG("unit test for MultiplyAndRound");
     Element roundingCorrect1(ilparams, Format::COEFFICIENT);
     roundingCorrect1 = {"3", "2", "2", "4"};
 
-    OPENFHE_DEBUGEXP(ilvector2n1);
+    LUX_FHE_DEBUGEXP(ilvector2n1);
 
     Element rounding1 = ilvector2n1.MultiplyAndRound(p, q);
 
     EXPECT_EQ(roundingCorrect1, rounding1) << msg << " Failure: Rounding p*polynomial/q";
 
-    OPENFHE_DEBUG("unit test for MultiplyAndRound after a polynomial");
-    OPENFHE_DEBUG("multiplication using the larger modulus");
+    LUX_FHE_DEBUG("unit test for MultiplyAndRound after a polynomial");
+    LUX_FHE_DEBUG("multiplication using the larger modulus");
 
     Element roundingCorrect2(ilparams2, Format::COEFFICIENT);
     roundingCorrect2 = {"16316", "16320", "60", "286"};
 
     ilvector2n1.SwitchModulus(q2, primitiveRootOfUnity2, 0, 0);
     ilvector2n2.SwitchModulus(q2, primitiveRootOfUnity2, 0, 0);
-    OPENFHE_DEBUGEXP(ilvector2n1);
-    OPENFHE_DEBUGEXP(ilvector2n2);
+    LUX_FHE_DEBUGEXP(ilvector2n1);
+    LUX_FHE_DEBUGEXP(ilvector2n2);
 
     ilvector2n1.SwitchFormat();
     ilvector2n2.SwitchFormat();
-    OPENFHE_DEBUGEXP(ilvector2n1);
-    OPENFHE_DEBUGEXP(ilvector2n2);
+    LUX_FHE_DEBUGEXP(ilvector2n1);
+    LUX_FHE_DEBUGEXP(ilvector2n2);
 
     Element rounding2 = ilvector2n1 * ilvector2n2;
 
-    OPENFHE_DEBUGEXP(rounding2);
+    LUX_FHE_DEBUGEXP(rounding2);
     rounding2.SwitchFormat();
-    OPENFHE_DEBUGEXP(rounding2);
+    LUX_FHE_DEBUGEXP(rounding2);
     rounding2 = rounding2.MultiplyAndRound(p, q);
-    OPENFHE_DEBUGEXP(rounding2);
+    LUX_FHE_DEBUGEXP(rounding2);
     EXPECT_EQ(roundingCorrect2, rounding2) << msg << " Failure: Rounding p*polynomial1*polynomial2/q";
 
-    OPENFHE_DEBUG("makes sure the result is correct after");
-    OPENFHE_DEBUG("going back to the original modulus");
+    LUX_FHE_DEBUG("makes sure the result is correct after");
+    LUX_FHE_DEBUG("going back to the original modulus");
 
     rounding2.SwitchModulus(q, primitiveRootOfUnity, 0, 0);
-    OPENFHE_DEBUGEXP(rounding2);
+    LUX_FHE_DEBUGEXP(rounding2);
 
     Element roundingCorrect3(ilparams, Format::COEFFICIENT);
     roundingCorrect3 = {"45", "49", "60", "67"};
@@ -143,7 +143,7 @@ TEST(UTDCRTPoly, rounding_ops) {
 // template for set_get_values()
 template <typename Element>
 void set_get_values(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
@@ -158,7 +158,7 @@ void set_get_values(const std::string& msg) {
         VecType bbv(m / 2, primeModulus);
         bbv = {"3", "0", "0", "0"};
         ilvector2n.SetValues(bbv, Format::COEFFICIENT);
-        OPENFHE_DEBUGEXP(ilvector2n);
+        LUX_FHE_DEBUGEXP(ilvector2n);
         // test for bug where length was 0
         EXPECT_EQ(ilvector2n.GetLength(), m / 2) << msg << " Failure: ={init list string}";
 
@@ -178,8 +178,8 @@ void set_get_values(const std::string& msg) {
         ilvector2n = {"1", "2", "0", "1"};
         Element bbv(ilparams);
         bbv = {"1", "2", "0", "1"};
-        OPENFHE_DEBUGEXP(ilvector2n);
-        OPENFHE_DEBUGEXP(bbv);
+        LUX_FHE_DEBUGEXP(ilvector2n);
+        LUX_FHE_DEBUGEXP(bbv);
 
         EXPECT_EQ(bbv.GetValues(), ilvector2n.GetValues()) << msg << "Failure: GetValues()";
 
@@ -210,7 +210,7 @@ TEST(UTDCRTPoly, set_get_values) {
 // template for at()
 template <typename Element>
 void at(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
@@ -226,8 +226,8 @@ void at(const std::string& msg) {
         ilvector2n = {"1", "2", "0", "1"};
         Element bbv(ilparams);
         bbv = {"1", "2", "0", "1"};
-        OPENFHE_DEBUGEXP(ilvector2n);
-        OPENFHE_DEBUGEXP(bbv);
+        LUX_FHE_DEBUGEXP(ilvector2n);
+        LUX_FHE_DEBUGEXP(bbv);
         // test for bug where length was 0
         EXPECT_EQ(ilvector2n.GetLength(), m / 2) << msg << " Failure: ={init list string}";
 
@@ -263,7 +263,7 @@ TEST(UTDCRTPoly, at) {
 
 template <typename Element>
 void switch_modulus(const std::string& msg) {
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
     // using IntType = typename Element::Vector::Integer;
@@ -273,7 +273,7 @@ void switch_modulus(const std::string& msg) {
     typename VecType::Integer primitiveRootOfUnity("22");
 
     auto ilparams = std::make_shared<ParmType>(m, primeModulus, primitiveRootOfUnity);
-    OPENFHE_DEBUG("SwitchModulus");
+    LUX_FHE_DEBUG("SwitchModulus");
     {
         Element ilv(ilparams, Format::COEFFICIENT);
         ilv = {"56", "1", "37", "2"};
@@ -318,7 +318,7 @@ void rn_generators(const std::string& msg) {
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     uint32_t m = 8;
     typename VecType::Integer primeModulus("73");
     typename VecType::Integer primitiveRootOfUnity("22");
@@ -330,7 +330,7 @@ void rn_generators(const std::string& msg) {
 
     auto ilparams = std::make_shared<ParmType>(m, primeModulus, primitiveRootOfUnity);
 
-    OPENFHE_DEBUG("DestroyPreComputedSamples");
+    LUX_FHE_DEBUG("DestroyPreComputedSamples");
     {
         Element ilv(ilparams, Format::COEFFICIENT);
         ilv = {"2", "1", "3", "2"};
@@ -369,7 +369,7 @@ void poly_other_methods(const std::string& msg) {
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     uint32_t m = 8;
     typename VecType::Integer primeModulus("73");
     typename VecType::Integer primitiveRootOfUnity("22");
@@ -381,7 +381,7 @@ void poly_other_methods(const std::string& msg) {
     // test for bug where length was 0
     EXPECT_EQ(ilvector2n.GetLength(), m / 2) << msg << " Failure: ={init list string}";
 
-    OPENFHE_DEBUG("SwitchFormat");
+    LUX_FHE_DEBUG("SwitchFormat");
     {
         Element ilv(ilparams, Format::COEFFICIENT);
         ilv = {"2", "1", "3", "2"};
@@ -408,7 +408,7 @@ void poly_other_methods(const std::string& msg) {
         EXPECT_EQ(expected2, ilv1) << msg << " Failure: ivl1.SwitchFormat() values";
     }
 
-    OPENFHE_DEBUG("MultiplicativeInverse");
+    LUX_FHE_DEBUG("MultiplicativeInverse");
     {
         Element ilv1(ilparams, Format::EVALUATION);
         ilv1 = {"2", "4", "3", "2"};
@@ -422,7 +422,7 @@ void poly_other_methods(const std::string& msg) {
         }
     }
 
-    OPENFHE_DEBUG("Norm");
+    LUX_FHE_DEBUG("Norm");
     {
         Element ilv(ilparams, Format::COEFFICIENT);
         ilv = {"56", "1", "37", "1"};
@@ -494,7 +494,7 @@ void automorphismTransform(const std::string& msg) {
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     uint32_t m = 8;
     typename VecType::Integer primeModulus("73");
     typename VecType::Integer primitiveRootOfUnity("22");
@@ -506,7 +506,7 @@ void automorphismTransform(const std::string& msg) {
     // test for bug where length was 0
     EXPECT_EQ(ilvector2n.GetLength(), m / 2) << msg << " Failure: ={init list string}";
 
-    OPENFHE_DEBUG("AutomorphismTransform");
+    LUX_FHE_DEBUG("AutomorphismTransform");
     {
         Element ilv(ilparams, Format::COEFFICIENT);
         ilv = {"56", "1", "37", "2"};
@@ -534,7 +534,7 @@ void transposition(const std::string& msg) {
     using VecType  = typename Element::Vector;
     using ParmType = typename Element::Params;
 
-    OPENFHE_DEBUG_FLAG(false);
+    LUX_FHE_DEBUG_FLAG(false);
     uint32_t m = 8;
 
     typename VecType::Integer q("73");
@@ -549,20 +549,20 @@ void transposition(const std::string& msg) {
 
     // converts to Format::EVALUATION representation
     ilvector2n1.SwitchFormat();
-    OPENFHE_DEBUG("ilvector2n1 a " << ilvector2n1);
+    LUX_FHE_DEBUG("ilvector2n1 a " << ilvector2n1);
 
     ilvector2n1 = ilvector2n1.Transpose();
-    OPENFHE_DEBUG("ilvector2n1 b " << ilvector2n1);
+    LUX_FHE_DEBUG("ilvector2n1 b " << ilvector2n1);
 
     // converts back to Format::COEFFICIENT representation
     ilvector2n1.SwitchFormat();
 
-    OPENFHE_DEBUG("ilvector2n1 c " << ilvector2n1);
+    LUX_FHE_DEBUG("ilvector2n1 c " << ilvector2n1);
 
     Element ilvector2n2(ilparams, Format::COEFFICIENT);
     ilvector2n2 = {"31", "39", "58", "52"};
 
-    OPENFHE_DEBUG("ilvector2n2 a " << ilvector2n2);
+    LUX_FHE_DEBUG("ilvector2n2 a " << ilvector2n2);
 
     EXPECT_EQ(ilvector2n2, ilvector2n1) << msg << " Failure: transposition test";
 }

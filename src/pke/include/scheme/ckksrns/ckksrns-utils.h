@@ -43,7 +43,7 @@
  * Subroutines used by the linear transformation homomorphic capability
  */
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecDType>
 struct longDiv {
@@ -86,7 +86,7 @@ template <typename VecDType>
 uint32_t Degree(const std::vector<VecDType>& coefficients, double delta = 0.0) {
     uint32_t i = coefficients.size();
     if (i == 0)
-        OPENFHE_THROW("Coefficients vector can not be empty");
+        LUX_FHE_THROW("Coefficients vector can not be empty");
     while (i > 0) {
         if (IsNotEqualZero(coefficients[--i], delta))
             break;
@@ -137,7 +137,7 @@ uint32_t GetDepthByDegree(size_t degree);
 template <typename VecDType>
 uint32_t GetMultiplicativeDepthByCoeffVector(const std::vector<VecDType>& vec, bool isNormalized = false) {
     if (vec.size() == 0)
-        OPENFHE_THROW("Cannot perform operation on empty vector. vec.size() == 0");
+        LUX_FHE_THROW("Cannot perform operation on empty vector. vec.size() == 0");
     return GetDepthByDegree(vec.size() - 1) - isNormalized;
 }
 
@@ -308,6 +308,6 @@ enum {
 };
 }  // namespace CKKS_BOOT_PARAMS
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -49,7 +49,7 @@
 #include <vector>
 #include <map>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class RingGSWEvalKeyImpl;
 using RingGSWEvalKey      = std::shared_ptr<RingGSWEvalKeyImpl>;
@@ -138,7 +138,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("elements", m_elements));
@@ -155,6 +155,6 @@ private:
     std::vector<std::vector<NativePoly>> m_elements;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _RGSW_EVAL_KEY_H_

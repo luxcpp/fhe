@@ -30,15 +30,15 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_INC_MATH_HERMITE_H
-#define LBCRYPTO_INC_MATH_HERMITE_H
+#ifndef LUX_FHE_INC_MATH_HERMITE_H
+#define LUX_FHE_INC_MATH_HERMITE_H
 
 #include <complex>
 #include <cstdint>
 #include <functional>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * Method for calculating the intermediate Hermite trigonometric interpolation (of order 1)
@@ -58,6 +58,6 @@ namespace lbcrypto {
 std::vector<std::complex<double>> GetHermiteTrigCoefficients(std::function<int64_t(int64_t)> func, uint32_t p,
                                                              size_t order, double scale);
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

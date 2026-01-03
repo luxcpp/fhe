@@ -15,7 +15,7 @@
 #include <cassert>
 #include <iomanip>
 
-using namespace lbcrypto::gpu::metal;
+using namespace lux::gpu::metal;
 
 // =============================================================================
 // Test Infrastructure

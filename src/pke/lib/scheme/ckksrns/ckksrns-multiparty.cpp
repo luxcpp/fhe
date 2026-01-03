@@ -46,7 +46,7 @@ CKKS implementation. See https://eprint.iacr.org/2020/1118 for details.
 #include <utility>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // {Q} = {q_1,...,q_l}, original RNS basis
 // {P} = {p_1,...,p_k}, extended RNS basis
@@ -83,7 +83,7 @@ DecryptResult MultipartyCKKSRNS::MultipartyDecryptFusion(const std::vector<Ciphe
     //  } else if (sizeQl == 1) {
     //    *plaintext = Poly(b.GetElementAtIndex(0), Format::COEFFICIENT);
     //  } else {
-    //    OPENFHE_THROW(
+    //    LUX_FHE_THROW(
     //        "Decryption failure: No towers left; consider increasing the depth.");
     //  }
 
@@ -108,7 +108,7 @@ DecryptResult MultipartyCKKSRNS::MultipartyDecryptFusion(const std::vector<Ciphe
     //  if (sizeQl == 1)
     //    *plaintext = b.GetElementAtIndex(0);
     //  else
-    //    OPENFHE_THROW(
+    //    LUX_FHE_THROW(
     //        "Decryption failure: No towers left; consider increasing the depth.");
 
     *plaintext = b.GetElementAtIndex(0);
@@ -119,7 +119,7 @@ DecryptResult MultipartyCKKSRNS::MultipartyDecryptFusion(const std::vector<Ciphe
 Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntMPBootAdjustScale(ConstCiphertext<DCRTPoly> ciphertext) const {
     if (ciphertext->NumberCiphertextElements() == 0) {
         std::string msg = "IntMPBootAdjustScale: no polynomials in the input ciphertext.";
-        OPENFHE_THROW(msg);
+        LUX_FHE_THROW(msg);
     }
 
     auto cc                 = ciphertext->GetCryptoContext();
@@ -136,7 +136,7 @@ Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntMPBootAdjustScale(ConstCiphertext<DCR
 
     if (ciphertext->GetElements()[0].GetNumOfElements() < numTowersToKeep) {
         std::string msg = std::string(__func__) + ": not enough towers in the input polynomial.";
-        OPENFHE_THROW(msg);
+        LUX_FHE_THROW(msg);
     }
     if (cryptoParams->GetScalingTechnique() == ScalingTechnique::FLEXIBLEAUTO ||
         cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT) {
@@ -268,7 +268,7 @@ void PrecomputeRNSExtensionTables(CryptoContext<DCRTPoly>& cc, usint from, usint
 DCRTPoly ComputeNoisyMult(CryptoContext<DCRTPoly>& cc, const DCRTPoly& sk, const DCRTPoly& poly, bool IsZeroNoise) {
     if (sk.GetNumOfElements() != poly.GetNumOfElements()) {
         std::string errMsg = "ERROR: Number of towers in input polys does not match!";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     DCRTPoly res = sk * poly;
@@ -390,7 +390,7 @@ std::vector<Ciphertext<DCRTPoly>> MultipartyCKKSRNS::IntMPBootAdd(
     std::vector<std::vector<Ciphertext<DCRTPoly>>>& sharesPairVec) const {
     if (sharesPairVec.size() == 0) {
         std::string msg = "IntMPBootAdd: no polynomials in input share(s).";
-        OPENFHE_THROW(msg);
+        LUX_FHE_THROW(msg);
     }
 
     std::vector<Ciphertext<DCRTPoly>> result = sharesPairVec[0];
@@ -410,7 +410,7 @@ Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntMPBootEncrypt(const PublicKey<DCRTPol
                                                          ConstCiphertext<DCRTPoly> ciphertext) const {
     if (ciphertext->NumberCiphertextElements() == 0) {
         std::string msg = "IntMPBootEncrypt: no polynomials in the input ciphertext.";
-        OPENFHE_THROW(msg);
+        LUX_FHE_THROW(msg);
     }
 
     auto cc = ciphertext->GetCryptoContext();
@@ -451,7 +451,7 @@ Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntMPBootEncrypt(const PublicKey<DCRTPol
 
 Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntBootAdjustScale(ConstCiphertext<DCRTPoly> ciphertext) const {
     if (ciphertext->GetElements().empty()) {
-        OPENFHE_THROW("No polynomials in the input ciphertext");
+        LUX_FHE_THROW("No polynomials in the input ciphertext");
     }
 
     const std::shared_ptr<CryptoParametersCKKSRNS> cryptoParams =
@@ -462,7 +462,7 @@ Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntBootAdjustScale(ConstCiphertext<DCRTP
     if ((cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO) ||
         (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)) {
         if (ciphertext->GetElements()[0].GetNumOfElements() < 3) {
-            OPENFHE_THROW("Not enough towers in the input polynomial");
+            LUX_FHE_THROW("Not enough towers in the input polynomial");
         }
 
         auto ciphertextAdjusted = cc->Compress(ciphertext, 3);
@@ -486,11 +486,11 @@ Ciphertext<DCRTPoly> MultipartyCKKSRNS::IntBootAdjustScale(ConstCiphertext<DCRTP
     }
     else {
         if (ciphertext->GetElements()[0].GetNumOfElements() < 2) {
-            OPENFHE_THROW("Not enough towers in the input polynomial");
+            LUX_FHE_THROW("Not enough towers in the input polynomial");
         }
 
         return cc->Compress(ciphertext, 2);
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

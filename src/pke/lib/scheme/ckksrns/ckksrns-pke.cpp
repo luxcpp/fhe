@@ -39,7 +39,7 @@ CKKS implementation. If NOISE_FLOODING_DECRYPT is set, we flood the decryption b
 #include "scheme/ckksrns/ckksrns-cryptoparameters.h"
 #include "scheme/ckksrns/ckksrns-pke.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 DecryptResult PKECKKSRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const PrivateKey<DCRTPoly> privateKey,
                                   NativePoly* plaintext) const {
@@ -57,7 +57,7 @@ DecryptResult PKECKKSRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const Pr
     const size_t sizeQl = b.GetParams()->GetParams().size();
 
     if (sizeQl != 1) {
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "sizeQl " + std::to_string(sizeQl) +
             "!= 1. If sizeQl = 0, consider increasing the depth. If sizeQl > 1, check parameters (this is unsupported for NativePoly).");
     }
@@ -83,7 +83,7 @@ DecryptResult PKECKKSRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const Pr
     const size_t sizeQl = b.GetParams()->GetParams().size();
 
     if (sizeQl == 0)
-        OPENFHE_THROW("Decryption failure: No towers left; consider increasing the depth.");
+        LUX_FHE_THROW("Decryption failure: No towers left; consider increasing the depth.");
 
     if (sizeQl == 1) {
         *plaintext = Poly(b.GetElementAtIndex(0), Format::COEFFICIENT);
@@ -95,4 +95,4 @@ DecryptResult PKECKKSRNS::Decrypt(ConstCiphertext<DCRTPoly> ciphertext, const Pr
     return DecryptResult(plaintext->GetLength());
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -39,7 +39,7 @@
 #include <vector>
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void ThresholdFHE(enum ScalingTechnique rescaleTech);
 void Chebyshev(enum ScalingTechnique rescaleTech);

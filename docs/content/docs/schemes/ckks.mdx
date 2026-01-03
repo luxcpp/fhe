@@ -1,0 +1,394 @@
+---
+title: CKKS
+description: Cheon-Kim-Kim-Song scheme for approximate arithmetic on real numbers
+---
+
+# CKKS Scheme
+
+CKKS (Cheon-Kim-Kim-Song) is an FHE scheme for approximate arithmetic on real and complex numbers. It's the primary scheme for privacy-preserving machine learning.
+
+## Key Features
+
+- **Approximate arithmetic**: Trades exactness for efficiency
+- **Real/complex numbers**: Native floating-point support
+- **Machine learning ready**: Essential for neural network inference
+- **Rescaling**: Automatic scale management
+
+## Quick Start
+
+```cpp
+#include <lux/fhe/pke.h>
+
+int main() {
+    // Create CKKS context
+    auto ctx = lux::fhe::CKKSContext::Create({
+        .ring_dim = 16384,
+        .scale = 1ULL << 40,  // 2^40 scaling factor
+        .multiplicative_depth = 8,
+        .backend = lux::fhe::Backend::METAL
+    });
+
+    // Generate keys
+    auto [pk, sk] = ctx->GenerateKeyPair();
+    auto rlk = ctx->GenerateRelinearizationKey(sk);
+
+    // Encrypt floating-point values
+    std::vector<double> values = {1.5, 2.7, 3.14, 0.001};
+    auto ct = ctx->Encrypt(pk, values);
+
+    // Homomorphic operations
+    auto ct_squared = ctx->Mul(ct, ct, rlk);
+    ctx->Rescale(ct_squared);  // Important!
+
+    // Decrypt
+    auto result = ctx->Decrypt(sk, ct_squared);
+    // result ≈ {2.25, 7.29, 9.87, 0.000001}
+
+    return 0;
+}
+```
+
+## Rescaling
+
+After multiplication, the scale doubles. Rescaling reduces it:
+
+```cpp
+// Without rescaling
+auto ct = ctx->Encrypt(pk, values);      // scale = 2^40
+auto ct2 = ctx->Mul(ct, ct, rlk);        // scale = 2^80 (doubled!)
+// Further operations will have incorrect scale
+
+// With rescaling
+auto ct = ctx->Encrypt(pk, values);      // scale = 2^40
+auto ct2 = ctx->Mul(ct, ct, rlk);        // scale = 2^80
+ctx->Rescale(ct2);                        // scale = 2^40 again
+auto ct3 = ctx->Mul(ct2, ct, rlk);       // Works correctly
+```
+
+### Auto-Rescaling
+
+```cpp
+// Enable automatic rescaling
+auto ctx = lux::fhe::CKKSContext::Create({
+    .auto_rescale = true  // Rescale after every multiplication
+});
+
+auto ct = ctx->Mul(ct_a, ct_b, rlk);  // Automatically rescaled
+```
+
+## Operations
+
+### Arithmetic
+
+```cpp
+// Addition (same scale required)
+auto ct_sum = ctx->Add(ct_a, ct_b);
+
+// Subtraction
+auto ct_diff = ctx->Sub(ct_a, ct_b);
+
+// Multiplication (rescale after!)
+auto ct_prod = ctx->Mul(ct_a, ct_b, rlk);
+ctx->Rescale(ct_prod);
+
+// Square
+auto ct_sq = ctx->Square(ct, rlk);
+ctx->Rescale(ct_sq);
+```
+
+### Plaintext Operations
+
+```cpp
+// Add constant (encodes at matching scale)
+auto ct_add = ctx->AddPlain(ct, 1.5);
+
+// Multiply by constant
+auto ct_scaled = ctx->MulPlain(ct, 2.0);
+ctx->Rescale(ct_scaled);
+
+// Multiply by complex
+auto ct_complex = ctx->MulPlain(ct, std::complex<double>(1.0, 2.0));
+```
+
+### Rotation
+
+```cpp
+auto gk = ctx->GenerateGaloisKeys(sk);
+
+// Rotate slots
+auto ct_rot = ctx->RotateLeft(ct, 2, gk);
+
+// Conjugate (for complex numbers)
+auto ct_conj = ctx->Conjugate(ct, gk);
+```
+
+## Precision and Error
+
+CKKS is approximate - understand the error:
+
+```cpp
+// Precision depends on scale
+auto ctx_low = lux::fhe::CKKSContext::Create({
+    .scale = 1ULL << 30   // Lower precision, ~9 decimal digits
+});
+
+auto ctx_high = lux::fhe::CKKSContext::Create({
+    .scale = 1ULL << 50   // Higher precision, ~15 decimal digits
+});
+
+// Error accumulates with operations
+// After n multiplications: error ≈ n × initial_error
+```
+
+### Error Analysis
+
+```cpp
+// Encrypt and check error
+std::vector<double> original = {1.5, 2.7, 3.14};
+auto ct = ctx->Encrypt(pk, original);
+auto decrypted = ctx->Decrypt(sk, ct);
+
+for (size_t i = 0; i < original.size(); i++) {
+    double error = std::abs(decrypted[i] - original[i]);
+    std::cout << "Error[" << i << "]: " << error << std::endl;
+}
+// Typical: ~1e-12 for scale = 2^40
+```
+
+## Machine Learning
+
+CKKS is ideal for neural network inference:
+
+### Linear Layer
+
+```cpp
+// y = Wx + b
+auto ct_x = ctx->Encrypt(pk, input);          // Encrypt input
+auto W = load_weights("layer1.weights");       // Plaintext weights
+auto b = load_bias("layer1.bias");
+
+auto ct_wx = ctx->MatVecMul(W, ct_x, rlk, gk);
+ctx->Rescale(ct_wx);
+
+auto ct_y = ctx->AddPlain(ct_wx, b);
+```
+
+### Activation Functions
+
+Approximate activation functions with polynomials:
+
+```cpp
+// ReLU approximation: f(x) ≈ 0.5x + 0.25x² (for x near 0)
+auto ApproxReLU(CKKSContext* ctx, Ciphertext& ct) {
+    auto ct_sq = ctx->Square(ct, rlk);
+    ctx->Rescale(ct_sq);
+
+    auto term1 = ctx->MulPlain(ct, 0.5);
+    auto term2 = ctx->MulPlain(ct_sq, 0.25);
+    ctx->Rescale(term1);
+    ctx->Rescale(term2);
+
+    return ctx->Add(term1, term2);
+}
+
+// Sigmoid approximation using polynomial
+auto ApproxSigmoid(CKKSContext* ctx, Ciphertext& ct) {
+    // σ(x) ≈ 0.5 + 0.25x - 0.0208x³
+    auto coeffs = {0.5, 0.25, 0.0, -0.0208};
+    return ctx->EvaluatePolynomial(ct, coeffs, rlk);
+}
+```
+
+### Complete Neural Network
+
+```cpp
+// 3-layer neural network inference
+Ciphertext InferenceNN(
+    CKKSContext* ctx,
+    const Ciphertext& ct_input,
+    const std::vector<std::vector<double>>& weights,
+    const std::vector<std::vector<double>>& biases
+) {
+    Ciphertext ct = ct_input;
+
+    for (size_t layer = 0; layer < weights.size(); layer++) {
+        // Linear transformation
+        ct = ctx->MatVecMul(weights[layer], ct, rlk, gk);
+        ctx->Rescale(ct);
+
+        // Add bias
+        ct = ctx->AddPlain(ct, biases[layer]);
+
+        // Activation (except last layer)
+        if (layer < weights.size() - 1) {
+            ct = ApproxReLU(ctx, ct);
+        }
+    }
+
+    return ct;
+}
+```
+
+## Bootstrapping
+
+Reset noise for deep computations:
+
+```cpp
+// Configure bootstrapping
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 32768,
+    .scale = 1ULL << 45,
+    .multiplicative_depth = 30,
+    .bootstrap_precision = 25  // Bits after bootstrap
+});
+
+auto bk = ctx->GenerateBootstrappingKey(sk);
+
+// After many operations, noise budget low
+auto ct = /* result of many operations */;
+
+// Bootstrap to refresh
+auto ct_refreshed = ctx->Bootstrap(bk, ct);
+// ct_refreshed has fresh noise, can continue computing
+```
+
+## Complex Numbers
+
+CKKS natively supports complex arithmetic:
+
+```cpp
+// Encrypt complex vector
+std::vector<std::complex<double>> complex_data = {
+    {1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}
+};
+auto ct = ctx->EncryptComplex(pk, complex_data);
+
+// Complex multiplication
+auto ct_prod = ctx->Mul(ct, ct, rlk);  // (a+bi)(c+di)
+
+// Conjugate
+auto ct_conj = ctx->Conjugate(ct, gk);  // a-bi
+
+// Real/Imag extraction
+auto ct_real = ctx->ExtractReal(ct, gk);
+auto ct_imag = ctx->ExtractImag(ct, gk);
+```
+
+## Performance
+
+### Benchmarks (M3 Max GPU)
+
+| Operation | n=8192 | n=16384 | n=32768 |
+|-----------|--------|---------|---------|
+| Encrypt | 1.5ms | 3ms | 7ms |
+| Add | 0.1ms | 0.2ms | 0.5ms |
+| Multiply | 2.5ms | 5ms | 12ms |
+| Rescale | 0.5ms | 1ms | 2ms |
+| Rotate | 2ms | 4ms | 9ms |
+| Bootstrap | 25ms | 50ms | 120ms |
+
+### Slots vs Ring Dimension
+
+| Ring Dim | Slots | Notes |
+|----------|-------|-------|
+| 8192 | 4096 | Good for small models |
+| 16384 | 8192 | Standard for ML |
+| 32768 | 16384 | Large models, bootstrapping |
+
+## Parameter Selection
+
+### For Machine Learning
+
+```cpp
+// Typical ML configuration
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 16384,
+    .scale = 1ULL << 40,
+    .coeff_modulus_bits = {60, 40, 40, 40, 40, 40, 40, 40, 60},
+    // Depth 7: enough for most CNNs
+});
+```
+
+### For Scientific Computing
+
+```cpp
+// High precision for scientific applications
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 32768,
+    .scale = 1ULL << 50,  // ~15 decimal digits
+    .multiplicative_depth = 15
+});
+```
+
+## Common Patterns
+
+### Inner Product
+
+```cpp
+// Compute <a, b> for encrypted vectors
+auto ct_prod = ctx->Mul(ct_a, ct_b, rlk);
+ctx->Rescale(ct_prod);
+
+auto ct_sum = ctx->SumSlots(ct_prod, gk);  // Sum all slots
+// Result in slot 0
+```
+
+### Polynomial Evaluation
+
+```cpp
+// Evaluate p(x) = 2x³ - 3x² + x - 1
+std::vector<double> coeffs = {-1, 1, -3, 2};
+
+auto ct_result = ctx->EvaluatePolynomial(ct_x, coeffs, rlk);
+// Uses Horner's method for minimum depth
+```
+
+### Matrix Multiplication
+
+```cpp
+// Encrypted matrix × plaintext matrix
+auto ct_A = ctx->EncryptMatrix(pk, A);
+auto ct_C = ctx->MatMulPlain(ct_A, B, rlk, gk);
+ctx->Rescale(ct_C);
+
+// Encrypted × encrypted
+auto ct_C = ctx->MatMul(ct_A, ct_B, rlk, gk);
+```
+
+## Tips
+
+### 1. Match Scales Before Addition
+
+```cpp
+// Bad: different scales
+auto ct_a = ctx->Mul(ct1, ct2, rlk);  // scale doubled
+auto ct_sum = ctx->Add(ct_a, ct3);     // ERROR: scale mismatch
+
+// Good: rescale first
+auto ct_a = ctx->Mul(ct1, ct2, rlk);
+ctx->Rescale(ct_a);                    // Scale normalized
+auto ct_sum = ctx->Add(ct_a, ct3);     // OK
+```
+
+### 2. Plan Multiplicative Depth
+
+```cpp
+// Count multiplications in your algorithm
+// Add extra levels for safety
+int actual_depth = analyze_circuit_depth(algorithm);
+int params_depth = actual_depth + 2;  // Safety margin
+```
+
+### 3. Use Approximations Wisely
+
+```cpp
+// Higher-degree polynomial = more precision, more depth
+// Sigmoid degree-3: 2 multiplications, ~5% error
+// Sigmoid degree-7: 4 multiplications, ~0.1% error
+```
+
+## Further Reading
+
+- [Noise Management](/docs/concepts/noise-management) - Understanding scale and noise
+- [Bootstrapping](/docs/concepts/bootstrapping) - Deep circuit evaluation
+- [API Reference](/docs/api/cpp-api) - Complete API documentation

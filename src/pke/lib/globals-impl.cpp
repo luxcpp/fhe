@@ -31,7 +31,7 @@
 
 #include "globals.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 struct GLOBALS {
     static bool precomputeCRTTables;
@@ -51,4 +51,4 @@ bool PrecomputeCRTTablesAfterDeserializaton() {
 }
 //=============================================================================
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

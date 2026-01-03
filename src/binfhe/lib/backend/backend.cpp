@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <thread>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -305,4 +305,4 @@ bool BackendRegistry::IsAvailable(BackendType type) const {
 }
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe

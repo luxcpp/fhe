@@ -27,7 +27,7 @@
 #include <functional>
 #include <iomanip>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace perf {
 
 // ============================================================================
@@ -514,6 +514,6 @@ private:
     } while(0)
 
 } // namespace perf
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // BENCHMARK_PERF_THRESHOLDS_H

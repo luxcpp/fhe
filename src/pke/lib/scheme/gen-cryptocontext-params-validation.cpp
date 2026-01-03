@@ -32,135 +32,135 @@
 #include "utils/exception.h"
 #include "utils/utilities.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void validateParametersForCryptocontext(const Params& parameters) {
     SCHEME scheme = parameters.GetScheme();
     if (isCKKS(scheme)) {
         if (NORESCALE == parameters.GetScalingTechnique()) {
-            OPENFHE_THROW("NORESCALE is not supported in CKKSRNS");
+            LUX_FHE_THROW("NORESCALE is not supported in CKKSRNS");
         }
         else if (COMPOSITESCALINGAUTO == parameters.GetScalingTechnique()) {
             if (1 != parameters.GetCompositeDegree()) {
-                OPENFHE_THROW("Composite degree can be set for COMPOSITESCALINGMANUAL only.");
+                LUX_FHE_THROW("Composite degree can be set for COMPOSITESCALINGMANUAL only.");
             }
         }
         else if (COMPOSITESCALINGMANUAL == parameters.GetScalingTechnique()) {
             if (parameters.GetCompositeDegree() < 1 || parameters.GetCompositeDegree() > 4) {
-                OPENFHE_THROW("Composite degree valid values: 1, 2, 3, and 4.");
+                LUX_FHE_THROW("Composite degree valid values: 1, 2, 3, and 4.");
             }
         }
         if (NOISE_FLOODING_HRA == parameters.GetPREMode()) {
-            OPENFHE_THROW("NOISE_FLOODING_HRA is not supported in CKKSRNS");
+            LUX_FHE_THROW("NOISE_FLOODING_HRA is not supported in CKKSRNS");
         }
         if (NOISE_FLOODING_MULTIPARTY == parameters.GetMultipartyMode()) {
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "NOISE_FLOODING_MULTIPARTY is not supported in CKKSRNS. Use NOISE_FLOODING_DECRYPT and EXEC_EVALUATION instead.");
         }
         if (COMPOSITESCALINGAUTO == parameters.GetScalingTechnique() ||
             COMPOSITESCALINGMANUAL == parameters.GetScalingTechnique()) {
             if (COMPOSITESCALING_MAX_MODULUS_SIZE <= parameters.GetScalingModSize() ||
                 15 > parameters.GetScalingModSize()) {
-                OPENFHE_THROW("scalingModSize should be greater than 15 and less than " +
+                LUX_FHE_THROW("scalingModSize should be greater than 15 and less than " +
                               std::to_string(COMPOSITESCALING_MAX_MODULUS_SIZE));
             }
             if (SPARSE_ENCAPSULATED == parameters.GetSecretKeyDist()) {
-                OPENFHE_THROW("SPARSE_ENCAPSULATED not yet supported with COMPOSITESCALING");
+                LUX_FHE_THROW("SPARSE_ENCAPSULATED not yet supported with COMPOSITESCALING");
             }
         }
         else {
             if (MAX_MODULUS_SIZE <= parameters.GetScalingModSize() || 15 > parameters.GetScalingModSize()) {
-                OPENFHE_THROW("scalingModSize should be greater than 15 and less than " +
+                LUX_FHE_THROW("scalingModSize should be greater than 15 and less than " +
                               std::to_string(MAX_MODULUS_SIZE));
             }
         }
         if (30 != parameters.GetStatisticalSecurity()) {
             if (NOISE_FLOODING_MULTIPARTY != parameters.GetMultipartyMode()) {
-                OPENFHE_THROW("statisticalSecurity is allowed for multipartyMode == NOISE_FLOODING_MULTIPARTY only");
+                LUX_FHE_THROW("statisticalSecurity is allowed for multipartyMode == NOISE_FLOODING_MULTIPARTY only");
             }
         }
         if (1 != parameters.GetNumAdversarialQueries()) {
             if (NOISE_FLOODING_MULTIPARTY != parameters.GetMultipartyMode()) {
-                OPENFHE_THROW("numAdversarialQueries is allowed for multipartyMode == NOISE_FLOODING_MULTIPARTY only");
+                LUX_FHE_THROW("numAdversarialQueries is allowed for multipartyMode == NOISE_FLOODING_MULTIPARTY only");
             }
         }
         if (parameters.GetExecutionMode() == EXEC_NOISE_ESTIMATION && parameters.GetCKKSDataType() == COMPLEX) {
-            OPENFHE_THROW("EXEC_NOISE_ESTIMATION mode is not compatible with complex data types.");
+            LUX_FHE_THROW("EXEC_NOISE_ESTIMATION mode is not compatible with complex data types.");
         }
         if (parameters.GetFirstModSize() < parameters.GetScalingModSize()) {
-            OPENFHE_THROW("firstModSize cannot be less than scalingModSize");
+            LUX_FHE_THROW("firstModSize cannot be less than scalingModSize");
         }
     }
     else if (isBFVRNS(scheme)) {
         if (0 == parameters.GetPlaintextModulus()) {
-            OPENFHE_THROW("PlaintextModulus is not set. It should be set to a non-zero value");
+            LUX_FHE_THROW("PlaintextModulus is not set. It should be set to a non-zero value");
         }
         if (NOISE_FLOODING_HRA == parameters.GetPREMode()) {
-            OPENFHE_THROW("NOISE_FLOODING_HRA is not supported in BFVRNS");
+            LUX_FHE_THROW("NOISE_FLOODING_HRA is not supported in BFVRNS");
         }
         if (SPARSE_ENCAPSULATED == parameters.GetSecretKeyDist()) {
-            OPENFHE_THROW("SPARSE_ENCAPSULATED not yet supported with BFVRNS");
+            LUX_FHE_THROW("SPARSE_ENCAPSULATED not yet supported with BFVRNS");
         }
     }
     else if (isBGVRNS(scheme)) {
         if (0 == parameters.GetPlaintextModulus()) {
-            OPENFHE_THROW("PlaintextModulus is not set. It should be set to a non-zero value");
+            LUX_FHE_THROW("PlaintextModulus is not set. It should be set to a non-zero value");
         }
         if (NORESCALE == parameters.GetScalingTechnique()) {
-            OPENFHE_THROW("NORESCALE is not supported in BGVRNS");
+            LUX_FHE_THROW("NORESCALE is not supported in BGVRNS");
         }
         if (NOISE_FLOODING_HRA == parameters.GetPREMode()) {
             if (FIXEDMANUAL != parameters.GetScalingTechnique()) {
-                OPENFHE_THROW("NOISE_FLOODING_HRA is allowed for scalingTechnique == FIXEDMANUAL only");
+                LUX_FHE_THROW("NOISE_FLOODING_HRA is allowed for scalingTechnique == FIXEDMANUAL only");
             }
             if (0 == parameters.GetPRENumHops()) {
-                OPENFHE_THROW("PRENumHops should be set to a value > 0 for PREMode == NOISE_FLOODING_HRA");
+                LUX_FHE_THROW("PRENumHops should be set to a value > 0 for PREMode == NOISE_FLOODING_HRA");
             }
             if (0 != parameters.GetMultiplicativeDepth()) {
-                OPENFHE_THROW("multiplicativeDepth should be set to 0 for PREMode == NOISE_FLOODING_HRA");
+                LUX_FHE_THROW("multiplicativeDepth should be set to 0 for PREMode == NOISE_FLOODING_HRA");
             }
             if (0 != parameters.GetFirstModSize()) {
-                OPENFHE_THROW("firstModSize is not supported for PREMode == NOISE_FLOODING_HRA");
+                LUX_FHE_THROW("firstModSize is not supported for PREMode == NOISE_FLOODING_HRA");
             }
             if (0 != parameters.GetScalingModSize()) {
-                OPENFHE_THROW("scalingModSize is not supported for PREMode == NOISE_FLOODING_HRA");
+                LUX_FHE_THROW("scalingModSize is not supported for PREMode == NOISE_FLOODING_HRA");
             }
             if (0 == parameters.GetRingDim()) {
-                OPENFHE_THROW("ringDim should be set to a value > 0 for PREMode == NOISE_FLOODING_HRA");
+                LUX_FHE_THROW("ringDim should be set to a value > 0 for PREMode == NOISE_FLOODING_HRA");
             }
         }
         if (0 != parameters.GetFirstModSize()) {
             if (FIXEDMANUAL != parameters.GetScalingTechnique()) {
-                OPENFHE_THROW("firstModSize is allowed for scalingTechnique == FIXEDMANUAL only");
+                LUX_FHE_THROW("firstModSize is allowed for scalingTechnique == FIXEDMANUAL only");
             }
         }
         if (0 != parameters.GetScalingModSize()) {
             if (FIXEDMANUAL != parameters.GetScalingTechnique()) {
-                OPENFHE_THROW("scalingModSize is allowed for scalingTechnique == FIXEDMANUAL only");
+                LUX_FHE_THROW("scalingModSize is allowed for scalingTechnique == FIXEDMANUAL only");
             }
         }
         if (0 != parameters.GetPRENumHops()) {
             if (NOISE_FLOODING_HRA != parameters.GetPREMode()) {
-                OPENFHE_THROW("PRENumHops is allowed for PREMode == NOISE_FLOODING_HRA only");
+                LUX_FHE_THROW("PRENumHops is allowed for PREMode == NOISE_FLOODING_HRA only");
             }
         }
         if (30 != parameters.GetStatisticalSecurity()) {
             if (NOISE_FLOODING_HRA != parameters.GetPREMode()) {
-                OPENFHE_THROW("statisticalSecurity is allowed for PREMode == NOISE_FLOODING_HRA only");
+                LUX_FHE_THROW("statisticalSecurity is allowed for PREMode == NOISE_FLOODING_HRA only");
             }
         }
         if (1 != parameters.GetNumAdversarialQueries()) {
             if (NOISE_FLOODING_HRA != parameters.GetPREMode()) {
-                OPENFHE_THROW("numAdversarialQueries is allowed for PREMode == NOISE_FLOODING_HRA only");
+                LUX_FHE_THROW("numAdversarialQueries is allowed for PREMode == NOISE_FLOODING_HRA only");
             }
         }
         if (SPARSE_ENCAPSULATED == parameters.GetSecretKeyDist()) {
-            OPENFHE_THROW("SPARSE_ENCAPSULATED not yet supported with BGVRNS");
+            LUX_FHE_THROW("SPARSE_ENCAPSULATED not yet supported with BGVRNS");
         }
     }
     else {
         std::string errMsg(std::string("Unknown schemeId: ") + std::to_string(scheme));
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     //====================================================================================================================
@@ -168,12 +168,12 @@ void validateParametersForCryptocontext(const Params& parameters) {
     if (parameters.GetRingDim() && !IsPowerOfTwo(parameters.GetRingDim())) {
         std::string errorMsg(std::string("Invalid ringDim [") + std::to_string(parameters.GetRingDim()) +
                              "]. Ring dimension must be a power of 2.");
-        OPENFHE_THROW(errorMsg);
+        LUX_FHE_THROW(errorMsg);
     }
     if (BV == parameters.GetKeySwitchTechnique()) {
         const uint32_t maxDigitSize = uint32_t(std::ceil(MAX_MODULUS_SIZE / 2));
         if (maxDigitSize < parameters.GetDigitSize()) {
-            OPENFHE_THROW("digitSize should not be greater than " + std::to_string(maxDigitSize) +
+            LUX_FHE_THROW("digitSize should not be greater than " + std::to_string(maxDigitSize) +
                           " for keySwitchTechnique == BV");
         }
     }
@@ -183,9 +183,9 @@ void validateParametersForCryptocontext(const Params& parameters) {
         std::string errorMsg(std::string("The provided multiplicative depth [") +
                              std::to_string(parameters.GetMultiplicativeDepth()) +
                              "] is not computationally feasible. Use a smaller value.");
-        OPENFHE_THROW(errorMsg);
+        LUX_FHE_THROW(errorMsg);
     }
     //====================================================================================================================
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

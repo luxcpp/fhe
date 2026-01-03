@@ -33,14 +33,14 @@
   This file contains the interfaces for the math vector data types
  */
 
-#ifndef LBCRYPTO_MATH_VECTOR_H
-#define LBCRYPTO_MATH_VECTOR_H
+#ifndef LUX_FHE_MATH_VECTOR_H
+#define LUX_FHE_MATH_VECTOR_H
 
 #include "utils/inttypes.h"
 
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename T, typename I>
 class BigVectorInterface {
@@ -480,5 +480,5 @@ protected:
     // SERIALIZATION
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 #endif

@@ -33,8 +33,8 @@
   base class for parameters for a lattice element
  */
 
-#ifndef LBCRYPTO_LATTICE_ELEMPARAMS_H
-#define LBCRYPTO_LATTICE_ELEMPARAMS_H
+#ifndef LUX_FHE_LATTICE_ELEMPARAMS_H
+#define LUX_FHE_LATTICE_ELEMPARAMS_H
 
 #include "math/math-hal.h"
 #include "math/nbtheory.h"
@@ -47,7 +47,7 @@
 #include <string>
 #include <utility>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @class ElemParams
@@ -238,7 +238,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion())
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         ar(::cereal::make_nvp("co", m_cyclotomicOrder));
         ar(::cereal::make_nvp("rd", m_ringDimension));
@@ -275,6 +275,6 @@ protected:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

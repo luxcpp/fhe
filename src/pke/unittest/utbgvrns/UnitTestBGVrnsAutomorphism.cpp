@@ -40,7 +40,7 @@
 #include "gtest/gtest.h"
 
 #if !defined(__EMSCRIPTEN__)
-using namespace lbcrypto;
+using namespace lux::fhe;
 class Params;
 
 //===========================================================================================================
@@ -58,7 +58,7 @@ TEST_CASE_TYPE convertStringToCaseType(const std::string& str) {
     if (stringToCaseType.end() != search) {
         return search->second;
     }
-    OPENFHE_THROW(std::string("Can not convert ") + str + "to test case");
+    LUX_FHE_THROW(std::string("Can not convert ") + str + "to test case");
 }
 static std::ostream& operator<<(std::ostream& os, const TEST_CASE_TYPE& type) {
     const std::unordered_map<TEST_CASE_TYPE, std::string> caseTypeToString = {
@@ -69,7 +69,7 @@ static std::ostream& operator<<(std::ostream& os, const TEST_CASE_TYPE& type) {
     if (caseTypeToString.end() != search) {
         return os << search->second;
     }
-    OPENFHE_THROW("Unknown test case");
+    LUX_FHE_THROW("Unknown test case");
 }
 //===========================================================================================================
 enum TEST_CASE_ERROR {
@@ -99,7 +99,7 @@ TEST_CASE_ERROR convertStringToCaseError(const std::string& str) {
     if (stringToError.end() != search) {
         return search->second;
     }
-    OPENFHE_THROW(std::string("Can not convert ") + str + "to test case error");
+    LUX_FHE_THROW(std::string("Can not convert ") + str + "to test case error");
 }
 //===========================================================================================================
 struct TEST_CASE_UTBGVRNS_AUTOMORPHISM : public BaseTestCase {

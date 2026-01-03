@@ -42,7 +42,7 @@
 #include "openfhe.h"
 #include "math/math-hal.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void BFVrnsEvalRotate2n();
 void CKKSEvalRotate2n();

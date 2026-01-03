@@ -35,8 +35,8 @@
   https://eprint.iacr.org/2018/1222.pdf
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_DGSAMPLING_IMPL_H
-#define LBCRYPTO_INC_LATTICE_DGSAMPLING_IMPL_H
+#ifndef LUX_FHE_INC_LATTICE_DGSAMPLING_IMPL_H
+#define LUX_FHE_INC_LATTICE_DGSAMPLING_IMPL_H
 
 #include "lattice/dgsampling.h"
 
@@ -46,7 +46,7 @@
 #include <memory>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Gaussian sampling from lattice for gagdet matrix G, syndrome u, and arbitrary
 // modulus q Discrete sampling variant As described in Figure 2 of
@@ -514,6 +514,6 @@ void LatticeGaussSampUtility<Element>::InversePermute(std::shared_ptr<Matrix<int
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

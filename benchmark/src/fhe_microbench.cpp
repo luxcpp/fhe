@@ -36,7 +36,7 @@
 
 #include "../perf_thresholds.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::chrono;
 
 // ============================================================================

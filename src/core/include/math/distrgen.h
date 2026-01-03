@@ -33,8 +33,8 @@
   This code provides basic noise generation functionality
  */
 
-#ifndef LBCRYPTO_INC_MATH_DISTRGEN_H_
-#define LBCRYPTO_INC_MATH_DISTRGEN_H_
+#ifndef LUX_FHE_INC_MATH_DISTRGEN_H_
+#define LUX_FHE_INC_MATH_DISTRGEN_H_
 
 #define _USE_MATH_DEFINES
 // #include <bitset>
@@ -48,4 +48,4 @@
 #include "math/distributiongenerator.h"
 #include "math/ternaryuniformgenerator.h"
 
-#endif  // LBCRYPTO_INC_MATH_DISTRGEN_H_
+#endif  // LUX_FHE_INC_MATH_DISTRGEN_H_

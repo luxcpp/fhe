@@ -36,8 +36,8 @@
 #include "config_core.h"
 #ifdef WITH_BE4
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTDYN_TRANSFORMDYN_H
-        #define LBCRYPTO_MATH_HAL_BIGINTDYN_TRANSFORMDYN_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTDYN_TRANSFORMDYN_H
+        #define LUX_FHE_MATH_HAL_BIGINTDYN_TRANSFORMDYN_H
 
         #include <map>
         #include <vector>
@@ -234,7 +234,7 @@ public:
  * @brief Golden Chinese Remainder Transform FFT implementation.
  */
 template <typename VecType>
-class ChineseRemainderTransformFTTDyn final : public lbcrypto::ChineseRemainderTransformFTTInterface<VecType> {
+class ChineseRemainderTransformFTTDyn final : public lux::fhe::ChineseRemainderTransformFTTInterface<VecType> {
     using IntType = typename VecType::Integer;
 
 public:
@@ -468,7 +468,7 @@ private:
  * @brief Chinese Remainder Transform for arbitrary cyclotomics.
  */
 template <typename VecType>
-class ChineseRemainderTransformArbDyn final : public lbcrypto::ChineseRemainderTransformArbInterface<VecType> {
+class ChineseRemainderTransformArbDyn final : public lux::fhe::ChineseRemainderTransformArbInterface<VecType> {
     using IntType = typename VecType::Integer;
 
 public:

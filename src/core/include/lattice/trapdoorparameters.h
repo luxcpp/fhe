@@ -33,8 +33,8 @@
   Parameter definitions for trapdoor-related schemes (GPV signature, IBE, ABE)
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_TRAPDOORPARAMETERS_H
-#define LBCRYPTO_INC_LATTICE_TRAPDOORPARAMETERS_H
+#ifndef LUX_FHE_INC_LATTICE_TRAPDOORPARAMETERS_H
+#define LUX_FHE_INC_LATTICE_TRAPDOORPARAMETERS_H
 
 #include "lattice/trapdoor.h"
 
@@ -42,7 +42,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 /*
  *@brief Virtual templated class for trapdoor parameters
  *@tparam Element ring element
@@ -265,6 +265,6 @@ private:
     // Perturbation vector represented as a vector of ring elements
     std::shared_ptr<Matrix<Element>> m_pvector;
 };
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -1,0 +1,248 @@
+---
+title: Introduction
+description: GPU-accelerated Fully Homomorphic Encryption library
+---
+
+# lux-fhe
+
+A high-performance Fully Homomorphic Encryption (FHE) library built on [lux-lattice](/lattice), enabling computation on encrypted data with GPU acceleration via Metal and CUDA.
+
+## What is FHE?
+
+Fully Homomorphic Encryption allows arbitrary computations on encrypted data without decryption:
+
+```
+Encrypt(a) ⊕ Encrypt(b) = Encrypt(a + b)
+Encrypt(a) ⊗ Encrypt(b) = Encrypt(a × b)
+```
+
+This enables privacy-preserving computation where the server never sees plaintext data.
+
+## Supported Schemes
+
+### TFHE (Torus FHE)
+
+Binary FHE with fast bootstrapping for boolean circuit evaluation:
+
+```cpp
+#include <lux/fhe/binfhe.h>
+
+// Create context with GPU acceleration
+auto ctx = lux::fhe::BinaryContext::Create({
+    .security = 128,
+    .backend = lux::fhe::Backend::METAL  // or CUDA
+});
+
+// Generate keys
+auto sk = ctx->GenerateSecretKey();
+auto bk = ctx->GenerateBootstrappingKey(sk);
+
+// Encrypt bits
+auto ct_a = ctx->Encrypt(sk, true);
+auto ct_b = ctx->Encrypt(sk, false);
+
+// Compute NAND gate (bootstrapped)
+auto ct_result = ctx->NAND(bk, ct_a, ct_b);
+
+// Decrypt
+bool result = ctx->Decrypt(sk, ct_result);
+```
+
+### BGV (Brakerski-Gentry-Vaikuntanathan)
+
+Exact integer arithmetic on encrypted polynomials:
+
+```cpp
+#include <lux/fhe/pke.h>
+
+// Create BGV context
+auto ctx = lux::fhe::BGVContext::Create({
+    .ring_dim = 8192,
+    .plaintext_modulus = 65537,
+    .multiplicative_depth = 4
+});
+
+// Encrypt integers
+auto ct_x = ctx->Encrypt(pk, {1, 2, 3, 4});
+auto ct_y = ctx->Encrypt(pk, {5, 6, 7, 8});
+
+// Homomorphic operations
+auto ct_sum = ctx->Add(ct_x, ct_y);   // {6, 8, 10, 12}
+auto ct_prod = ctx->Mul(ct_x, ct_y);  // {5, 12, 21, 32}
+
+// Decrypt
+auto result = ctx->Decrypt(sk, ct_sum);
+```
+
+### BFV (Brakerski-Fan-Vercauteren)
+
+Similar to BGV, optimized for different use cases:
+
+```cpp
+auto ctx = lux::fhe::BFVContext::Create({
+    .ring_dim = 4096,
+    .plaintext_modulus = 256,
+    .coeff_modulus_bits = {40, 40, 40}
+});
+```
+
+### CKKS (Cheon-Kim-Kim-Song)
+
+Approximate arithmetic for floating-point operations:
+
+```cpp
+#include <lux/fhe/pke.h>
+
+auto ctx = lux::fhe::CKKSContext::Create({
+    .ring_dim = 16384,
+    .scale = 1ULL << 40,
+    .multiplicative_depth = 8
+});
+
+// Encrypt real numbers
+std::vector<double> values = {1.5, 2.7, 3.14159, 0.001};
+auto ct = ctx->Encrypt(pk, values);
+
+// Homomorphic arithmetic
+auto ct_squared = ctx->Mul(ct, ct);      // Approximate squaring
+auto ct_scaled = ctx->MulPlain(ct, 2.5); // Scale by constant
+
+// Decrypt (approximate result)
+auto result = ctx->Decrypt(sk, ct_squared);
+// result ≈ {2.25, 7.29, 9.87, 0.000001}
+```
+
+## Quick Start
+
+### Installation
+
+```bash
+# Clone with submodules
+git clone --recursive https://github.com/luxfi/fhe
+cd fhe
+
+# Build with GPU acceleration
+cmake -B build \
+  -DWITH_METAL=ON \      # macOS
+  -DWITH_CUDA=ON \       # Linux/Windows
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+
+# Install
+sudo cmake --install build
+```
+
+### CMake Integration
+
+```cmake
+find_package(LuxFHE REQUIRED)
+target_link_libraries(myapp PRIVATE lux::fhe)
+```
+
+### Go Bindings
+
+```go
+import "github.com/luxfi/fhe"
+
+// Create TFHE context
+ctx, _ := fhe.NewBinaryContext(fhe.SecurityLevel128)
+sk := ctx.GenerateSecretKey()
+bk := ctx.GenerateBootstrappingKey(sk)
+
+// Encrypt and compute
+ctA := ctx.Encrypt(sk, true)
+ctB := ctx.Encrypt(sk, false)
+ctResult := ctx.NAND(bk, ctA, ctB)
+
+// Decrypt
+result := ctx.Decrypt(sk, ctResult)
+```
+
+## Performance
+
+GPU acceleration provides significant speedups:
+
+| Operation | CPU (i9-13900K) | Metal (M3 Max) | CUDA (RTX 4090) |
+|-----------|-----------------|----------------|-----------------|
+| TFHE Bootstrap | 8.2ms | 0.45ms | 0.28ms |
+| BGV Multiply (n=8192) | 12ms | 1.1ms | 0.6ms |
+| CKKS Multiply (n=16384) | 28ms | 2.5ms | 1.2ms |
+| Key Generation | 450ms | 85ms | 52ms |
+
+## Architecture
+
+```
+lux-fhe
+├── binfhe/          # TFHE binary FHE
+│   ├── binfhe-constants.h
+│   ├── binfhe-base-scheme.cpp
+│   └── rgsw-*.cpp
+├── pke/             # BGV/BFV/CKKS
+│   ├── scheme-bgvrns.cpp
+│   ├── scheme-bfvrns.cpp
+│   └── scheme-ckksrns.cpp
+├── core/            # Core primitives
+│   ├── lattice/     # Uses lux-lattice
+│   └── math/        # NTT, sampling
+└── go/              # Go bindings via CGO
+```
+
+## Use Cases
+
+### Private Machine Learning
+
+```cpp
+// Encrypt model weights
+auto encrypted_weights = ctx->Encrypt(pk, weights);
+
+// Inference on encrypted data
+auto encrypted_input = client_encrypt(input);
+auto encrypted_output = model_forward(encrypted_weights, encrypted_input);
+
+// Only client can decrypt result
+auto prediction = client_decrypt(encrypted_output);
+```
+
+### Secure Database Queries
+
+```cpp
+// Server holds encrypted database
+std::vector<Ciphertext> encrypted_records;
+
+// Client sends encrypted query
+auto encrypted_query = client_encrypt(query);
+
+// Server computes on encrypted data
+auto encrypted_results = server_search(encrypted_records, encrypted_query);
+
+// Client decrypts matches
+auto results = client_decrypt(encrypted_results);
+```
+
+### Threshold FHE
+
+Multi-party computation with distributed decryption:
+
+```cpp
+// Distributed key generation
+auto [pk, sk_shares] = ctx->ThresholdKeyGen(n_parties, threshold);
+
+// Any party can encrypt
+auto ct = ctx->Encrypt(pk, message);
+
+// Threshold parties provide decryption shares
+std::vector<DecryptionShare> shares;
+for (int i = 0; i < threshold; i++) {
+    shares.push_back(ctx->PartialDecrypt(sk_shares[i], ct));
+}
+
+// Combine shares to decrypt
+auto plaintext = ctx->CombineDecryptionShares(shares);
+```
+
+## Next Steps
+
+- [Concepts](/docs/concepts/homomorphic-encryption) - Understand FHE theory
+- [TFHE Guide](/docs/schemes/tfhe) - Boolean circuits with fast bootstrapping
+- [CKKS Guide](/docs/schemes/ckks) - Approximate arithmetic for ML
+- [API Reference](/docs/api/cpp-api) - Complete API documentation

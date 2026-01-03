@@ -45,7 +45,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // makeSparse is not used by this scheme
 template <class Element>
@@ -87,7 +87,7 @@ KeyPair<Element> MultipartyBase<Element>::MultipartyKeyGen(CryptoContext<Element
     const auto elementParams = cryptoParams->GetElementParams();
     const auto paramsPK      = cryptoParams->GetParamsPK();
     if (!paramsPK)
-        OPENFHE_THROW("PrecomputeCRTTables() must be called before using precomputed params.");
+        LUX_FHE_THROW("PrecomputeCRTTables() must be called before using precomputed params.");
 
     const DggType& dgg = cryptoParams->GetDiscreteGaussianGenerator();
     TugType tug;
@@ -105,7 +105,7 @@ KeyPair<Element> MultipartyBase<Element>::MultipartyKeyGen(CryptoContext<Element
             s = Element(tug, paramsPK, Format::EVALUATION, 192);
             break;
         default:
-            OPENFHE_THROW("Unknown SecretKeyDist.");
+            LUX_FHE_THROW("Unknown SecretKeyDist.");
     }
 
     const auto& pk = publicKey->GetPublicElements();
@@ -146,7 +146,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> MultipartyBase<Element>::M
     uint32_t N       = s.GetRingDimension();
 
     if (indexList.size() > N - 1)
-        OPENFHE_THROW("size exceeds the ring dimension");
+        LUX_FHE_THROW("size exceeds the ring dimension");
 
     const auto cc = privateKey->GetCryptoContext();
 
@@ -166,7 +166,7 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> MultipartyBase<Element>::M
         // verify if the key indexList[i] exists in the evalKeyMap
         auto evalKeyIterator = evalKeyMap->find(indexList[i]);
         if (evalKeyIterator == evalKeyMap->end()) {
-            OPENFHE_THROW("EvalKey for index [" + std::to_string(indexList[i]) + "] is not found.");
+            LUX_FHE_THROW("EvalKey for index [" + std::to_string(indexList[i]) + "] is not found.");
         }
 
         (*result)[indexList[i]] = MultiKeySwitchGen(privateKey, privateKeyPermuted, evalKeyIterator->second);
@@ -412,9 +412,9 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> MultipartyBase<Element>::M
     return EvalKeyMapSum;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 // the code below is from base-multiparty-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 template class MultipartyBase<DCRTPoly>;
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -40,10 +40,10 @@
 #include "utils/inttypes.h"
 #include "utils/exception.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 static void regthrow(const std::string& msg) {
-    OPENFHE_THROW(msg);
+    LUX_FHE_THROW(msg);
 }
 
 static void parthrow(const std::string& msg) {

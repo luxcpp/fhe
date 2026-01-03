@@ -44,7 +44,7 @@
 #include "cryptocontext-fwd.h"
 #include "lattice/lat-hal.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 class CryptoContextFactory;
@@ -64,6 +64,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GEN_CRYPTOCONTEXT_BGVRNS_H__

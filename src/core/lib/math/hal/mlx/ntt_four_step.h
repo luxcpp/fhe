@@ -16,8 +16,8 @@
 // Copyright (C) 2024-2025 Lux Industries Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_NTT_FOUR_STEP_H
-#define LBCRYPTO_MATH_HAL_MLX_NTT_FOUR_STEP_H
+#ifndef LUX_FHE_MATH_HAL_MLX_NTT_FOUR_STEP_H
+#define LUX_FHE_MATH_HAL_MLX_NTT_FOUR_STEP_H
 
 #include <cstdint>
 #include <vector>
@@ -31,7 +31,7 @@
 #include <Foundation/Foundation.hpp>
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace metal {
 
 // =============================================================================
@@ -838,6 +838,6 @@ inline void FourStepNTT::download_data(uint64_t* data, MTL::Buffer* buffer, size
 #endif // __APPLE__
 
 } // namespace metal
-} // namespace lbcrypto
+} // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_NTT_FOUR_STEP_H
+#endif // LUX_FHE_MATH_HAL_MLX_NTT_FOUR_STEP_H

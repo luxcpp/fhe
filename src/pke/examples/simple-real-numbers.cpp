@@ -37,7 +37,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 int main() {
     // Step 1: Setup CryptoContext

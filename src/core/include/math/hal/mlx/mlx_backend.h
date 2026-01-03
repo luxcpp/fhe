@@ -11,8 +11,8 @@
 // for significant performance improvements on Apple Silicon (M1/M2/M3/M4)
 //==================================================================================
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_BACKEND_H
-#define LBCRYPTO_MATH_HAL_MLX_BACKEND_H
+#ifndef LUX_FHE_MATH_HAL_MLX_BACKEND_H
+#define LUX_FHE_MATH_HAL_MLX_BACKEND_H
 
 #include <cstdint>
 #include <memory>
@@ -23,7 +23,7 @@
 #include <mlx/mlx.h>
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace mlx_backend {
 
 /**
@@ -312,6 +312,6 @@ int pointwise_mul(uint64_t* result, const uint64_t* a, const uint64_t* b,
 void clear_cache();
 
 } // namespace mlx_backend
-} // namespace lbcrypto
+} // namespace lux
 
-#endif // LBCRYPTO_MATH_HAL_MLX_BACKEND_H
+#endif // LUX_FHE_MATH_HAL_MLX_BACKEND_H

@@ -38,7 +38,7 @@ BGV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include "cryptocontext.h"
 #include "scheme/bgvrns/bgvrns-cryptoparameters.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // Precomputation of CRT tables encryption, decryption, and  homomorphic
 // multiplication
@@ -163,4 +163,4 @@ uint64_t CryptoParametersBGVRNS::FindAuxPrimeStep() const {
     return static_cast<uint64_t>(pow2ptm) * plaintextModulus;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

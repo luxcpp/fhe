@@ -32,10 +32,10 @@
 #include "schemebase/base-cryptoparameters.h"
 
 // the code below is from base-cryptoparameters-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 // template class CryptoParametersBase<Poly>;
 // template class CryptoParametersBase<NativePoly>;
 template class CryptoParametersBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -48,7 +48,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 template <typename Element>
 void switch_format_simple_single_crt(const std::string& msg) {

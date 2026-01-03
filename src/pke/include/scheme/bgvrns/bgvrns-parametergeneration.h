@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BGVRNS_PARAMETERGENERATION_H
-#define LBCRYPTO_CRYPTO_BGVRNS_PARAMETERGENERATION_H
+#ifndef LUX_FHE_CRYPTO_BGVRNS_PARAMETERGENERATION_H
+#define LUX_FHE_CRYPTO_BGVRNS_PARAMETERGENERATION_H
 
 #include "schemerns/rns-parametergeneration.h"
 
@@ -40,10 +40,10 @@
 #include <utility>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /*
    * Struct that keeps track of all noise estimates necessary to compute moduli.
@@ -157,6 +157,6 @@ private:
                                uint32_t ringDimension) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

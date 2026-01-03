@@ -36,7 +36,7 @@
 
 #include <random>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /**
  * GenerateRandNumberVector generates a vector of real values in the range (-1,1)

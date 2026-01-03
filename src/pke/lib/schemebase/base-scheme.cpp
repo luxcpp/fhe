@@ -34,7 +34,7 @@
 #include "schemebase/base-scheme.h"
 
 // the code below is from base-scheme-impl.cpp
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 EvalKey<Element> SchemeBase<Element>::ReKeyGen(const PrivateKey<Element> oldPrivateKey,
@@ -137,9 +137,9 @@ Ciphertext<Element> SchemeBase<Element>::EvalInnerProduct(ConstCiphertext<Elemen
                                                           const EvalKey<Element> evalMultKey) const {
     VerifyAdvancedSHEEnabled(__func__);
     if (!evalSumKeyMap.size())
-        OPENFHE_THROW("Input evaluation key map is empty");
+        LUX_FHE_THROW("Input evaluation key map is empty");
     if (!evalMultKey)
-        OPENFHE_THROW("Input evaluation key is nullptr");
+        LUX_FHE_THROW("Input evaluation key is nullptr");
 
     auto result = m_AdvancedSHE->EvalInnerProduct(ciphertext1, ciphertext2, batchSize, evalSumKeyMap, evalMultKey);
     result->SetKeyTag(evalSumKeyMap.begin()->second->GetKeyTag());
@@ -152,9 +152,9 @@ KeyPair<Element> SchemeBase<Element>::MultipartyKeyGen(CryptoContext<Element> cc
                                                        bool makeSparse) {
     VerifyMultipartyEnabled(__func__);
     if (!cc)
-        OPENFHE_THROW("Input crypto context is nullptr");
+        LUX_FHE_THROW("Input crypto context is nullptr");
     if (!privateKeyVec.size())
-        OPENFHE_THROW("Input private key vector is empty");
+        LUX_FHE_THROW("Input private key vector is empty");
 
     auto keyPair = m_Multiparty->MultipartyKeyGen(cc, privateKeyVec, makeSparse);
     keyPair.publicKey->SetKeyTag(keyPair.secretKey->GetKeyTag());
@@ -166,9 +166,9 @@ KeyPair<Element> SchemeBase<Element>::MultipartyKeyGen(CryptoContext<Element> cc
                                                        bool makeSparse, bool PRE) {
     VerifyMultipartyEnabled(__func__);
     if (!cc)
-        OPENFHE_THROW("Input crypto context is nullptr");
+        LUX_FHE_THROW("Input crypto context is nullptr");
     if (!publicKey)
-        OPENFHE_THROW("Input public key is empty");
+        LUX_FHE_THROW("Input public key is empty");
 
     auto keyPair = m_Multiparty->MultipartyKeyGen(cc, publicKey, makeSparse, PRE);
     keyPair.publicKey->SetKeyTag(keyPair.secretKey->GetKeyTag());
@@ -336,4 +336,4 @@ std::shared_ptr<std::map<uint32_t, EvalKey<Element>>> SchemeBase<Element>::EvalA
 
 template class SchemeBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -49,7 +49,7 @@ BFV implementation. See https://eprint.iacr.org/2021/204 for details.
 #include <vector>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void LeveledSHEBFVRNS::EvalAddInPlace(Ciphertext<DCRTPoly>& ciphertext, ConstPlaintext& plaintext) const {
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersBFVRNS>(ciphertext->GetCryptoParameters());
@@ -198,7 +198,7 @@ uint32_t FindLevelsToDrop(uint32_t multiplicativeDepth, std::shared_ptr<CryptoPa
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalMult(ConstCiphertext<DCRTPoly>& ciphertext1,
                                                 ConstCiphertext<DCRTPoly>& ciphertext2) const {
     if (ciphertext1->GetCryptoParameters() != ciphertext2->GetCryptoParameters())
-        OPENFHE_THROW("crypto parameters are not the same");
+        LUX_FHE_THROW("crypto parameters are not the same");
 
     const auto cryptoParams =
         std::dynamic_pointer_cast<CryptoParametersBFVRNS>(ciphertext1->GetCryptoContext()->GetCryptoParameters());
@@ -827,7 +827,7 @@ Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalFastRotation(ConstCiphertext<DCRTPoly
     // verify if the key autoIndex exists in the evalKeyMap
     auto evalKeyIterator = evalKeyMap.find(autoIndex);
     if (evalKeyIterator == evalKeyMap.end()) {
-        OPENFHE_THROW("EvalKey for index [" + std::to_string(autoIndex) + "] is not found.");
+        LUX_FHE_THROW("EvalKey for index [" + std::to_string(autoIndex) + "] is not found.");
     }
     auto evalKey = evalKeyIterator->second;
 
@@ -942,12 +942,12 @@ Ciphertext<DCRTPoly> LeveledSHEBFVRNS::Compress(ConstCiphertext<DCRTPoly>& ciphe
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersBFVRNS>(ciphertext->GetCryptoParameters());
 
     if ((cryptoParams->GetMultiplicationTechnique() == BEHZ) || (cryptoParams->GetMultiplicationTechnique() == HPS)) {
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "BFV Compress is not currently supported for BEHZ or HPS. Use one of the HPSPOVERQ* methods instead.");
     }
 
     if ((cryptoParams->GetEncryptionTechnique() == EXTENDED)) {
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "BFV Compress is not currently supported for the EXTENDED encryption method. Use the STANDARD encryption method instead.");
     }
 
@@ -976,50 +976,50 @@ static const std::string EVAL_MUTABLE_ERROR{
     "The mutable features are not supported in the BFV scheme. Please use a non-mutable version of this function"};
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalMultMutable(Ciphertext<DCRTPoly>& ciphertext1,
                                                        Ciphertext<DCRTPoly>& ciphertext2) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalMultMutable(Ciphertext<DCRTPoly>& ciphertext1,
                                                        Ciphertext<DCRTPoly>& ciphertext2,
                                                        const EvalKey<DCRTPoly> evalKey) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalMultMutable(Ciphertext<DCRTPoly>& ciphertext, Plaintext& plaintext) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 void LeveledSHEBFVRNS::EvalMultMutableInPlace(Ciphertext<DCRTPoly>& ciphertext1, Ciphertext<DCRTPoly>& ciphertext2,
                                               const EvalKey<DCRTPoly> evalKey) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 void LeveledSHEBFVRNS::EvalMultMutableInPlace(Ciphertext<DCRTPoly>& ciphertext, Plaintext& plaintext) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalAddMutable(Ciphertext<DCRTPoly>& ciphertext1,
                                                       Ciphertext<DCRTPoly>& ciphertext2) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalAddMutable(Ciphertext<DCRTPoly>& ciphertext, Plaintext& plaintext) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 void LeveledSHEBFVRNS::EvalAddMutableInPlace(Ciphertext<DCRTPoly>& ciphertext1,
                                              Ciphertext<DCRTPoly>& ciphertext2) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 void LeveledSHEBFVRNS::EvalAddMutableInPlace(Ciphertext<DCRTPoly>& ciphertext, Plaintext& plaintext) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalSubMutable(Ciphertext<DCRTPoly>& ciphertext1,
                                                       Ciphertext<DCRTPoly>& ciphertext2) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 Ciphertext<DCRTPoly> LeveledSHEBFVRNS::EvalSubMutable(Ciphertext<DCRTPoly>& ciphertext, Plaintext& plaintext) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 void LeveledSHEBFVRNS::EvalSubMutableInPlace(Ciphertext<DCRTPoly>& ciphertext1,
                                              Ciphertext<DCRTPoly>& ciphertext2) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 void LeveledSHEBFVRNS::EvalSubMutableInPlace(Ciphertext<DCRTPoly>& ciphertext, Plaintext& plaintext) const {
-    OPENFHE_THROW(EVAL_MUTABLE_ERROR);
+    LUX_FHE_THROW(EVAL_MUTABLE_ERROR);
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -41,7 +41,7 @@
 #include <memory>
 #include <string>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class StringEncoding : public PlaintextImpl {
     std::string ptx;
@@ -129,6 +129,6 @@ protected:
     }
 };
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */
 
 #endif /* SRC_CORE_LIB_ENCODING_STRINGENCODING_H_ */

@@ -35,8 +35,8 @@
   https://eprint.iacr.org/2018/1222.pdf.
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_TRAPDOOR_H
-#define LBCRYPTO_INC_LATTICE_TRAPDOOR_H
+#ifndef LUX_FHE_INC_LATTICE_TRAPDOOR_H
+#define LUX_FHE_INC_LATTICE_TRAPDOOR_H
 
 #include "lattice/dgsampling.h"
 #include "lattice/field2n.h"
@@ -48,7 +48,7 @@
 
 #include "utils/debug.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Class to store a lattice trapdoor pair generated using construction 1
@@ -217,7 +217,7 @@ public:
     static void ZSampleSigmaP(size_t n, double s, double sigma, const RLWETrapdoorPair<Element>& Tprime,
                               const DggType& dgg, const DggType& dggLargeSigma,
                               std::shared_ptr<Matrix<Element>> perturbationVector) {
-        OPENFHE_DEBUG_FLAG(false);
+        LUX_FHE_DEBUG_FLAG(false);
         TimeVar t1, t1_tot;
 
         TIC(t1);
@@ -229,7 +229,7 @@ public:
         size_t k = Tprime0.GetCols();
 
         const std::shared_ptr<ParmType> params = Tprime0(0, 0).GetParams();
-        OPENFHE_DEBUG("z1a: " << TOC(t1));  // 0
+        LUX_FHE_DEBUG("z1a: " << TOC(t1));  // 0
         TIC(t1);
         // all three Polynomials are initialized with "0" coefficients
         Element va(params, Format::EVALUATION, 1);
@@ -241,7 +241,7 @@ public:
             vb += Tprime1(0, i) * Tprime0(0, i).Transpose();
             vd += Tprime1(0, i) * Tprime1(0, i).Transpose();
         }
-        OPENFHE_DEBUG("z1b: " << TOC(t1));  // 9
+        LUX_FHE_DEBUG("z1b: " << TOC(t1));  // 9
         TIC(t1);
 
         // Switch the ring elements (Polynomials) to coefficient representation
@@ -249,7 +249,7 @@ public:
         vb.SetFormat(Format::COEFFICIENT);
         vd.SetFormat(Format::COEFFICIENT);
 
-        OPENFHE_DEBUG("z1c: " << TOC(t1));  // 5
+        LUX_FHE_DEBUG("z1c: " << TOC(t1));  // 5
         TIC(t1);
 
         // Create field elements from ring elements
@@ -263,14 +263,14 @@ public:
 
         a = a + s * s;
         d = d + s * s;
-        OPENFHE_DEBUG("z1d: " << TOC(t1));  // 0
+        LUX_FHE_DEBUG("z1d: " << TOC(t1));  // 0
         TIC(t1);
 
         // converts the field elements to DFT representation
         a.SetFormat(Format::EVALUATION);
         b.SetFormat(Format::EVALUATION);
         d.SetFormat(Format::EVALUATION);
-        OPENFHE_DEBUG("z1e: " << TOC(t1));  // 0
+        LUX_FHE_DEBUG("z1e: " << TOC(t1));  // 0
         TIC(t1);
 
         Matrix<int64_t> p2ZVector([]() { return 0; }, n * k, 1);
@@ -293,18 +293,18 @@ public:
                 p2ZVector(i, 0) = (dggVector.get())[i];
             }
         }
-        OPENFHE_DEBUG("z1f1: " << TOC(t1));
+        LUX_FHE_DEBUG("z1f1: " << TOC(t1));
         TIC(t1);
 
         // create k ring elements in coefficient representation
         Matrix<Element> p2 = SplitInt64IntoElements<Element>(p2ZVector, n, va.GetParams());
-        OPENFHE_DEBUG("z1f2: " << TOC(t1));
+        LUX_FHE_DEBUG("z1f2: " << TOC(t1));
         TIC(t1);
 
         // now converting to Format::EVALUATION representation before multiplication
         p2.SetFormat(Format::EVALUATION);
 
-        OPENFHE_DEBUG("z1g: " << TOC(t1));  // 17
+        LUX_FHE_DEBUG("z1g: " << TOC(t1));  // 17
 
         TIC(t1);
 
@@ -314,11 +314,11 @@ public:
         Tp2(0, 0) = (Tprime0 * p2)(0, 0);
         Tp2(1, 0) = (Tprime1 * p2)(0, 0);
 
-        OPENFHE_DEBUG("z1h2: " << TOC(t1));
+        LUX_FHE_DEBUG("z1h2: " << TOC(t1));
         TIC(t1);
         // change to coefficient representation before converting to field elements
         Tp2.SetFormat(Format::COEFFICIENT);
-        OPENFHE_DEBUG("z1h3: " << TOC(t1));
+        LUX_FHE_DEBUG("z1h3: " << TOC(t1));
         TIC(t1);
 
         Matrix<Field2n> c([]() { return Field2n(); }, 2, 1);
@@ -327,25 +327,25 @@ public:
         c(1, 0) = Field2n(Tp2(1, 0)).ScalarMult(-sigma * sigma / (s * s - sigma * sigma));
 
         auto p1ZVector = std::make_shared<Matrix<int64_t>>([]() { return 0; }, n * 2, 1);
-        OPENFHE_DEBUG("z1i: " << TOC(t1));
+        LUX_FHE_DEBUG("z1i: " << TOC(t1));
         TIC(t1);
         LatticeGaussSampUtility<Element>::ZSampleSigma2x2(a, b, d, c, dgg, p1ZVector);
-        OPENFHE_DEBUG("z1j1: " << TOC(t1));  // 14
+        LUX_FHE_DEBUG("z1j1: " << TOC(t1));  // 14
         TIC(t1);
 
         // create 2 ring elements in coefficient representation
         Matrix<Element> p1 = SplitInt64IntoElements<Element>(*p1ZVector, n, va.GetParams());
-        OPENFHE_DEBUG("z1j2: " << TOC(t1));
+        LUX_FHE_DEBUG("z1j2: " << TOC(t1));
         TIC(t1);
 
         p1.SetFormat(Format::EVALUATION);
-        OPENFHE_DEBUG("z1j3: " << TOC(t1));
+        LUX_FHE_DEBUG("z1j3: " << TOC(t1));
         TIC(t1);
 
         *perturbationVector = p1.VStack(p2);
-        OPENFHE_DEBUG("z1j4: " << TOC(t1));
+        LUX_FHE_DEBUG("z1j4: " << TOC(t1));
         TIC(t1);
-        OPENFHE_DEBUG("z1tot: " << TOC(t1_tot));
+        LUX_FHE_DEBUG("z1tot: " << TOC(t1_tot));
     }
 
     /**
@@ -478,6 +478,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -41,7 +41,7 @@
 #include "utils/inttypes.h"
 #include "constants.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 namespace CKKSRNS_SCHEME_DEFAULTS {
 constexpr SCHEME scheme               = CKKSRNS_SCHEME;
@@ -164,6 +164,6 @@ constexpr CKKSDataType ckksDataType                         = REAL;
 
 //====================================================================================================================
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GEN_CRYPTOCONTEXT_PARAMS_DEFAULTS_H__

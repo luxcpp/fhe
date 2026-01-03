@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_BASE_ADVANCEDSHE_H
-#define LBCRYPTO_CRYPTO_BASE_ADVANCEDSHE_H
+#ifndef LUX_FHE_CRYPTO_BASE_ADVANCEDSHE_H
+#define LUX_FHE_CRYPTO_BASE_ADVANCEDSHE_H
 
 #include "ciphertext-fwd.h"
 #include "encoding/plaintext-fwd.h"
@@ -48,10 +48,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Abstract base class for derived HE algorithms
@@ -111,15 +111,15 @@ public:
    */
     virtual Ciphertext<Element> EvalLinearWSum(std::vector<ReadOnlyCiphertext<Element>>& ciphertextVec,
                                                const std::vector<int64_t>& weights) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalLinearWSum(std::vector<ReadOnlyCiphertext<Element>>& ciphertextVec,
                                                const std::vector<double>& weights) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalLinearWSum(std::vector<ReadOnlyCiphertext<Element>>& ciphertextVec,
                                                const std::vector<std::complex<double>>& weights) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     /**
@@ -133,15 +133,15 @@ public:
    */
     virtual Ciphertext<Element> EvalLinearWSumMutable(std::vector<Ciphertext<Element>>& ciphertextVec,
                                                       const std::vector<int64_t>& weights) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalLinearWSumMutable(std::vector<Ciphertext<Element>>& ciphertextVec,
                                                       const std::vector<double>& weights) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalLinearWSumMutable(std::vector<Ciphertext<Element>>& ciphertextVec,
                                                       const std::vector<std::complex<double>>& weights) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     //------------------------------------------------------------------------------
@@ -160,15 +160,15 @@ public:
    */
     virtual std::shared_ptr<seriesPowers<Element>> EvalPowers(ConstCiphertext<Element>& ciphertext,
                                                               const std::vector<int64_t>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual std::shared_ptr<seriesPowers<Element>> EvalPowers(ConstCiphertext<Element>& ciphertext,
                                                               const std::vector<double>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual std::shared_ptr<seriesPowers<Element>> EvalPowers(
         ConstCiphertext<Element>& ciphertext, const std::vector<std::complex<double>>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     /**
@@ -182,28 +182,28 @@ public:
    */
     virtual Ciphertext<Element> EvalPoly(ConstCiphertext<Element>& ciphertext,
                                          const std::vector<int64_t>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPoly(ConstCiphertext<Element>& ciphertext,
                                          const std::vector<double>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPoly(ConstCiphertext<Element>& ciphertext,
                                          const std::vector<std::complex<double>>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     virtual Ciphertext<Element> EvalPolyWithPrecomp(std::shared_ptr<seriesPowers<Element>> powers,
                                                     const std::vector<int64_t>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPolyWithPrecomp(std::shared_ptr<seriesPowers<Element>> powers,
                                                     const std::vector<double>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPolyWithPrecomp(std::shared_ptr<seriesPowers<Element>> powers,
                                                     const std::vector<std::complex<double>>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     /**
@@ -218,15 +218,15 @@ public:
    */
     virtual Ciphertext<Element> EvalPolyLinear(ConstCiphertext<Element>& ciphertext,
                                                const std::vector<int64_t>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPolyLinear(ConstCiphertext<Element>& ciphertext,
                                                const std::vector<double>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPolyLinear(ConstCiphertext<Element>& ciphertext,
                                                const std::vector<std::complex<double>>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     /**
@@ -240,14 +240,14 @@ public:
    */
     virtual Ciphertext<Element> EvalPolyPS(ConstCiphertext<Element>& x,
                                            const std::vector<int64_t>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPolyPS(ConstCiphertext<Element>& x, const std::vector<double>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalPolyPS(ConstCiphertext<Element>& x,
                                            const std::vector<std::complex<double>>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     //------------------------------------------------------------------------------
@@ -268,17 +268,17 @@ public:
     virtual std::shared_ptr<seriesPowers<Element>> EvalChebyPolys(ConstCiphertext<Element>& ciphertext,
                                                                   const std::vector<int64_t>& coefficients, double a,
                                                                   double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual std::shared_ptr<seriesPowers<Element>> EvalChebyPolys(ConstCiphertext<Element>& ciphertext,
                                                                   const std::vector<double>& coefficients, double a,
                                                                   double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual std::shared_ptr<seriesPowers<Element>> EvalChebyPolys(ConstCiphertext<Element>& ciphertext,
                                                                   const std::vector<std::complex<double>>& coefficients,
                                                                   double a, double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     /**
@@ -296,61 +296,61 @@ public:
     virtual Ciphertext<Element> EvalChebyshevSeries(ConstCiphertext<Element>& ciphertext,
                                                     const std::vector<int64_t>& coefficients, double a,
                                                     double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeries(ConstCiphertext<Element>& ciphertext,
                                                     const std::vector<double>& coefficients, double a, double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeries(ConstCiphertext<Element>& ciphertext,
                                                     const std::vector<std::complex<double>>& coefficients, double a,
                                                     double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     virtual Ciphertext<Element> EvalChebyshevSeriesWithPrecomp(std::shared_ptr<seriesPowers<Element>> polys,
                                                                const std::vector<int64_t>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeriesWithPrecomp(std::shared_ptr<seriesPowers<Element>> polys,
                                                                const std::vector<double>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeriesWithPrecomp(
         std::shared_ptr<seriesPowers<Element>> polys, const std::vector<std::complex<double>>& coefficients) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     virtual Ciphertext<Element> EvalChebyshevSeriesLinear(ConstCiphertext<Element>& ciphertext,
                                                           const std::vector<int64_t>& coefficients, double a,
                                                           double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeriesLinear(ConstCiphertext<Element>& ciphertext,
                                                           const std::vector<double>& coefficients, double a,
                                                           double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeriesLinear(ConstCiphertext<Element>& ciphertext,
                                                           const std::vector<std::complex<double>>& coefficients,
                                                           double a, double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     virtual Ciphertext<Element> EvalChebyshevSeriesPS(ConstCiphertext<Element>& ciphertext,
                                                       const std::vector<int64_t>& coefficients, double a,
                                                       double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeriesPS(ConstCiphertext<Element>& ciphertext,
                                                       const std::vector<double>& coefficients, double a,
                                                       double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
     virtual Ciphertext<Element> EvalChebyshevSeriesPS(ConstCiphertext<Element>& ciphertext,
                                                       const std::vector<std::complex<double>>& coefficients, double a,
                                                       double b) const {
-        OPENFHE_THROW("Not implemented for this scheme");
+        LUX_FHE_THROW("Not implemented for this scheme");
     }
 
     //------------------------------------------------------------------------------
@@ -511,6 +511,6 @@ protected:
                                              const std::map<uint32_t, EvalKey<Element>>& evalKeyMap) const;
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

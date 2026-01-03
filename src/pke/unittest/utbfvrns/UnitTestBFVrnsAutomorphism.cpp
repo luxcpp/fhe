@@ -44,7 +44,7 @@
 
 #include "utils/debug.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 namespace {
 class UTBFVRNS_AUTOMORPHISM : public ::testing::Test {

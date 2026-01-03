@@ -43,7 +43,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 /*
  * A utility class defining a party that is involved in the collective bootstrapping protocol
@@ -83,7 +83,7 @@ void TCKKSCollectiveBoot(enum ScalingTechnique scaleTech) {
     if (scaleTech != ScalingTechnique::FIXEDMANUAL && scaleTech != ScalingTechnique::FIXEDAUTO &&
         scaleTech != ScalingTechnique::FLEXIBLEAUTO && scaleTech != ScalingTechnique::FLEXIBLEAUTOEXT) {
         std::string errMsg = "ERROR: Scaling technique is not supported!";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     CCParams<CryptoContextCKKSRNS> parameters;

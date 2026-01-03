@@ -51,7 +51,7 @@
 #include <vector>
 #include <map>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Class that stores all parameters for the RingGSW scheme used in
@@ -108,7 +108,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("lweparams", m_LWEParams));
@@ -131,6 +131,6 @@ private:
     std::shared_ptr<RingGSWCryptoParams> m_RGSWParams{nullptr};
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _BINFHE_BASE_PARAMS_H_

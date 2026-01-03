@@ -55,7 +55,7 @@
 // this test does not work correctly in the web assembly configuration
 #if !defined(__EMSCRIPTEN__)
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 class UnitTestBinInt : public ::testing::Test {
 protected:

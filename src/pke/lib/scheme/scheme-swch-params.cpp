@@ -32,7 +32,7 @@
 
 #include <iostream>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // clang-format off
 std::ostream& operator<<(std::ostream& os, const SchSwchParams& obj) {
@@ -61,4 +61,4 @@ std::ostream& operator<<(std::ostream& os, const SchSwchParams& obj) {
 }
 // clang-format on
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

@@ -37,7 +37,7 @@ CKKS implementation. See https://eprint.iacr.org/2020/1118 for details.
 
 #include "scheme/ckksrns/ckksrns-scheme.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void SchemeCKKSRNS::Enable(PKESchemeFeature feature) {
     switch (feature) {
@@ -75,8 +75,8 @@ void SchemeCKKSRNS::Enable(PKESchemeFeature feature) {
         default:
             std::stringstream ss;
             ss << feature;
-            OPENFHE_THROW(std::string("This feature [") + ss.str() + "] is not supported for CKKSRNS scheme");
+            LUX_FHE_THROW(std::string("This feature [") + ss.str() + "] is not supported for CKKSRNS scheme");
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

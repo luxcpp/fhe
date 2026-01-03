@@ -33,8 +33,8 @@
   This code provide a templated matrix implementation
  */
 
-#ifndef LBCRYPTO_INC_MATH_MATRIX_IMP_H
-#define LBCRYPTO_INC_MATH_MATRIX_IMP_H
+#ifndef LUX_FHE_INC_MATH_MATRIX_IMP_H
+#define LUX_FHE_INC_MATH_MATRIX_IMP_H
 
 #include "math/matrix.h"
 
@@ -44,7 +44,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <class Element>
 Matrix<Element>::Matrix(alloc_func allocZero, size_t rows, size_t cols, alloc_func allocGen)
@@ -81,7 +81,7 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
     // NUM_THREADS = omp_get_max_threads();
 
     if (cols != other.rows) {
-        OPENFHE_THROW("incompatible matrix multiplication");
+        LUX_FHE_THROW("incompatible matrix multiplication");
     }
     Matrix<Element> result(allocZero, rows, other.cols);
     if (rows == 1) {
@@ -108,7 +108,7 @@ Matrix<Element> Matrix<Element>::Mult(Matrix<Element> const& other) const {
 template <class Element>
 Matrix<Element>& Matrix<Element>::operator+=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
-        OPENFHE_THROW("Addition operands have incompatible dimensions");
+        LUX_FHE_THROW("Addition operands have incompatible dimensions");
     }
 #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
@@ -122,7 +122,7 @@ Matrix<Element>& Matrix<Element>::operator+=(Matrix<Element> const& other) {
 template <class Element>
 Matrix<Element>& Matrix<Element>::operator-=(Matrix<Element> const& other) {
     if (rows != other.rows || cols != other.cols) {
-        OPENFHE_THROW("Subtraction operands have incompatible dimensions");
+        LUX_FHE_THROW("Subtraction operands have incompatible dimensions");
     }
 #pragma omp parallel for
     for (size_t j = 0; j < cols; ++j) {
@@ -155,10 +155,10 @@ Matrix<Element> Matrix<Element>::Transpose() const {
 template <class Element>
 void Matrix<Element>::Determinant(Element* determinant) const {
     if (rows != cols)
-        OPENFHE_THROW("Supported only for square matrix");
+        LUX_FHE_THROW("Supported only for square matrix");
     // auto determinant = *allocZero();
     if (rows < 1)
-        OPENFHE_THROW("Dimension should be at least one");
+        LUX_FHE_THROW("Dimension should be at least one");
 
     if (rows == 1) {
         *determinant = data[0][0];
@@ -212,7 +212,7 @@ void Matrix<Element>::Determinant(Element* determinant) const {
 template <class Element>
 Matrix<Element> Matrix<Element>::CofactorMatrix() const {
     if (rows != cols)
-        OPENFHE_THROW("Supported only for square matrix");
+        LUX_FHE_THROW("Supported only for square matrix");
 
     size_t ii, jj, iNew, jNew;
 
@@ -260,7 +260,7 @@ Matrix<Element> Matrix<Element>::CofactorMatrix() const {
 template <class Element>
 Matrix<Element>& Matrix<Element>::VStack(Matrix<Element> const& other) {
     if (cols != other.cols) {
-        OPENFHE_THROW("VStack rows not equal size");
+        LUX_FHE_THROW("VStack rows not equal size");
     }
     for (size_t row = 0; row < other.rows; ++row) {
         data_row_t rowElems;
@@ -277,7 +277,7 @@ Matrix<Element>& Matrix<Element>::VStack(Matrix<Element> const& other) {
 template <class Element>
 inline Matrix<Element>& Matrix<Element>::HStack(Matrix<Element> const& other) {
     if (rows != other.rows) {
-        OPENFHE_THROW("HStack cols not equal size");
+        LUX_FHE_THROW("HStack cols not equal size");
     }
     for (size_t row = 0; row < rows; ++row) {
         data_row_t rowElems;
@@ -338,6 +338,6 @@ Matrix<Element> Matrix<Element>::MultByRandomVector(std::vector<int> ranvec) con
     return result;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

@@ -35,7 +35,7 @@
 #include "math/math-hal.h"
 #include "utils/utilities.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 #if defined(HAVE_INT128)
 /**
@@ -100,5 +100,5 @@ inline uint64_t BarrettUint128ModUint64(const DoubleNativeInt& a, uint64_t modul
 }
 #endif
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 #endif  // __UTILITIES_INT_H__

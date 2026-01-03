@@ -33,21 +33,21 @@
   serialize ciphertexts; include this in any app that needs to serialize them
  */
 
-#ifndef LBCRYPTO_CRYPTO_CIPHERTEXTSER_H
-#define LBCRYPTO_CRYPTO_CIPHERTEXTSER_H
+#ifndef LUX_FHE_CRYPTO_CIPHERTEXTSER_H
+#define LUX_FHE_CRYPTO_CIPHERTEXTSER_H
 
 #include "ciphertext.h"
 #include "utils/serial.h"
 
-extern template class lbcrypto::CiphertextImpl<lbcrypto::Poly>;
-extern template class lbcrypto::CiphertextImpl<lbcrypto::NativePoly>;
-extern template class lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>;
+extern template class lux::fhe::CiphertextImpl<lux::fhe::Poly>;
+extern template class lux::fhe::CiphertextImpl<lux::fhe::NativePoly>;
+extern template class lux::fhe::CiphertextImpl<lux::fhe::DCRTPoly>;
 
-CEREAL_CLASS_VERSION(lbcrypto::CiphertextImpl<lbcrypto::Poly>,
-                     lbcrypto::CiphertextImpl<lbcrypto::Poly>::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::CiphertextImpl<lbcrypto::NativePoly>,
-                     lbcrypto::CiphertextImpl<lbcrypto::NativePoly>::SerializedVersion());
-CEREAL_CLASS_VERSION(lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>,
-                     lbcrypto::CiphertextImpl<lbcrypto::DCRTPoly>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::CiphertextImpl<lux::fhe::Poly>,
+                     lux::fhe::CiphertextImpl<lux::fhe::Poly>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::CiphertextImpl<lux::fhe::NativePoly>,
+                     lux::fhe::CiphertextImpl<lux::fhe::NativePoly>::SerializedVersion());
+CEREAL_CLASS_VERSION(lux::fhe::CiphertextImpl<lux::fhe::DCRTPoly>,
+                     lux::fhe::CiphertextImpl<lux::fhe::DCRTPoly>::SerializedVersion());
 
 #endif

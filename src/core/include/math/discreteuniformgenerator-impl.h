@@ -34,14 +34,14 @@
   the built-in C++ generator for 32-bit unsigned integers defined in <random>
  */
 
-#ifndef LBCRYPTO_INC_MATH_DISCRETEUNIFORMGENERATOR_IMPL_H_
-#define LBCRYPTO_INC_MATH_DISCRETEUNIFORMGENERATOR_IMPL_H_
+#ifndef LUX_FHE_INC_MATH_DISCRETEUNIFORMGENERATOR_IMPL_H_
+#define LUX_FHE_INC_MATH_DISCRETEUNIFORMGENERATOR_IMPL_H_
 
 #include "math/discreteuniformgenerator.h"
 #include "math/distributiongenerator.h"
 #include "utils/exception.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecType>
 DiscreteUniformGeneratorImpl<VecType>::DiscreteUniformGeneratorImpl(const typename VecType::Integer& modulus) {
@@ -65,7 +65,7 @@ void DiscreteUniformGeneratorImpl<VecType>::SetModulus(const typename VecType::I
 template <typename VecType>
 typename VecType::Integer DiscreteUniformGeneratorImpl<VecType>::GenerateInteger() const {
     if (m_modulus == typename VecType::Integer(0))
-        OPENFHE_THROW("0 modulus?");
+        LUX_FHE_THROW("0 modulus?");
 
     std::uniform_int_distribution<uint32_t> dist(DUG_CHUNK_MIN, DUG_CHUNK_MAX);
     while (true) {
@@ -97,6 +97,6 @@ VecType DiscreteUniformGeneratorImpl<VecType>::GenerateVector(const uint32_t siz
     return v;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

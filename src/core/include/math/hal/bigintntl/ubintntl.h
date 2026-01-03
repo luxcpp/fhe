@@ -40,8 +40,8 @@
 #include "config_core.h"
 #ifdef WITH_NTL
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTNTL_UBINTNTL_H
-        #define LBCRYPTO_MATH_HAL_BIGINTNTL_UBINTNTL_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTNTL_UBINTNTL_H
+        #define LUX_FHE_MATH_HAL_BIGINTNTL_UBINTNTL_H
 
         #include <NTL/ZZ.h>
         #include <NTL/ZZ_limbs.h>
@@ -103,7 +103,7 @@ struct Log2<2> {
     static const usint value = 1;
 };
 
-class myZZ : public NTL::ZZ, public lbcrypto::BigIntegerInterface<myZZ> {
+class myZZ : public NTL::ZZ, public lux::fhe::BigIntegerInterface<myZZ> {
 public:
     // CONSTRUCTORS
 
@@ -737,11 +737,11 @@ public:
     }
 
     myZZ ModMulFastConst(const myZZ& b, const myZZ& modulus, const myZZ& bInv) const {
-        OPENFHE_THROW("ModMulFastConst is not implemented for backend 6");
+        LUX_FHE_THROW("ModMulFastConst is not implemented for backend 6");
     }
 
     myZZ& ModMulFastConstEq(const myZZ& b, const myZZ& modulus, const myZZ& bInv) {
-        OPENFHE_THROW("ModMulFastConstEq is not implemented for backend 6");
+        LUX_FHE_THROW("ModMulFastConstEq is not implemented for backend 6");
     }
 
     /**
@@ -777,7 +777,7 @@ public:
    */
     myZZ ModInverse(const myZZ& modulus) const {
         if (modulus == myZZ(0)) {
-            OPENFHE_THROW("zero has no inverse");
+            LUX_FHE_THROW("zero has no inverse");
         }
         myZZ tmp(0);
         try {
@@ -789,7 +789,7 @@ public:
             errmsg << "ModInverse exception "
                    << " this: " << *this << " modulus: " << modulus << "GCD(" << e.get_a() << "," << e.get_n() << "!=1"
                    << std::endl;
-            OPENFHE_THROW(errmsg.str());
+            LUX_FHE_THROW(errmsg.str());
         }
         return tmp;
     }
@@ -802,7 +802,7 @@ public:
    */
     myZZ& ModInverseEq(const myZZ& modulus) {
         if (modulus == myZZ(0)) {
-            OPENFHE_THROW("zero has no inverse");
+            LUX_FHE_THROW("zero has no inverse");
         }
         try {
             *this = InvMod(*this % modulus, modulus);
@@ -813,7 +813,7 @@ public:
             errmsg << "ModInverse exception "
                    << " this: " << *this << " modulus: " << modulus << "GCD(" << e.get_a() << "," << e.get_n() << "!=1"
                    << std::endl;
-            OPENFHE_THROW(errmsg.str());
+            LUX_FHE_THROW(errmsg.str());
         }
         return *this;
     }
@@ -1030,7 +1030,7 @@ public:
     typename std::enable_if<!cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ::cereal::size_type len;
@@ -1053,7 +1053,7 @@ public:
     typename std::enable_if<cereal::traits::is_text_archive<Archive>::value, void>::type load(
         Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         std::string s;
@@ -1091,6 +1091,6 @@ private:
 NTL_DECLARE_RELOCATABLE((myZZ*))
 }  // namespace NTL
 
-    #endif  // LBCRYPTO_MATH_HAL_BIGINTNTL_UBINTNTL_H
+    #endif  // LUX_FHE_MATH_HAL_BIGINTNTL_UBINTNTL_H
 
 #endif  // WITH_NTL

@@ -25,7 +25,7 @@
 #include <mlx/mlx.h>
 #endif
 
-using namespace lbcrypto::gpu;
+using namespace lux::gpu;
 
 // =============================================================================
 // Test Utilities

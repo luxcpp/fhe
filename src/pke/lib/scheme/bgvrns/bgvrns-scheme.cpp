@@ -46,7 +46,7 @@ BGV implementation. See https://eprint.iacr.org/2021/204 for details.
 
 #include <iosfwd>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void SchemeBGVRNS::Enable(PKESchemeFeature feature) {
     switch (feature) {
@@ -80,8 +80,8 @@ void SchemeBGVRNS::Enable(PKESchemeFeature feature) {
         default:
             std::stringstream ss;
             ss << feature;
-            OPENFHE_THROW(std::string("This feature [") + ss.str() + "] is not supported for BGVRNS scheme");
+            LUX_FHE_THROW(std::string("This feature [") + ss.str() + "] is not supported for BGVRNS scheme");
     }
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

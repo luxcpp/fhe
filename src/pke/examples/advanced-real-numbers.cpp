@@ -38,7 +38,7 @@
 
 #include "openfhe.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 void AutomaticRescaleDemo(ScalingTechnique scalTech);
 void ManualRescaleDemo(ScalingTechnique scalTech);

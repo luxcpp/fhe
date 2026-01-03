@@ -36,8 +36,8 @@
 #include "config_core.h"
 #ifdef WITH_BE2
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTFXD_TRANSFORMFXD_H
-        #define LBCRYPTO_MATH_HAL_BIGINTFXD_TRANSFORMFXD_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTFXD_TRANSFORMFXD_H
+        #define LUX_FHE_MATH_HAL_BIGINTFXD_TRANSFORMFXD_H
 
         #include <map>
         #include <unordered_map>
@@ -235,7 +235,7 @@ public:
  * @brief Golden Chinese Remainder Transform FFT implementation.
  */
 template <typename VecType>
-class ChineseRemainderTransformFTTFxd : public lbcrypto::ChineseRemainderTransformFTTInterface<VecType> {
+class ChineseRemainderTransformFTTFxd : public lux::fhe::ChineseRemainderTransformFTTInterface<VecType> {
     using IntType = typename VecType::Integer;
 
 public:
@@ -469,7 +469,7 @@ private:
  * @brief Chinese Remainder Transform for arbitrary cyclotomics.
  */
 template <typename VecType>
-class ChineseRemainderTransformArbFxd : public lbcrypto::ChineseRemainderTransformArbInterface<VecType> {
+class ChineseRemainderTransformArbFxd : public lux::fhe::ChineseRemainderTransformArbInterface<VecType> {
     using IntType = typename VecType::Integer;
 
 public:

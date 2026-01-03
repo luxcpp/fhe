@@ -33,8 +33,8 @@
   matrix class implementations and type specific implementations
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_MATRIX_IMPL_H
-#define LBCRYPTO_INC_LATTICE_MATRIX_IMPL_H
+#ifndef LUX_FHE_INC_LATTICE_MATRIX_IMPL_H
+#define LUX_FHE_INC_LATTICE_MATRIX_IMPL_H
 
 #include "math/matrix-impl.h"
 
@@ -45,7 +45,7 @@
 // this is the implementation of matrixes of things that are in core
 // and that need template specializations
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 Matrix<typename Element::Integer> Rotate(Matrix<Element> const& inMat) {
@@ -175,6 +175,6 @@ Matrix<int32_t> ConvertToInt32(const Matrix<V>& input, const typename V::Integer
     return result;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

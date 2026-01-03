@@ -42,7 +42,7 @@
 #include "key/key-ser.h"
 #include "scheme/bfvrns/bfvrns-ser.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 const std::string DATAFOLDER = "demoData";
 
@@ -193,7 +193,7 @@ int main() {
     // Hence, we need to clear the context and clear the keys.
     cryptoContext->ClearEvalMultKeys();
     cryptoContext->ClearEvalAutomorphismKeys();
-    lbcrypto::CryptoContextFactory<lbcrypto::DCRTPoly>::ReleaseAllContexts();
+    lux::fhe::CryptoContextFactory<lux::fhe::DCRTPoly>::ReleaseAllContexts();
 
     // Deserialize the crypto context
     CryptoContext<DCRTPoly> cc;

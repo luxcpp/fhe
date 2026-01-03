@@ -34,8 +34,8 @@
   the built-in C++ generator for 32-bit unsigned integers defined in <random>
  */
 
-#ifndef LBCRYPTO_INC_MATH_BINARYUNIFORMGENERATOR_IMPL_H_
-#define LBCRYPTO_INC_MATH_BINARYUNIFORMGENERATOR_IMPL_H_
+#ifndef LUX_FHE_INC_MATH_BINARYUNIFORMGENERATOR_IMPL_H_
+#define LUX_FHE_INC_MATH_BINARYUNIFORMGENERATOR_IMPL_H_
 
 #include "math/binaryuniformgenerator.h"
 
@@ -43,7 +43,7 @@
 
 #include <random>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecType>
 std::bernoulli_distribution BinaryUniformGeneratorImpl<VecType>::m_distribution = std::bernoulli_distribution(0.5);
@@ -62,6 +62,6 @@ VecType BinaryUniformGeneratorImpl<VecType>::GenerateVector(const usint size,
     return v;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

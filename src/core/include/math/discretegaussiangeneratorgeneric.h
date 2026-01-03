@@ -96,8 +96,8 @@
  *
  * */
 
-#ifndef LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
-#define LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
+#ifndef LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
+#define LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
 
 #define MAX_LEVELS 4
 
@@ -108,7 +108,7 @@
 #include <random>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 enum BaseSamplerType { KNUTH_YAO = 0, PEIKERT = 1 };
 
@@ -354,6 +354,6 @@ private:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
-#endif  // LBCRYPTO_INC_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_
+#endif  // LUX_FHE_INC_MATH_DISCRETEGAUSSIANGENERATORGENERIC_H_

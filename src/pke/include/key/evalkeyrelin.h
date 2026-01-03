@@ -29,8 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //==================================================================================
 
-#ifndef LBCRYPTO_CRYPTO_KEY_EVALKEYRELIN_H
-#define LBCRYPTO_CRYPTO_KEY_EVALKEYRELIN_H
+#ifndef LUX_FHE_CRYPTO_KEY_EVALKEYRELIN_H
+#define LUX_FHE_CRYPTO_KEY_EVALKEYRELIN_H
 
 #include "key/evalkey.h"
 #include "key/evalkeyrelin-fwd.h"
@@ -41,10 +41,10 @@
 #include <vector>
 
 /**
- * @namespace lbcrypto
+ * @namespace lux::fhe
  * The namespace of lbcrypto
  */
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Concrete class for Relinearization keys of RLWE scheme
@@ -192,7 +192,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::base_class<EvalKeyImpl<Element>>(this));
@@ -209,6 +209,6 @@ public:
     }
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

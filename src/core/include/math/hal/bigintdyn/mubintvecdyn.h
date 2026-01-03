@@ -36,8 +36,8 @@
 #include "config_core.h"
 #ifdef WITH_BE4
 
-    #ifndef LBCRYPTO_MATH_HAL_BIGINTDYN_MUBINTVECDYN_H
-        #define LBCRYPTO_MATH_HAL_BIGINTDYN_MUBINTVECDYN_H
+    #ifndef LUX_FHE_MATH_HAL_BIGINTDYN_MUBINTVECDYN_H
+        #define LUX_FHE_MATH_HAL_BIGINTDYN_MUBINTVECDYN_H
 
         #include "math/hal/vector.h"
         #include "math/hal/bigintdyn/ubintdyn.h"
@@ -71,8 +71,8 @@ using BigVector  = xmubintvec;
  */
 
 template <class ubint_el_t>
-class mubintvec final : public lbcrypto::BigVectorInterface<mubintvec<ubint_el_t>, ubint_el_t>,
-                        public lbcrypto::Serializable {
+class mubintvec final : public lux::fhe::BigVectorInterface<mubintvec<ubint_el_t>, ubint_el_t>,
+                        public lux::fhe::Serializable {
 public:
     mubintvec() = default;
 
@@ -238,13 +238,13 @@ public:
    */
     ubint_el_t& at(size_t i) {
         if (!mubintvec::IndexCheck(i))
-            OPENFHE_THROW("index out of range");
+            LUX_FHE_THROW("index out of range");
         return m_data[i];
     }
 
     const ubint_el_t& at(size_t i) const {
         if (!mubintvec::IndexCheck(i))
-            OPENFHE_THROW("index out of range");
+            LUX_FHE_THROW("index out of range");
         return m_data[i];
     }
 
@@ -318,7 +318,7 @@ public:
     void LazySwitchModulus(const ubint_el_t& value);
 
     mubintvec& MultAccEqNoCheck(const mubintvec& v, const ubint_el_t& i) {
-        OPENFHE_THROW("MultAccEqNoCheck() not implemented for mubintvecdyn");
+        LUX_FHE_THROW("MultAccEqNoCheck() not implemented for mubintvecdyn");
     }
 
     /**
@@ -328,7 +328,7 @@ public:
    */
     const ubint_el_t& GetModulus() const {
         if (m_modulus_state != State::INITIALIZED)
-            OPENFHE_THROW("GetModulus() on uninitialized mubintvec");
+            LUX_FHE_THROW("GetModulus() on uninitialized mubintvec");
         return m_modulus;
     }
 
@@ -614,7 +614,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("d", m_data));
@@ -647,5 +647,5 @@ private:
 
 }  // namespace bigintdyn
 
-    #endif  // LBCRYPTO_MATH_HAL_BIGINTDYN_MUBINTVECDYN_H
+    #endif  // LUX_FHE_MATH_HAL_BIGINTDYN_MUBINTVECDYN_H
 #endif

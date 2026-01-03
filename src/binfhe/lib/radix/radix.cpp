@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace radix {
 
 // ============================================================================
@@ -558,4 +558,4 @@ void BatchPropagateCarries(
 }
 
 } // namespace radix
-} // namespace lbcrypto
+} // namespace lux::fhe

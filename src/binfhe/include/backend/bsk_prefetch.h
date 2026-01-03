@@ -23,7 +23,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 namespace backend {
 
 // ============================================================================
@@ -637,6 +637,6 @@ protected:
 };
 
 } // namespace backend
-} // namespace lbcrypto
+} // namespace lux::fhe
 
 #endif // BACKEND_BSK_PREFETCH_H

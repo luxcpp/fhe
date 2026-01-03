@@ -33,8 +33,8 @@
   Implementation of the integer lattice using double-CRT representations
  */
 
-#ifndef LBCRYPTO_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_IMPL_H
-#define LBCRYPTO_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_IMPL_H
+#ifndef LUX_FHE_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_IMPL_H
+#define LUX_FHE_INC_LATTICE_HAL_DEFAULT_DCRTPOLY_IMPL_H
 
 #include "config_core.h"
 
@@ -54,7 +54,7 @@
 #include <utility>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename VecType>
 DCRTPolyImpl<VecType>::DCRTPolyImpl(const PolyLargeType& rhs,
@@ -117,7 +117,7 @@ DCRTPolyImpl<VecType>::DCRTPolyImpl(const std::vector<DCRTPolyImpl::PolyType>& t
     const auto cyclotomicOrder = m_vectors[0].GetCyclotomicOrder();
     for (const auto& v : m_vectors) {
         if (v.GetCyclotomicOrder() != cyclotomicOrder)
-            OPENFHE_THROW("Polys provided to constructor must have the same ring dimension");
+            LUX_FHE_THROW("Polys provided to constructor must have the same ring dimension");
         parms.emplace_back(v.GetParams());
     }
     m_params = std::make_shared<DCRTPolyImpl::Params>(cyclotomicOrder, parms);
@@ -383,7 +383,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::operator-() const {
 template <typename VecType>
 DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Minus(const DCRTPolyImpl& rhs) const {
     if (m_vectors.size() != rhs.m_vectors.size())
-        OPENFHE_THROW("tower size mismatch; cannot subtract");
+        LUX_FHE_THROW("tower size mismatch; cannot subtract");
     DCRTPolyImpl<VecType> tmp(m_params, m_format);
     size_t size{m_vectors.size()};
 #pragma omp parallel for num_threads(OpenFHEParallelControls.GetThreadLimit(size))
@@ -603,7 +603,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const std::vector<Integer>& c
 template <typename VecType>
 DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const std::vector<NativeInteger>& rhs) const {
     if (m_vectors.size() != rhs.size())
-        OPENFHE_THROW("tower size mismatch; cannot multiply");
+        LUX_FHE_THROW("tower size mismatch; cannot multiply");
     DCRTPolyImpl<VecType> tmp(m_params, m_format);
     size_t size{m_vectors.size()};
 #pragma omp parallel for num_threads(OpenFHEParallelControls.GetThreadLimit(size))
@@ -652,9 +652,9 @@ template <typename VecType>
 void DCRTPolyImpl<VecType>::SetValuesModSwitch(const DCRTPolyImpl& element, const NativeInteger& modulus) {
     size_t N(m_params->GetRingDimension());
     if (N != element.GetRingDimension())
-        OPENFHE_THROW(std::string(__func__) + ": Ring dimension mismatch.");
+        LUX_FHE_THROW(std::string(__func__) + ": Ring dimension mismatch.");
     if (element.m_vectors.size() != 1 || m_vectors.size() != 1)
-        OPENFHE_THROW(std::string(__func__) + ": Only implemented for DCRTPoly with one tower.");
+        LUX_FHE_THROW(std::string(__func__) + ": Only implemented for DCRTPoly with one tower.");
 
     auto input{element.m_vectors[0]};
     input.SetFormat(Format::COEFFICIENT);
@@ -671,7 +671,7 @@ void DCRTPolyImpl<VecType>::SetValuesModSwitch(const DCRTPolyImpl& element, cons
 template <typename VecType>
 void DCRTPolyImpl<VecType>::AddILElementOne() {
     if (m_format != Format::EVALUATION)
-        OPENFHE_THROW(std::string(__func__) + ": only available in COEFFICIENT format.");
+        LUX_FHE_THROW(std::string(__func__) + ": only available in COEFFICIENT format.");
     size_t size{m_vectors.size()};
 #pragma omp parallel for num_threads(OpenFHEParallelControls.GetThreadLimit(size))
     for (size_t i = 0; i < size; ++i)
@@ -690,9 +690,9 @@ bool DCRTPolyImpl<VecType>::IsEmpty() const {
 template <typename VecType>
 void DCRTPolyImpl<VecType>::DropLastElement() {
     if (m_vectors.size() == 0)
-        OPENFHE_THROW(std::string(__func__) + ": Input has no elements to drop.");
+        LUX_FHE_THROW(std::string(__func__) + ": Input has no elements to drop.");
     if (m_vectors.size() == 1)
-        OPENFHE_THROW(std::string(__func__) + ": Removing last element of DCRTPoly renders it invalid.");
+        LUX_FHE_THROW(std::string(__func__) + ": Removing last element of DCRTPoly renders it invalid.");
     m_vectors.resize(m_vectors.size() - 1);
     DCRTPolyImpl::Params* newP = new DCRTPolyImpl::Params(*m_params);
     newP->PopLastParam();
@@ -702,7 +702,7 @@ void DCRTPolyImpl<VecType>::DropLastElement() {
 template <typename VecType>
 void DCRTPolyImpl<VecType>::DropLastElements(size_t i) {
     if (m_vectors.size() <= i)
-        OPENFHE_THROW(std::string(__func__) + ": Too few towers in input.");
+        LUX_FHE_THROW(std::string(__func__) + ": Too few towers in input.");
     m_vectors.resize(m_vectors.size() - i);
     DCRTPolyImpl::Params* newP = new DCRTPolyImpl::Params(*m_params);
     for (size_t j = 0; j < i; ++j)
@@ -788,7 +788,7 @@ void DCRTPolyImpl<VecType>::ModReduce(const NativeInteger& t, const std::vector<
 template <typename VecType>
 typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpolate() const {
     if (m_format != Format::COEFFICIENT)
-        OPENFHE_THROW(std::string(__func__) + ": Only available in COEFFICIENT format.");
+        LUX_FHE_THROW(std::string(__func__) + ": Only available in COEFFICIENT format.");
 
     const uint32_t t(m_vectors.size());
     const uint32_t r{m_params->GetRingDimension()};
@@ -826,7 +826,7 @@ typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpol
 template <typename VecType>
 typename DCRTPolyImpl<VecType>::PolyLargeType DCRTPolyImpl<VecType>::CRTInterpolateIndex(uint32_t i) const {
     if (m_format != Format::COEFFICIENT)
-        OPENFHE_THROW(std::string(__func__) + ": Only available in COEFFICIENT format.");
+        LUX_FHE_THROW(std::string(__func__) + ": Only available in COEFFICIENT format.");
 
     uint32_t r{m_params->GetRingDimension()};
     const Integer qt{m_params->GetModulus()};
@@ -891,7 +891,7 @@ void DCRTPolyImpl<VecType>::TimesQovert(const std::shared_ptr<Params>& paramsQ,
                                         const std::vector<NativeInteger>& tInvModq, const NativeInteger& t,
                                         const NativeInteger& NegQModt, const NativeInteger& NegQModtPrecon) {
     if (tInvModq.size() < m_vectors.size())
-        OPENFHE_THROW("Sizes of vectors do not match.");
+        LUX_FHE_THROW("Sizes of vectors do not match.");
     uint32_t size(m_vectors.size());
     uint32_t ringDim(m_params->GetRingDimension());
 #pragma omp parallel for num_threads(OpenFHEParallelControls.GetThreadLimit(size))
@@ -1039,28 +1039,28 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::SwitchCRTBasis(const std::shared_pt
     /*
     // TODO: do we really want/need all of these checks?
     if (sizeQ == 0)
-        OPENFHE_THROW("sizeQ must be positive");
+        LUX_FHE_THROW("sizeQ must be positive");
     if (sizeP == 0)
-        OPENFHE_THROW("sizeP must be positive");
+        LUX_FHE_THROW("sizeP must be positive");
     if (QHatInvModq.size() < sizeQ)
-        OPENFHE_THROW("Size of QHatInvModq " + std::to_string(QHatInvModq.size()) +
+        LUX_FHE_THROW("Size of QHatInvModq " + std::to_string(QHatInvModq.size()) +
                                         " is less than sizeQ " + std::to_string(sizeQ));
     if (QHatInvModqPrecon.size() < sizeQ)
-        OPENFHE_THROW("Size of QHatInvModqPrecon " + std::to_string(QHatInvModqPrecon.size()) +
+        LUX_FHE_THROW("Size of QHatInvModqPrecon " + std::to_string(QHatInvModqPrecon.size()) +
                                         " is less than sizeQ " + std::to_string(sizeQ));
     if (qInv.size() < sizeQ)
-        OPENFHE_THROW("Size of qInv " + std::to_string(qInv.size()) + " is less than sizeQ " + std::to_string(sizeQ));
+        LUX_FHE_THROW("Size of qInv " + std::to_string(qInv.size()) + " is less than sizeQ " + std::to_string(sizeQ));
     if (alphaQModp.size() < sizeQ + 1)
-        OPENFHE_THROW("Size of alphaQModp " + std::to_string(alphaQModp.size()) +
+        LUX_FHE_THROW("Size of alphaQModp " + std::to_string(alphaQModp.size()) +
                                         " is less than sizeQ + 1 " + std::to_string(sizeQ + 1));
     if (alphaQModp[0].size() < sizeP)
-        OPENFHE_THROW("Size of alphaQModp[0] " + std::to_string(alphaQModp[0].size()) +
+        LUX_FHE_THROW("Size of alphaQModp[0] " + std::to_string(alphaQModp[0].size()) +
                                         " is less than sizeP " + std::to_string(sizeP));
     if (QHatModp.size() < sizeP)
-        OPENFHE_THROW("Size of QHatModp " + std::to_string(QHatModp.size()) + " is less than sizeP " +
+        LUX_FHE_THROW("Size of QHatModp " + std::to_string(QHatModp.size()) + " is less than sizeP " +
                                         std::to_string(sizeP));
     if (QHatModp[0].size() < sizeQ)
-        OPENFHE_THROW("Size of QHatModp[0] " + std::to_string(QHatModp[0].size()) +
+        LUX_FHE_THROW("Size of QHatModp[0] " + std::to_string(QHatModp[0].size()) +
                                         " is less than sizeQ " + std::to_string(sizeQ));
 */
 
@@ -1535,7 +1535,7 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::ScaleAndRound(
     const std::shared_ptr<Params>& paramsOutput, const std::vector<std::vector<NativeInteger>>& tOSHatInvModsDivsModo,
     const std::vector<double>& tOSHatInvModsDivsFrac, const std::vector<DoubleNativeInt>& modoBarretMu) const {
     if constexpr (NATIVEINT == 32)
-        OPENFHE_THROW("Use of ScaleAndRound with NATIVEINT == 32 may lead to overflow");
+        LUX_FHE_THROW("Use of ScaleAndRound with NATIVEINT == 32 may lead to overflow");
 
     DCRTPolyImpl<VecType> ans(paramsOutput, m_format, true);
     uint32_t ringDim   = m_params->GetRingDimension();
@@ -1964,7 +1964,7 @@ void DCRTPolyImpl<VecType>::SwitchModulusAtIndex(size_t index, const Integer& mo
         std::string errMsg;
         errMsg = "DCRTPolyImpl is of size = " + std::to_string(m_vectors.size()) +
                  " but SwitchModulus for tower at index " + std::to_string(index) + "is called.";
-        OPENFHE_THROW(errMsg);
+        LUX_FHE_THROW(errMsg);
     }
 
     m_vectors[index].SwitchModulus(PolyType::Integer(modulus.ConvertToInt()),
@@ -1993,6 +1993,6 @@ std::ostream& operator<<(std::ostream& os, const DCRTPolyImpl<VecType>& p) {
     return os;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

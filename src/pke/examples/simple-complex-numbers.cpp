@@ -39,7 +39,7 @@
 #include <vector>
 #include <iostream>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::literals;
 
 void SimpleComplexNumbers();

@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class PlaintextImpl;
 
@@ -46,6 +46,6 @@ using ConstPlaintext = const std::shared_ptr<const PlaintextImpl>;
 
 using ReadOnlyPlaintext = std::shared_ptr<const PlaintextImpl>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __PLAINTEXT_FWD_H__

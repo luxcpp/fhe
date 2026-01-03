@@ -50,7 +50,7 @@
 #include <vector>
 #include <map>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 /**
  * @brief Class that stores all parameters for the RingGSW scheme used in
@@ -87,9 +87,9 @@ public:
           m_keyDist(keyDist),
           m_numAutoKeys(numAutoKeys) {
         if (!IsPowerOfTwo(baseG))
-            OPENFHE_THROW("Gadget base should be a power of two.");
+            LUX_FHE_THROW("Gadget base should be a power of two.");
         if ((method == LMKCDEY) && (numAutoKeys == 0))
-            OPENFHE_THROW("numAutoKeys should be greater than 0.");
+            LUX_FHE_THROW("numAutoKeys should be greater than 0.");
         auto logQ{log(m_Q.ConvertToDouble())};
         m_digitsG = static_cast<uint32_t>(std::ceil(logQ / log(static_cast<double>(m_baseG))));
         m_dgg.SetStd(std);
@@ -194,7 +194,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("bN", m_N));
@@ -288,6 +288,6 @@ private:
     uint32_t m_numAutoKeys{};
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _RGSW_CRYPTOPARAMETERS_H_

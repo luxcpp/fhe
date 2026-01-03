@@ -34,7 +34,7 @@
 
 #include <random>
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 [[maybe_unused]] static void FHEW_BTKEYGEN(benchmark::State& state, BINFHE_PARAMSET s, BINFHE_METHOD m) {
     auto cc = BinFHEContext();

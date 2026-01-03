@@ -36,7 +36,7 @@
 #include "binfhecontext.h"
 #include "gtest/gtest.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 
 // ---------------  TESTING METHODS OF FHEW ---------------
 

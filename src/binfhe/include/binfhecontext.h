@@ -46,7 +46,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // TODO: reorder to optimize struct size/alignment
 struct BinFHEContextParams {
@@ -415,7 +415,7 @@ public:
     template <class Archive>
     void load(Archive& ar, std::uint32_t const version) {
         if (version > SerializedVersion()) {
-            OPENFHE_THROW("serialized object version " + std::to_string(version) +
+            LUX_FHE_THROW("serialized object version " + std::to_string(version) +
                           " is from a later version of the library");
         }
         ar(::cereal::make_nvp("params", m_params));
@@ -465,6 +465,6 @@ private:
     bool m_timeOptimization{false};
 };
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif

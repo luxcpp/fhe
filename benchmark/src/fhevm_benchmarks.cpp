@@ -28,7 +28,7 @@ namespace mx = mlx::core;
 #include "radix/radix.h"
 #include "radix/shortint.h"
 
-using namespace lbcrypto;
+using namespace lux::fhe;
 using namespace std::chrono;
 
 //=============================================================================
@@ -241,7 +241,7 @@ void benchmark_evm256pp(const BenchmarkConfig& config) {
     std::cout << "\nBenchmarking GPU-accelerated 256-bit operations with parallel carry propagation.\n";
     
 #ifdef WITH_MLX
-    using namespace lbcrypto::gpu;
+    using namespace lux::fhe::gpu;
 
     // Initialize MLX GPU engine
     FHEConfig fhe_config;

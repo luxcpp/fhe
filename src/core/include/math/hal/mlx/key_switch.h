@@ -16,8 +16,8 @@
 // - For each decomposition level l in [0, L_ks-1]
 // - KSK[i][l] is an LWE encryption of floor(s_i * B^l)
 
-#ifndef LBCRYPTO_MATH_HAL_MLX_KEY_SWITCH_GPU_H
-#define LBCRYPTO_MATH_HAL_MLX_KEY_SWITCH_GPU_H
+#ifndef LUX_FHE_MATH_HAL_MLX_KEY_SWITCH_GPU_H
+#define LUX_FHE_MATH_HAL_MLX_KEY_SWITCH_GPU_H
 
 #include <cstdint>
 #include <vector>
@@ -28,7 +28,7 @@
 namespace mx = mlx::core;
 #endif
 
-namespace lbcrypto {
+namespace lux {
 namespace gpu {
 
 #ifdef WITH_MLX
@@ -207,6 +207,6 @@ inline mx::array KeySwitch::modulusSwitch(const mx::array& ct) {
 #endif // WITH_MLX
 
 } // namespace gpu
-} // namespace lbcrypto
+} // namespace lux::fhe
 
-#endif // LBCRYPTO_MATH_HAL_MLX_KEY_SWITCH_GPU_H
+#endif // LUX_FHE_MATH_HAL_MLX_KEY_SWITCH_GPU_H

@@ -46,7 +46,7 @@
 // TODO: when the parms are polymorphic, reduce the tuple of methods to a
 // single one
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 class PlaintextFactory {
     PlaintextFactory() = delete;  // never construct one!
@@ -68,7 +68,7 @@ public:
             case CKKS_PACKED_ENCODING:
                 return std::make_shared<CKKSPackedEncoding>(vp, ep, cdt);
             default:
-                OPENFHE_THROW("Unknown plaintext encoding type in MakePlaintext");
+                LUX_FHE_THROW("Unknown plaintext encoding type in MakePlaintext");
         }
     }
 
@@ -83,12 +83,12 @@ public:
         uint32_t ringDim = vp->GetRingDimension();
         size_t valueSize = value.size();
         if (isCKKS(schemeID) && valueSize > ringDim / 2) {
-            OPENFHE_THROW("The size [" + std::to_string(valueSize) +
+            LUX_FHE_THROW("The size [" + std::to_string(valueSize) +
                           "] of the vector with values should not be greater than ringDim/2 [" +
                           std::to_string(ringDim / 2) + "] if the scheme is CKKS");
         }
         else if (valueSize > ringDim) {
-            OPENFHE_THROW("The size [" + std::to_string(valueSize) +
+            LUX_FHE_THROW("The size [" + std::to_string(valueSize) +
                           "] of the vector with values should not be greater than ringDim [" + std::to_string(ringDim) +
                           "] if the scheme is NOT CKKS");
         }
@@ -112,12 +112,12 @@ public:
         uint32_t ringDim = vp->GetRingDimension();
         size_t valueSize = value.size();
         if (isCKKS(schemeID) && valueSize > ringDim / 2) {
-            OPENFHE_THROW("The size [" + std::to_string(valueSize) +
+            LUX_FHE_THROW("The size [" + std::to_string(valueSize) +
                           "] of the vector with values should not be greater than ringDim/2 [" +
                           std::to_string(ringDim / 2) + "] if the scheme is CKKS");
         }
         else if (valueSize > ringDim) {
-            OPENFHE_THROW("The size [" + std::to_string(valueSize) +
+            LUX_FHE_THROW("The size [" + std::to_string(valueSize) +
                           "] of the vector with values should not be greater than ringDim [" + std::to_string(ringDim) +
                           "] if the scheme is NOT CKKS");
         }
@@ -131,6 +131,6 @@ public:
     }
 };
 
-} /* namespace lbcrypto */
+} /* namespace lux::fhe */
 
 #endif /* SRC_CORE_LIB_ENCODING_PLAINTEXTFACTORY_H_ */

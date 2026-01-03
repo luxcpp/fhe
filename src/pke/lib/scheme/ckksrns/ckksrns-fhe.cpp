@@ -65,7 +65,7 @@
 namespace {
 // GetBigModulus() calculates the big modulus as the product of
 // the "compositeDegree" number of parameter modulus
-double GetBigModulus(const std::shared_ptr<lbcrypto::CryptoParametersCKKSRNS> cryptoParams) {
+double GetBigModulus(const std::shared_ptr<lux::fhe::CryptoParametersCKKSRNS> cryptoParams) {
     double qDouble           = 1.0;
     uint32_t compositeDegree = cryptoParams->GetCompositeDegree();
     for (uint32_t j = 0; j < compositeDegree; ++j) {
@@ -76,7 +76,7 @@ double GetBigModulus(const std::shared_ptr<lbcrypto::CryptoParametersCKKSRNS> cr
 
 }  // namespace
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 //------------------------------------------------------------------------------
 // Bootstrap Wrapper
@@ -88,10 +88,10 @@ void FHECKKSRNS::EvalBootstrapSetup(const CryptoContextImpl<DCRTPoly>& cc, std::
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(cc.GetCryptoParameters());
 
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
+        LUX_FHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
 #if NATIVEINT == 128
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("128-bit CKKS Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("128-bit CKKS Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
 #endif
 
     uint32_t M     = cc.GetCyclotomicOrder();
@@ -183,7 +183,7 @@ void FHECKKSRNS::EvalBootstrapSetup(const CryptoContextImpl<DCRTPoly>& cc, std::
                 k = K_SPARSE_ENCAPSULATED;
                 break;
             default:
-                OPENFHE_THROW("Unsupported SecretKeyDist.");
+                LUX_FHE_THROW("Unsupported SecretKeyDist.");
         }
 
         uint32_t compositeDegree = cryptoParams->GetCompositeDegree();
@@ -248,10 +248,10 @@ std::shared_ptr<std::map<uint32_t, EvalKey<DCRTPoly>>> FHECKKSRNS::EvalBootstrap
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(privateKey->GetCryptoParameters());
 
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
+        LUX_FHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
 #if NATIVEINT == 128
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("128-bit CKKS Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("128-bit CKKS Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
 #endif
 
     auto cc   = privateKey->GetCryptoContext();
@@ -288,10 +288,10 @@ void FHECKKSRNS::EvalBootstrapPrecompute(const CryptoContextImpl<DCRTPoly>& cc, 
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(cc.GetCryptoParameters());
 
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
+        LUX_FHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
 #if NATIVEINT == 128
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("128-bit CKKS Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("128-bit CKKS Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
 #endif
 
     uint32_t M     = cc.GetCyclotomicOrder();
@@ -339,7 +339,7 @@ void FHECKKSRNS::EvalBootstrapPrecompute(const CryptoContextImpl<DCRTPoly>& cc, 
             k = K_SPARSE_ENCAPSULATED;
             break;
         default:
-            OPENFHE_THROW("Unsupported SecretKeyDist.");
+            LUX_FHE_THROW("Unsupported SecretKeyDist.");
     }
 
     uint32_t compositeDegree = cryptoParams->GetCompositeDegree();
@@ -403,14 +403,14 @@ Ciphertext<DCRTPoly> FHECKKSRNS::EvalBootstrap(ConstCiphertext<DCRTPoly>& cipher
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(ciphertext->GetCryptoParameters());
 
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Bootstrapping only supported with Hybrid key switching.");
+        LUX_FHE_THROW("CKKS Bootstrapping only supported with Hybrid key switching.");
     auto st = cryptoParams->GetScalingTechnique();
 #if NATIVEINT == 128
     if (st == FLEXIBLEAUTO || st == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("128-bit CKKS Bootstrapping only supported for FIXEDMANUAL and FIXEDAUTO.");
+        LUX_FHE_THROW("128-bit CKKS Bootstrapping only supported for FIXEDMANUAL and FIXEDAUTO.");
 #endif
     if (numIterations != 1 && numIterations != 2)
-        OPENFHE_THROW("CKKS Bootstrapping only supported for 1 or 2 iterations.");
+        LUX_FHE_THROW("CKKS Bootstrapping only supported for 1 or 2 iterations.");
 
 #ifdef BOOTSTRAPTIMING
     TimeVar t;
@@ -497,7 +497,7 @@ Ciphertext<DCRTPoly> FHECKKSRNS::EvalBootstrap(ConstCiphertext<DCRTPoly>& cipher
     int32_t deg    = std::round(std::log2(qDouble / powP));
 #if NATIVEINT != 128
     if (deg > static_cast<int32_t>(m_correctionFactor) && st != COMPOSITESCALINGAUTO && st != COMPOSITESCALINGMANUAL) {
-        OPENFHE_THROW("Degree [" + std::to_string(deg) + "] must be less than or equal to the correction factor [" +
+        LUX_FHE_THROW("Degree [" + std::to_string(deg) + "] must be less than or equal to the correction factor [" +
                       std::to_string(m_correctionFactor) + "].");
     }
 #endif
@@ -846,7 +846,7 @@ std::vector<uint32_t> FHECKKSRNS::FindLinearTransformRotationIndices(uint32_t sl
     // computing all indices for baby-step giant-step procedure
     int32_t indexListSz = static_cast<int32_t>(g) + h + M - 2;
     if (indexListSz < 0)
-        OPENFHE_THROW("indexListSz can not be negative");
+        LUX_FHE_THROW("indexListSz can not be negative");
 
     indexList.reserve(indexListSz);
     for (size_t i = 1; i <= g; ++i)
@@ -888,7 +888,7 @@ std::vector<uint32_t> FHECKKSRNS::FindCoeffsToSlotsRotationIndices(uint32_t slot
     // Computing all indices for baby-step giant-step procedure for encoding and decoding
     int32_t indexListSz = static_cast<int32_t>(b) + g - 2 + bRem + gRem - 2 + 1 + M;
     if (indexListSz < 0)
-        OPENFHE_THROW("indexListSz can not be negative");
+        LUX_FHE_THROW("indexListSz can not be negative");
     indexList.reserve(indexListSz);
 
     for (int32_t s = static_cast<int32_t>(levelBudget) - 1; s >= static_cast<int32_t>(flagRem); --s) {
@@ -938,14 +938,14 @@ std::vector<uint32_t> FHECKKSRNS::FindSlotsToCoeffsRotationIndices(uint32_t slot
 
     uint32_t flagRem = (remCollapse == 0) ? 0 : 1;
     if (levelBudget < flagRem)
-        OPENFHE_THROW("levelBudget can not be less than flagRem");
+        LUX_FHE_THROW("levelBudget can not be less than flagRem");
 
     std::vector<uint32_t> indexList;
     // To avoid overflowing uint32_t variables, we do some math operations below in a specific order
     // Computing all indices for baby-step giant-step procedure for encoding and decoding
     int32_t indexListSz = static_cast<int32_t>(b) + g - 2 + bRem + gRem - 2 + 1 + M;
     if (indexListSz < 0)
-        OPENFHE_THROW("indexListSz can not be negative");
+        LUX_FHE_THROW("indexListSz can not be negative");
     indexList.reserve(indexListSz);
 
     for (size_t s = 0; s < (levelBudget - flagRem); ++s) {
@@ -991,7 +991,7 @@ std::vector<ReadOnlyPlaintext> FHECKKSRNS::EvalLinearTransformPrecompute(
     uint32_t L) const {
     uint32_t slots = A.size();
     if (slots != A[0].size())
-        OPENFHE_THROW("The matrix passed to EvalLTPrecompute is not square");
+        LUX_FHE_THROW("The matrix passed to EvalLTPrecompute is not square");
 
     // make sure the plaintext is created only with the necessary amount of moduli
     auto cryptoParams     = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(cc.GetCryptoParameters());
@@ -1970,7 +1970,7 @@ void FHECKKSRNS::AdjustCiphertextFBT(Ciphertext<DCRTPoly>& ciphertext, double co
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(ciphertext->GetCryptoParameters());
 
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("This version of AdjustCiphertext is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("This version of AdjustCiphertext is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
 #if NATIVEINT != 128
     // Scaling down the message by a correction factor to emulate using a larger q0.
     // This step is needed so we could use a scaling factor of up to 2^59 with q9 ~= 2^60.
@@ -2156,7 +2156,7 @@ Plaintext FHECKKSRNS::MakeAuxPlaintext(const CryptoContextImpl<DCRTPoly>& cc, co
             buffer << "- Max imaginary part contribution from input[" << imagMaxIdx << "]: " << imagMax << std::endl;
             buffer << "Scaling factor is " << ceil(log2(powP)) << " bits " << std::endl;
             buffer << "Scaled input is " << scaledInputSize << " bits " << std::endl;
-            OPENFHE_THROW(buffer.str());
+            LUX_FHE_THROW(buffer.str());
         }
 
         int64_t re64       = std::llround(dre);
@@ -2185,7 +2185,7 @@ Plaintext FHECKKSRNS::MakeAuxPlaintext(const CryptoContextImpl<DCRTPoly>& cc, co
         temp[i + slots] = (im < 0) ? Max128BitValue() + im : im;
 
         if (is128BitOverflow(temp[i]) || is128BitOverflow(temp[i + slots])) {
-            OPENFHE_THROW("Overflow, try to decrease scaling factor");
+            LUX_FHE_THROW("Overflow, try to decrease scaling factor");
         }
     }
 
@@ -2268,7 +2268,7 @@ Plaintext FHECKKSRNS::MakeAuxPlaintext(const CryptoContextImpl<DCRTPoly>& cc, co
     }
     logc = (logc == std::numeric_limits<int32_t>::min()) ? 0 : logc;
     if (logc < 0)
-        OPENFHE_THROW("Scaling factor too small");
+        LUX_FHE_THROW("Scaling factor too small");
 
     int32_t logValid    = (logc <= MAX_BITS_IN_WORD) ? logc : MAX_BITS_IN_WORD;
     int32_t logApprox   = logc - logValid;
@@ -2323,7 +2323,7 @@ Plaintext FHECKKSRNS::MakeAuxPlaintext(const CryptoContextImpl<DCRTPoly>& cc, co
             buffer << "- Max imaginary part contribution from input[" << imagMaxIdx << "]: " << imagMax << std::endl;
             buffer << "Scaling factor is " << ceil(log2(powP)) << " bits " << std::endl;
             buffer << "Scaled input is " << scaledInputSize << " bits " << std::endl;
-            OPENFHE_THROW(buffer.str());
+            LUX_FHE_THROW(buffer.str());
         }
 
         int64_t re = std::llround(dre);
@@ -2490,7 +2490,7 @@ Ciphertext<DCRTPoly> FHECKKSRNS::Conjugate(ConstCiphertext<DCRTPoly> ciphertext,
 void FHECKKSRNS::FitToNativeVector(uint32_t ringDim, const std::vector<int64_t>& vec, int64_t bigBound,
                                    NativeVector* nativeVec) const {
     if (nativeVec == nullptr)
-        OPENFHE_THROW("The passed native vector is empty.");
+        LUX_FHE_THROW("The passed native vector is empty.");
     NativeInteger bigValueHf(bigBound >> 1);
     NativeInteger modulus(nativeVec->GetModulus());
     NativeInteger diff = bigBound - modulus;
@@ -2511,7 +2511,7 @@ void FHECKKSRNS::FitToNativeVector(uint32_t ringDim, const std::vector<int64_t>&
 void FHECKKSRNS::FitToNativeVector(uint32_t ringDim, const std::vector<int128_t>& vec, int128_t bigBound,
                                    NativeVector* nativeVec) const {
     if (nativeVec == nullptr)
-        OPENFHE_THROW("The passed native vector is empty.");
+        LUX_FHE_THROW("The passed native vector is empty.");
     NativeInteger bigValueHf((uint128_t)bigBound >> 1);
     NativeInteger modulus(nativeVec->GetModulus());
     NativeInteger diff = NativeInteger((uint128_t)bigBound) - modulus;
@@ -2537,9 +2537,9 @@ void FHECKKSRNS::EvalFBTSetupInternal(const CryptoContextImpl<DCRTPoly>& cc, con
                                       uint32_t lvlsAfterBoot, uint32_t depthLeveledComputation, size_t order) {
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(cc.GetCryptoParameters());
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("CKKS Functional Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("CKKS Functional Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Functional Bootstrapping is only supported for the Hybrid key switching method.");
+        LUX_FHE_THROW("CKKS Functional Bootstrapping is only supported for the Hybrid key switching method.");
 
     uint32_t M     = cc.GetCyclotomicOrder();
     uint32_t slots = (numSlots == 0) ? M / 4 : numSlots;
@@ -2558,9 +2558,9 @@ void FHECKKSRNS::EvalFBTSetupInternal(const CryptoContextImpl<DCRTPoly>& cc, con
     // changing it here leads to exceptions later. Alternatively, move this check outside or update all
     // the uses of levelBudget.
     if (levelBudget[0] > logSlots || levelBudget[1] > logSlots)
-        OPENFHE_THROW("The level budget is too large. Please set it to be at least one and at most log(slots).");
+        LUX_FHE_THROW("The level budget is too large. Please set it to be at least one and at most log(slots).");
     if (levelBudget[0] < 1 || levelBudget[1] < 1)
-        OPENFHE_THROW("The level budget cannot be zero. Please set it to be at least one and at most log(slots).");
+        LUX_FHE_THROW("The level budget cannot be zero. Please set it to be at least one and at most log(slots).");
 
     precom->m_levelEnc  = levelBudget[0];
     precom->m_levelDec  = levelBudget[1];
@@ -2602,7 +2602,7 @@ void FHECKKSRNS::EvalFBTSetupInternal(const CryptoContextImpl<DCRTPoly>& cc, con
             k = K_SPARSE_ENCAPSULATED;
             break;
         default:
-            OPENFHE_THROW("Unsupported SecretKeyDist.");
+            LUX_FHE_THROW("Unsupported SecretKeyDist.");
     }
 
     auto& params = pubKey->GetPublicElements()[0].GetParams()->GetParams();
@@ -2726,9 +2726,9 @@ std::shared_ptr<seriesPowers<DCRTPoly>> FHECKKSRNS::EvalMVBPrecomputeInternal(
     const BigInteger& initialScaling, size_t order) {
     const auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(ciphertext->GetCryptoParameters());
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("CKKS Functional Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("CKKS Functional Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
+        LUX_FHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
 
     auto paramsQ   = cryptoParams->GetElementParams()->GetParams();
     uint32_t sizeQ = paramsQ.size();
@@ -3009,9 +3009,9 @@ Ciphertext<DCRTPoly> FHECKKSRNS::EvalMVBNoDecodingInternal(const std::shared_ptr
     const auto cryptoParams =
         std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(ciphertexts->powersRe[0]->GetCryptoParameters());
     if (cryptoParams->GetScalingTechnique() == FLEXIBLEAUTO || cryptoParams->GetScalingTechnique() == FLEXIBLEAUTOEXT)
-        OPENFHE_THROW("CKKS Functional Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
+        LUX_FHE_THROW("CKKS Functional Bootstrapping is supported for FIXEDMANUAL and FIXEDAUTO methods only.");
     if (cryptoParams->GetKeySwitchTechnique() != HYBRID)
-        OPENFHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
+        LUX_FHE_THROW("CKKS Bootstrapping is only supported for the Hybrid key switching method.");
 
     auto cc        = ciphertexts->powersRe[0]->GetCryptoContext();
     uint32_t M     = cc->GetCyclotomicOrder();
@@ -3025,7 +3025,7 @@ Ciphertext<DCRTPoly> FHECKKSRNS::EvalMVBNoDecodingInternal(const std::shared_ptr
         // FULLY PACKED CASE
         //------------------------------------------------------------------------------
         if (ciphertexts->powersIm.size() == 0)
-            OPENFHE_THROW("Full packing requires powers for both the real and imaginary parts.");
+            LUX_FHE_THROW("Full packing requires powers for both the real and imaginary parts.");
         Ciphertext<DCRTPoly> ctxtEncI;
 
         //------------------------------------------------------------------------------
@@ -3380,4 +3380,4 @@ Ciphertext<DCRTPoly> FHECKKSRNS::KeySwitchSparse(Ciphertext<DCRTPoly>& ciphertex
     return result;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

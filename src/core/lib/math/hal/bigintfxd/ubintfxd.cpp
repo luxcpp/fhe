@@ -100,7 +100,7 @@ BigIntegerFixedT<uint_type, BITLENGTH>::BigIntegerFixedT(const std::string& strv
 
 template <typename uint_type, usint BITLENGTH>
 BigIntegerFixedT<uint_type, BITLENGTH>::BigIntegerFixedT(uint64_t val) {
-    usint msb   = lbcrypto::GetMSB64(val);
+    usint msb   = lux::fhe::GetMSB64(val);
     this->m_MSB = msb;
 
     uint_type ceilInt = ceilIntByUInt(msb);
@@ -118,7 +118,7 @@ BigIntegerFixedT<uint_type, BITLENGTH>::BigIntegerFixedT(uint64_t val) {
     #if defined(HAVE_INT128)
 template <typename uint_type, usint BITLENGTH>
 BigIntegerFixedT<uint_type, BITLENGTH>::BigIntegerFixedT(U128BITS val) {
-    m_MSB = lbcrypto::GetMSB(val);
+    m_MSB = lux::fhe::GetMSB(val);
 
     uint_type ceilInt = ceilIntByUInt(m_MSB);
     int i             = m_nSize - 1;
@@ -177,7 +177,7 @@ void BigIntegerFixedT<uint_type, BITLENGTH>::SetValue(const BigIntegerFixedT& a)
 template <typename uint_type, usint BITLENGTH>
 void BigIntegerFixedT<uint_type, BITLENGTH>::SetIntAtIndex(usint idx, uint_type value) {
     if (idx >= m_nSize) {
-        OPENFHE_THROW("Index invalid");
+        LUX_FHE_THROW("Index invalid");
     }
     this->m_value[idx] = value;
 }
@@ -326,7 +326,7 @@ BigIntegerFixedT<uint_type, BITLENGTH> BigIntegerFixedT<uint_type, BITLENGTH>::S
     // return 0 if b is higher than *this as there is no support for negative
     // number
     if (!(*this > b)) {
-        //    OPENFHE_THROW(
+        //    LUX_FHE_THROW(
         //        "there is no support if the minuend is smaller
         // than the subtrahend");
         return 0;
@@ -380,7 +380,7 @@ BigIntegerFixedT<uint_type, BITLENGTH>& BigIntegerFixedT<uint_type, BITLENGTH>::
     // return 0 if b is higher than *this as there is no support for negative
     // number
     if (!(*this > b)) {
-        //    OPENFHE_THROW(
+        //    LUX_FHE_THROW(
         //        "there is no support if the minuend is smaller
         // than the subtrahend");
         *this = BigIntegerFixedT(0);
@@ -474,7 +474,7 @@ BigIntegerFixedT<uint_type, BITLENGTH> BigIntegerFixedT<uint_type, BITLENGTH>::D
     const BigIntegerFixedT& b) const {
     // check for trivial conditions
     if (b == 0) {
-        OPENFHE_THROW("Division by zero");
+        LUX_FHE_THROW("Division by zero");
     }
     if (b > *this) {
         return 0;
@@ -638,7 +638,7 @@ BigIntegerFixedT<uint_type, BITLENGTH> BigIntegerFixedT<uint_type, BITLENGTH>::D
     const BigIntegerFixedT& q) const {
     // check for garbage initialization and 0 condition
     if (q == 0) {
-        OPENFHE_THROW("Division by zero");
+        LUX_FHE_THROW("Division by zero");
     }
     BigIntegerFixedT halfQ(q >> 1);
     if (*this < q) {
@@ -1286,7 +1286,7 @@ BigIntegerFixedT<uint_type, BITLENGTH> BigIntegerFixedT<uint_type, BITLENGTH>::M
     }
 
     if (second == 0) {
-        OPENFHE_THROW("Zero does not have a ModInverse");
+        LUX_FHE_THROW("Zero does not have a ModInverse");
     }
     if (second == 1) {
         return 1;
@@ -1303,7 +1303,7 @@ BigIntegerFixedT<uint_type, BITLENGTH> BigIntegerFixedT<uint_type, BITLENGTH>::M
     // issue is that the loop counter could would need to be an ubint.
     while (mod_back != 1) {
         if (mod_back == 0) {
-            OPENFHE_THROW(this->ToString() + " does not have a ModInverse using " + modulus.ToString());
+            LUX_FHE_THROW(this->ToString() + " does not have a ModInverse using " + modulus.ToString());
         }
         first  = second;
         second = mod_back;
@@ -1347,7 +1347,7 @@ BigIntegerFixedT<uint_type, BITLENGTH> BigIntegerFixedT<uint_type, BITLENGTH>::L
         return 0;
     }
     if ((this->m_MSB + shift) > BITLENGTH) {
-        OPENFHE_THROW("shift overflow");
+        LUX_FHE_THROW("shift overflow");
     }
     BigIntegerFixedT ans(*this);
 
@@ -1390,7 +1390,7 @@ BigIntegerFixedT<uint_type, BITLENGTH>& BigIntegerFixedT<uint_type, BITLENGTH>::
         return *this;
     }
     if (this->m_MSB + shift > BITLENGTH) {
-        OPENFHE_THROW("shift overflow");
+        LUX_FHE_THROW("shift overflow");
     }
     usint shiftByUint = shift >> m_logUintBitLength;  // calculate the no.of
                                                       // shifts
@@ -1739,7 +1739,7 @@ void BigIntegerFixedT<uint_type, BITLENGTH>::AssignVal(const std::string& v) {
         cnt--;
         if (cnt == -1) {  // cnt = -1 indicates bitArr is ready for transfer
             if (bitValPtr < 0) {
-                OPENFHE_THROW("string " + v + " cannot fit into BigIntegerFixedT");
+                LUX_FHE_THROW("string " + v + " cannot fit into BigIntegerFixedT");
             }
 
             cnt = m_uintBitLength - 1;
@@ -1754,7 +1754,7 @@ void BigIntegerFixedT<uint_type, BITLENGTH>::AssignVal(const std::string& v) {
         }
         if (zptr == arrSize && DecValue[arrSize - 1] == 0) {
             if (bitValPtr < 0) {
-                OPENFHE_THROW("string " + v + " cannot fit into BigIntegerFixedT");
+                LUX_FHE_THROW("string " + v + " cannot fit into BigIntegerFixedT");
             }
             m_value[bitValPtr] = UintInBinaryToDecimal(bitArr);  // Value assignment
         }
@@ -1810,12 +1810,12 @@ uint_type BigIntegerFixedT<uint_type, BITLENGTH>::ceilIntByUInt(const uint_type 
 
 template <typename uint_type, usint BITLENGTH>
 usint BigIntegerFixedT<uint_type, BITLENGTH>::GetMSBUint_type(uint_type x) {
-    return lbcrypto::GetMSB64(x);
+    return lux::fhe::GetMSB64(x);
 }
 
 template <typename uint_type, usint BITLENGTH>
 usint BigIntegerFixedT<uint_type, BITLENGTH>::GetMSBDUint_type(Duint_type x) {
-    return lbcrypto::GetMSB64(x);
+    return lux::fhe::GetMSB64(x);
 }
 
 template <typename uint_type, usint BITLENGTH>

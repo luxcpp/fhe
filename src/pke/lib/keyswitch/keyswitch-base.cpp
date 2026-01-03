@@ -39,7 +39,7 @@ Base class for Lattice-based cryptography(LBC) Somewhat Homomorphic Encryption(S
 #include "ciphertext.h"
 #include "key/evalkey.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 template <typename Element>
 Ciphertext<Element> KeySwitchBase<Element>::KeySwitch(ConstCiphertext<Element> ciphertext,
@@ -51,4 +51,4 @@ Ciphertext<Element> KeySwitchBase<Element>::KeySwitch(ConstCiphertext<Element> c
 
 template class KeySwitchBase<DCRTPoly>;
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

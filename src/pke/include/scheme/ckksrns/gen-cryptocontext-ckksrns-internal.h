@@ -45,7 +45,7 @@
 
 #include <memory>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 // forward declarations (don't include headers as compilation fails when you do)
 template <typename T>
@@ -58,7 +58,7 @@ typename ContextGeneratorType::ContextType genCryptoContextCKKSRNSInternal(
     if (parameters.GetScalingTechnique() == FLEXIBLEAUTO || parameters.GetScalingTechnique() == FLEXIBLEAUTOEXT ||
         parameters.GetScalingTechnique() == COMPOSITESCALINGAUTO ||
         parameters.GetScalingTechnique() == COMPOSITESCALINGMANUAL) {
-        OPENFHE_THROW(
+        LUX_FHE_THROW(
             "128-bit CKKS is not supported for the FLEXIBLEAUTO, FLEXIBLEAUTOEXT, COMPOSITESCALINGAUTO or COMPOSITESCALINGMANUAL methods.");
     }
 #endif
@@ -73,7 +73,7 @@ typename ContextGeneratorType::ContextType genCryptoContextCKKSRNSInternal(
     if (parameters.GetDecryptionNoiseMode() == NOISE_FLOODING_DECRYPT &&
         parameters.GetExecutionMode() == EXEC_EVALUATION) {
         if (parameters.GetNoiseEstimate() == 0) {
-            OPENFHE_THROW(
+            LUX_FHE_THROW(
                 "Noise estimate must be set in the combination of NOISE_FLOODING_DECRYPT and EXEC_EVALUATION modes.");
         }
         double logstd =
@@ -87,7 +87,7 @@ typename ContextGeneratorType::ContextType genCryptoContextCKKSRNSInternal(
         scalingModSize = MAX_MODULUS_SIZE - 1;
         firstModSize   = MAX_MODULUS_SIZE;
         if (logstd + parameters.GetNoiseEstimate() > scalingModSize - 3) {
-            OPENFHE_THROW("Precision of less than 3 bits is not supported. logstd " + std::to_string(logstd) +
+            LUX_FHE_THROW("Precision of less than 3 bits is not supported. logstd " + std::to_string(logstd) +
                           " + noiseEstimate " + std::to_string(parameters.GetNoiseEstimate()) + " must be 56 or less.");
         }
 #endif
@@ -146,6 +146,6 @@ typename ContextGeneratorType::ContextType genCryptoContextCKKSRNSInternal(
     cc->setSchemeId(SCHEME::CKKSRNS_SCHEME);
     return cc;
 }
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // _GEN_CRYPTOCONTEXT_CKKSRNS_INTERNAL_H_

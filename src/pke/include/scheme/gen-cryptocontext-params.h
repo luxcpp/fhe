@@ -46,7 +46,7 @@
 #include <string>
 #include <vector>
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 //====================================================================================================================
 class Params {
@@ -196,9 +196,9 @@ protected:
     //     DISABLED_FOR_CKKS;
     // }
 
-#define DISABLED_FOR_CKKSRNS OPENFHE_THROW("This function is not available for CKKSRNS.");
-#define DISABLED_FOR_BGVRNS  OPENFHE_THROW("This function is not available for BGVRNS.");
-#define DISABLED_FOR_BFVRNS  OPENFHE_THROW("This function is not available for BFVRNS.");
+#define DISABLED_FOR_CKKSRNS LUX_FHE_THROW("This function is not available for CKKSRNS.");
+#define DISABLED_FOR_BGVRNS  LUX_FHE_THROW("This function is not available for BGVRNS.");
+#define DISABLED_FOR_BFVRNS  LUX_FHE_THROW("This function is not available for BFVRNS.");
 
 public:
     explicit Params(SCHEME scheme0 = INVALID_SCHEME) {
@@ -466,6 +466,6 @@ public:
 };
 // ====================================================================================================================
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
 
 #endif  // __GEN_CRYPTOCONTEXT_PARAMS_H__

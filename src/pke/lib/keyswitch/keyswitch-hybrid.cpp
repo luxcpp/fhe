@@ -43,7 +43,7 @@
 #include "scheme/ckksrns/ckksrns-cryptoparameters.h"
 #include "ciphertext.h"
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 EvalKey<DCRTPoly> KeySwitchHYBRID::KeySwitchGenInternal(const PrivateKey<DCRTPoly> oldKey,
                                                         const PrivateKey<DCRTPoly> newKey) const {
@@ -479,4 +479,4 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalFastKeySwitchCoreExt
         std::initializer_list<DCRTPoly>{std::move(cTilda0), std::move(cTilda1)});
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe

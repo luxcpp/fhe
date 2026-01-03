@@ -40,7 +40,7 @@
 
 static constexpr double STD_DEV = 3.19;
 
-namespace lbcrypto {
+namespace lux::fhe {
 
 void BinFHEContext::GenerateBinFHEContext(uint32_t n, uint32_t N, const NativeInteger& q, const NativeInteger& Q,
                                           double std, uint32_t baseKS, uint32_t baseG, uint32_t baseR,
@@ -55,13 +55,13 @@ void BinFHEContext::GenerateBinFHEContext(uint32_t n, uint32_t N, const NativeIn
 void BinFHEContext::GenerateBinFHEContext(BINFHE_PARAMSET s, bool arbFunc, uint32_t logQ, uint32_t N,
                                           BINFHE_METHOD method, bool timeOptimization) {
     if (method != GINX)
-        OPENFHE_THROW("CGGI is the only supported method");
+        LUX_FHE_THROW("CGGI is the only supported method");
     if (s != STD128 && s != TOY)
-        OPENFHE_THROW("STD128 and TOY are the only supported sets");
+        LUX_FHE_THROW("STD128 and TOY are the only supported sets");
     if (logQ > 29)
-        OPENFHE_THROW("logQ > 29 is not supported");
+        LUX_FHE_THROW("logQ > 29 is not supported");
     if (logQ < 11)
-        OPENFHE_THROW("logQ < 11 is not supported");
+        LUX_FHE_THROW("logQ < 11 is not supported");
 
     isMethodCompatible(method, s);
 
@@ -161,7 +161,7 @@ void BinFHEContext::GenerateBinFHEContext(BINFHE_PARAMSET s, BINFHE_METHOD metho
 
     auto search = paramsMap.find(s);
     if (paramsMap.end() == search)
-        OPENFHE_THROW("unknown parameter set");
+        LUX_FHE_THROW("unknown parameter set");
 
     auto& params = search->second;
 
@@ -213,14 +213,14 @@ LWEKeyPair BinFHEContext::KeyGenPair() const {
 
 LWEPublicKey BinFHEContext::PubKeyGen(ConstLWEPrivateKey& sk) const {
     if (sk == nullptr)
-        OPENFHE_THROW("PrivateKey is empty");
+        LUX_FHE_THROW("PrivateKey is empty");
     return m_LWEscheme->PubKeyGen(m_params->GetLWEParams(), sk);
 }
 
 LWECiphertext BinFHEContext::Encrypt(ConstLWEPrivateKey& sk, LWEPlaintext m, BINFHE_OUTPUT output,
                                      LWEPlaintextModulus p, const NativeInteger& mod) const {
     if (sk == nullptr)
-        OPENFHE_THROW("PrivateKey is empty");
+        LUX_FHE_THROW("PrivateKey is empty");
 
     auto&& LWEParams = m_params->GetLWEParams();
     auto ct          = m_LWEscheme->Encrypt(LWEParams, sk, m, p, (mod == 0 ? LWEParams->Getq() : mod));
@@ -236,7 +236,7 @@ LWECiphertext BinFHEContext::Encrypt(ConstLWEPrivateKey& sk, LWEPlaintext m, BIN
 LWECiphertext BinFHEContext::Encrypt(ConstLWEPublicKey& pk, LWEPlaintext m, BINFHE_OUTPUT output, LWEPlaintextModulus p,
                                      const NativeInteger& mod) const {
     if (pk == nullptr)
-        OPENFHE_THROW("PublicKey is empty");
+        LUX_FHE_THROW("PublicKey is empty");
 
     auto&& LWEParams = m_params->GetLWEParams();
     auto ct          = m_LWEscheme->EncryptN(LWEParams, pk, m, p, (mod == 0 ? LWEParams->GetQ() : mod));
@@ -253,38 +253,38 @@ LWECiphertext BinFHEContext::Encrypt(ConstLWEPublicKey& pk, LWEPlaintext m, BINF
 
 LWECiphertext BinFHEContext::SwitchCTtoqn(ConstLWESwitchingKey& ksk, ConstLWECiphertext& ct) const {
     if (ksk == nullptr)
-        OPENFHE_THROW("SwitchingKey is empty");
+        LUX_FHE_THROW("SwitchingKey is empty");
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
 
     auto&& LWEParams = m_params->GetLWEParams();
     if ((ct->GetLength() != LWEParams->GetN()) && (ct->GetModulus() != LWEParams->GetQ()))
-        OPENFHE_THROW("ciphertext dimension and modulus are not large N and Q");
+        LUX_FHE_THROW("ciphertext dimension and modulus are not large N and Q");
     return m_LWEscheme->SwitchCTtoqn(LWEParams, ksk, ct);
 }
 
 void BinFHEContext::Decrypt(ConstLWEPrivateKey& sk, ConstLWECiphertext& ct, LWEPlaintext* result,
                             LWEPlaintextModulus p) const {
     if (sk == nullptr)
-        OPENFHE_THROW("PrivateKey is empty");
+        LUX_FHE_THROW("PrivateKey is empty");
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
 
     m_LWEscheme->Decrypt(m_params->GetLWEParams(), sk, ct, result, p);
 }
 
 LWESwitchingKey BinFHEContext::KeySwitchGen(ConstLWEPrivateKey& sk, ConstLWEPrivateKey& skN) const {
     if (sk == nullptr)
-        OPENFHE_THROW("New PrivateKey is empty");
+        LUX_FHE_THROW("New PrivateKey is empty");
     if (skN == nullptr)
-        OPENFHE_THROW("Old PrivateKey is empty");
+        LUX_FHE_THROW("Old PrivateKey is empty");
 
     return m_LWEscheme->KeySwitchGen(m_params->GetLWEParams(), sk, skN);
 }
 
 void BinFHEContext::BTKeyGen(ConstLWEPrivateKey& sk, KEYGEN_MODE keygenMode) {
     if (sk == nullptr)
-        OPENFHE_THROW("PrivateKey is empty");
+        LUX_FHE_THROW("PrivateKey is empty");
 
     auto&& RGSWParams = m_params->GetRingGSWParams();
     auto temp         = RGSWParams->GetBaseG();
@@ -309,9 +309,9 @@ void BinFHEContext::BTKeyGen(ConstLWEPrivateKey& sk, KEYGEN_MODE keygenMode) {
 LWECiphertext BinFHEContext::EvalBinGate(const BINGATE gate, ConstLWECiphertext& ct1, ConstLWECiphertext& ct2,
                                          bool extended) const {
     if (ct1 == nullptr)
-        OPENFHE_THROW("Ciphertext1 is empty");
+        LUX_FHE_THROW("Ciphertext1 is empty");
     if (ct2 == nullptr)
-        OPENFHE_THROW("Ciphertext2 is empty");
+        LUX_FHE_THROW("Ciphertext2 is empty");
 
     return m_binfhescheme->EvalBinGate(m_params, gate, m_BTKey, ct1, ct2, extended);
 }
@@ -323,13 +323,13 @@ LWECiphertext BinFHEContext::EvalBinGate(const BINGATE gate, const std::vector<L
 
 LWECiphertext BinFHEContext::Bootstrap(ConstLWECiphertext& ct, bool extended) const {
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
     return m_binfhescheme->Bootstrap(m_params, m_BTKey, ct, extended);
 }
 
 LWECiphertext BinFHEContext::EvalNOT(ConstLWECiphertext& ct) const {
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
     return m_binfhescheme->EvalNOT(m_params, ct);
 }
 
@@ -339,7 +339,7 @@ LWECiphertext BinFHEContext::EvalConstant(bool value) const {
 
 LWECiphertext BinFHEContext::EvalFunc(ConstLWECiphertext& ct, const std::vector<NativeInteger>& LUT) const {
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
     return m_binfhescheme->EvalFunc(m_params, m_BTKey, ct, LUT, GetBeta());
 }
 
@@ -352,27 +352,27 @@ LWECiphertext BinFHEContext::EvalFloor(ConstLWECiphertext& ct, uint32_t roundbit
     //    SetQ(q);
     //    return res;
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
     return m_binfhescheme->EvalFloor(m_params, m_BTKey, ct, GetBeta(), roundbits);
 }
 
 LWECiphertext BinFHEContext::EvalSign(ConstLWECiphertext& ct, bool schemeSwitch) {
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
     return m_binfhescheme->EvalSign(std::make_shared<BinFHECryptoParams>(*m_params), m_BTKey_map, ct, GetBeta(),
                                     schemeSwitch);
 }
 
 std::vector<LWECiphertext> BinFHEContext::EvalDecomp(ConstLWECiphertext& ct) {
     if (ct == nullptr)
-        OPENFHE_THROW("Ciphertext is empty");
+        LUX_FHE_THROW("Ciphertext is empty");
     return m_binfhescheme->EvalDecomp(m_params, m_BTKey_map, ct, GetBeta());
 }
 
 std::vector<NativeInteger> BinFHEContext::GenerateLUTviaFunction(NativeInteger (*f)(NativeInteger m, NativeInteger p),
                                                                  NativeInteger p) {
     if (!IsPowerOfTwo(p.ConvertToInt<BasicInteger>()))
-        OPENFHE_THROW("plaintext p not power of two");
+        LUX_FHE_THROW("plaintext p not power of two");
 
     NativeInteger q{GetParams()->GetLWEParams()->Getq()};
     NativeInteger x{0};
@@ -381,9 +381,9 @@ std::vector<NativeInteger> BinFHEContext::GenerateLUTviaFunction(NativeInteger (
     for (size_t i = 0; i < vec.size(); ++i, x += p) {
         vec[i] *= f(x / q, p);  // x/q = (i*p)/q = i/(q/p)
         if (vec[i] >= q)        // (f(x/q, p) >= p) --> (f(x/q, p)*(q/p) >= q)
-            OPENFHE_THROW("input function should output in Z_{p_output}");
+            LUX_FHE_THROW("input function should output in Z_{p_output}");
     }
     return vec;
 }
 
-}  // namespace lbcrypto
+}  // namespace lux::fhe
