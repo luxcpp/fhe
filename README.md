@@ -197,6 +197,12 @@ CGO_ENABLED=1 go build ./...
 go test ./...
 ```
 
+## Documentation
+
+- [Full FHE Documentation](https://luxfi.github.io/crypto/docs/fhe)
+- [C++ Libraries Guide](https://luxfi.github.io/crypto/docs/cpp-libraries)
+- [GPU Acceleration](https://luxfi.github.io/crypto/docs/gpu-acceleration)
+
 ## License
 
 BSD 2-Clause. See [LICENSE](LICENSE).
