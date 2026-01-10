@@ -43,16 +43,69 @@ set(BINFHE_VERSION_MINOR ${OPENFHE_VERSION_MINOR})
 set(BINFHE_VERSION_PATCH ${OPENFHE_VERSION_PATCH})
 set(BINFHE_VERSION ${BINFHE_VERSION_MAJOR}.${BINFHE_VERSION_MINOR}.${BINFHE_VERSION_PATCH})
 
+# =============================================================================
+# Metal TFHE Shader Compilation (macOS)
+# =============================================================================
+set(BINFHE_METAL_RESOURCES)
+if(APPLE AND WITH_GPU)
+    find_program(XCRUN xcrun)
+    if(XCRUN)
+        # TFHE Metal shaders for GPU-accelerated bootstrapping
+        set(TFHE_SHADERS
+            tfhe_bootstrap
+            tfhe_external_product
+            tfhe_keyswitch
+            tfhe_sample_extract
+            blind_rotate
+        )
+        set(TFHE_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/lux_tfhe.metallib")
+        set(TFHE_AIR_FILES)
+
+        # Compile each .metal to .air
+        foreach(SHADER ${TFHE_SHADERS})
+            set(SHADER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/lib/backend/metal/${SHADER}.metal")
+            set(SHADER_AIR "${CMAKE_CURRENT_BINARY_DIR}/${SHADER}.air")
+            if(EXISTS "${SHADER_SRC}")
+                add_custom_command(
+                    OUTPUT ${SHADER_AIR}
+                    COMMAND ${XCRUN} -sdk macosx metal -c ${SHADER_SRC} -o ${SHADER_AIR}
+                    DEPENDS ${SHADER_SRC}
+                    COMMENT "Compiling TFHE Metal shader: ${SHADER}.metal"
+                )
+                list(APPEND TFHE_AIR_FILES ${SHADER_AIR})
+                message(STATUS "TFHE Metal shader: ${SHADER}.metal")
+            endif()
+        endforeach()
+
+        # Link all .air files into single .metallib
+        if(TFHE_AIR_FILES)
+            add_custom_command(
+                OUTPUT ${TFHE_METALLIB}
+                COMMAND ${XCRUN} -sdk macosx metallib ${TFHE_AIR_FILES} -o ${TFHE_METALLIB}
+                DEPENDS ${TFHE_AIR_FILES}
+                COMMENT "Linking TFHE Metal library: lux_tfhe.metallib"
+            )
+            add_custom_target(metal_tfhe_shaders DEPENDS ${TFHE_METALLIB})
+            set(BINFHE_METAL_RESOURCES ${TFHE_METALLIB})
+        endif()
+    endif()
+endif()
+
 add_library(binfheobj OBJECT ${BINFHE_SRC_FILES})
 set_property(TARGET binfheobj PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 if(BUILD_SHARED)
     add_dependencies(binfheobj FHEcore)
     add_library(FHEbin SHARED $<TARGET_OBJECTS:binfheobj>)
+    set_property(TARGET FHEbin PROPERTY PREFIX "")
     set_property(TARGET FHEbin PROPERTY VERSION ${BINFHE_VERSION})
     set_property(TARGET FHEbin PROPERTY SOVERSION ${BINFHE_VERSION_MAJOR})
     set_property(TARGET FHEbin PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
     install(TARGETS FHEbin EXPORT OpenFHETargets DESTINATION lib)
+    # Add Metal shader dependency
+    if(TARGET metal_tfhe_shaders)
+        add_dependencies(FHEbin metal_tfhe_shaders)
+    endif()
 endif()
 
 if(BUILD_STATIC)

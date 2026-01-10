@@ -69,6 +69,7 @@ else()
 endif()
 
 option(BUILD_EXTRAS "Set to ON to build extras for the library"                        OFF )
+option(BUILD_UNIFIED "Set to ON to build single luxfhe.dylib combining all libraries"  ON  )
 option(GIT_SUBMOD_AUTO "Submodules auto-update"                                        ON  )
 option(WITH_BE2 "Include MATHBACKEND 2 in build by setting WITH_BE2 to ON"             OFF )
 option(WITH_BE4 "Include MATHBACKEND 4 in build by setting WITH_BE4 to ON"             OFF )
@@ -706,6 +707,89 @@ endif()
 add_subdirectory(src/core)
 add_subdirectory(src/pke)
 add_subdirectory(src/binfhe)
+
+# ============================================================================
+# Unified Library Build (luxfhe.dylib)
+# ============================================================================
+# When BUILD_UNIFIED=ON, create a single luxfhe library combining all components.
+# This simplifies linking for consumers who want all FHE functionality.
+if(BUILD_UNIFIED)
+    message(STATUS "Building unified luxfhe library")
+
+    if(BUILD_SHARED)
+        # Combine all object files into single shared library
+        add_library(luxfhe SHARED
+            $<TARGET_OBJECTS:coreobj>
+            $<TARGET_OBJECTS:binfheobj>
+            $<TARGET_OBJECTS:pkeobj>)
+
+        # Remove lib prefix for Lux naming convention
+        set_property(TARGET luxfhe PROPERTY PREFIX "")
+        set_property(TARGET luxfhe PROPERTY VERSION ${OPENFHE_VERSION})
+        set_property(TARGET luxfhe PROPERTY SOVERSION ${OPENFHE_VERSION_MAJOR})
+        set_property(TARGET luxfhe PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+        # Link dependencies
+        target_link_libraries(luxfhe ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS} ${ADDITIONAL_LIBS})
+
+        # GPU backend linking if enabled
+        if(WITH_GPU AND TARGET lux::gpu)
+            target_link_libraries(luxfhe lux::gpu)
+            if(APPLE)
+                find_library(METAL_FRAMEWORK Metal)
+                find_library(FOUNDATION_FRAMEWORK Foundation)
+                if(METAL_FRAMEWORK AND FOUNDATION_FRAMEWORK)
+                    target_link_libraries(luxfhe ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+                endif()
+            endif()
+        elseif(WITH_GPU AND GPU_LIBS)
+            target_link_libraries(luxfhe ${GPU_LIBS})
+        endif()
+
+        # Include directories
+        target_include_directories(luxfhe PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/binfhe/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pke/include>
+            $<INSTALL_INTERFACE:include/openfhe>)
+
+        # Install unified library
+        install(TARGETS luxfhe EXPORT OpenFHETargets DESTINATION lib)
+
+        # Create lux::fhe_unified alias
+        add_library(lux::fhe_unified ALIAS luxfhe)
+
+        message(STATUS "  -> luxfhe.dylib will be built (shared)")
+    endif()
+
+    if(BUILD_STATIC)
+        # Combine all object files into single static library
+        add_library(luxfhe_static STATIC
+            $<TARGET_OBJECTS:coreobj>
+            $<TARGET_OBJECTS:binfheobj>
+            $<TARGET_OBJECTS:pkeobj>)
+
+        set_property(TARGET luxfhe_static PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+        # Link dependencies
+        target_link_libraries(luxfhe_static ${THIRDPARTYSTATICLIBS} ${OpenMP_CXX_FLAGS} ${ADDITIONAL_LIBS})
+
+        # Include directories
+        target_include_directories(luxfhe_static PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/binfhe/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pke/include>
+            $<INSTALL_INTERFACE:include/openfhe>)
+
+        # Install unified static library
+        install(TARGETS luxfhe_static EXPORT OpenFHETargets DESTINATION lib)
+
+        # Create alias
+        add_library(lux::fhe_unified_static ALIAS luxfhe_static)
+
+        message(STATUS "  -> luxfhe_static.a will be built (static)")
+    endif()
+endif()
 
 ### build the google test handlers
 if(BUILD_UNITTESTS)

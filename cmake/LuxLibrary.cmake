@@ -62,8 +62,9 @@ function(lux_add_library)
   add_library(${INTERNAL_TARGET} ${LIB_TYPE} ${LUX_SOURCES})
   add_library(${TARGET_NAME} ALIAS ${INTERNAL_TARGET})
 
-  # Set output name (produces libluxgpu.dylib)
+  # Set output name (produces luxgpu.dylib - no lib prefix)
   set_target_properties(${INTERNAL_TARGET} PROPERTIES
+    PREFIX ""
     OUTPUT_NAME ${LIB_NAME}
     VERSION ${LUX_VERSION}
     SOVERSION ${LUX_VERSION}
@@ -269,7 +270,7 @@ function(lux_verify_relocatable TARGET)
   # Only meaningful on install
   if(APPLE)
     install(CODE "
-      set(LIBFILE \"\${CMAKE_INSTALL_PREFIX}/lib/lib${TARGET}.dylib\")
+      set(LIBFILE \"\${CMAKE_INSTALL_PREFIX}/lib/${TARGET}.dylib\")
       if(EXISTS \"\${LIBFILE}\")
         message(STATUS \"Verifying \${LIBFILE} is relocatable...\")
         execute_process(
@@ -293,7 +294,7 @@ function(lux_verify_relocatable TARGET)
     " COMPONENT Runtime)
   else()
     install(CODE "
-      set(LIBFILE \"\${CMAKE_INSTALL_PREFIX}/lib/lib${TARGET}.so\")
+      set(LIBFILE \"\${CMAKE_INSTALL_PREFIX}/lib/${TARGET}.so\")
       if(EXISTS \"\${LIBFILE}\")
         message(STATUS \"Verifying \${LIBFILE} is relocatable...\")
         execute_process(
