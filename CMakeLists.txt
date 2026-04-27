@@ -718,10 +718,12 @@ if(BUILD_UNIFIED)
 
     if(BUILD_SHARED)
         # Combine all object files into single shared library
+        # Include C API for FFI consumers (Go, Python, etc.)
         add_library(luxfhe SHARED
             $<TARGET_OBJECTS:coreobj>
             $<TARGET_OBJECTS:binfheobj>
-            $<TARGET_OBJECTS:pkeobj>)
+            $<TARGET_OBJECTS:pkeobj>
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/c_api/c_api.cpp)
 
         # Remove lib prefix for Lux naming convention
         set_property(TARGET luxfhe PROPERTY PREFIX "")
@@ -729,37 +731,50 @@ if(BUILD_UNIFIED)
         set_property(TARGET luxfhe PROPERTY SOVERSION ${OPENFHE_VERSION_MAJOR})
         set_property(TARGET luxfhe PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+        # Export symbols for C API
+        target_compile_definitions(luxfhe PRIVATE LUX_FHE_BUILDING)
+
         # Link dependencies
         target_link_libraries(luxfhe ${THIRDPARTYLIBS} ${OpenMP_CXX_FLAGS} ${ADDITIONAL_LIBS})
 
         # GPU backend linking if enabled
         if(WITH_GPU AND TARGET lux::gpu)
             target_link_libraries(luxfhe lux::gpu)
+            target_compile_definitions(luxfhe PRIVATE WITH_GPU)
             if(APPLE)
                 find_library(METAL_FRAMEWORK Metal)
                 find_library(FOUNDATION_FRAMEWORK Foundation)
                 if(METAL_FRAMEWORK AND FOUNDATION_FRAMEWORK)
                     target_link_libraries(luxfhe ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+                    target_compile_definitions(luxfhe PRIVATE WITH_MLX)
                 endif()
             endif()
         elseif(WITH_GPU AND GPU_LIBS)
             target_link_libraries(luxfhe ${GPU_LIBS})
+            target_compile_definitions(luxfhe PRIVATE WITH_CUDA)
         endif()
 
-        # Include directories
+        # Include directories (add C API header path)
         target_include_directories(luxfhe PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/binfhe/include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pke/include>
+            $<INSTALL_INTERFACE:include>
             $<INSTALL_INTERFACE:include/openfhe>)
 
         # Install unified library
         install(TARGETS luxfhe EXPORT OpenFHETargets DESTINATION lib)
 
+        # Install C API header
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/lux/fhe/c_api.h
+            DESTINATION include/lux/fhe)
+
         # Create lux::fhe_unified alias
         add_library(lux::fhe_unified ALIAS luxfhe)
 
         message(STATUS "  -> luxfhe.dylib will be built (shared)")
+        message(STATUS "  -> C API header: lux/fhe/c_api.h")
     endif()
 
     if(BUILD_STATIC)
