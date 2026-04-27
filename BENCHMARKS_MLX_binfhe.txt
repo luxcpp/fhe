@@ -1,0 +1,49 @@
+=== binfhe-ginx ===
+---------------------------------------------------------------------------------
+Benchmark                                       Time             CPU   Iterations
+---------------------------------------------------------------------------------
+FHEW_BTKEYGEN/MEDIUM                      4959477 us      4928306 us            1
+FHEW_BTKEYGEN/STD128                      2353202 us      2327701 us            1
+FHEW_ENCRYPT/MEDIUM                          19.6 us         19.5 us        35770
+FHEW_ENCRYPT/STD128                          23.3 us         23.2 us        30197
+FHEW_NOT/MEDIUM                             0.149 us        0.149 us      4587667
+FHEW_NOT/STD128                             0.168 us        0.167 us      4204204
+FHEW_BINGATE/MEDIUM_OR/min_time:10.000      55071 us        43608 us          386
+FHEW_BINGATE/MEDIUM_AND                     58214 us        43650 us           17
+FHEW_BINGATE/MEDIUM_NOR                     77954 us        40641 us           16
+FHEW_BINGATE/MEDIUM_NAND                    78403 us        38973 us           17
+FHEW_BINGATE/MEDIUM_XOR                     63383 us        46696 us           18
+FHEW_BINGATE/MEDIUM_XNOR                    52799 us        40568 us           16
+FHEW_BINGATE/STD128_OR/min_time:10.000      80062 us        46007 us          297
+FHEW_BINGATE/STD128_AND                     57620 us        43069 us           15
+FHEW_BINGATE/STD128_NOR                     62948 us        50015 us           10
+FHEW_BINGATE/STD128_NAND                    62832 us        47996 us           13
+FHEW_BINGATE/STD128_XOR                     72555 us        53979 us           12
+FHEW_BINGATE/STD128_XNOR                    69439 us        53342 us           13
+FHEW_KEYSWITCH/MEDIUM/min_time:1.000          674 us          664 us         1807
+FHEW_KEYSWITCH/STD128/min_time:1.000         1038 us         1006 us         1383
+
+=== binfhe-lmkcdey ===
+-----------------------------------------------------------------------------------------
+Benchmark                                               Time             CPU   Iterations
+-----------------------------------------------------------------------------------------
+FHEW_BTKEYGEN/MEDIUM                              5101069 us      4948522 us            1
+FHEW_BTKEYGEN/STD128_LMKCDEY                      2023205 us      1969004 us            1
+FHEW_ENCRYPT/MEDIUM                                  19.8 us         18.8 us        37008
+FHEW_ENCRYPT/STD128_LMKCDEY                          22.3 us         20.0 us        35091
+FHEW_NOT/MEDIUM                                     0.145 us        0.139 us      5047155
+FHEW_NOT/STD128_LMKCDEY                             0.148 us        0.144 us      4894386
+FHEW_BINGATE/MEDIUM_OR/min_time:10.000              51785 us        39141 us          363
+FHEW_BINGATE/MEDIUM_AND                             50518 us        37527 us           19
+FHEW_BINGATE/MEDIUM_NOR                             50463 us        37533 us           19
+FHEW_BINGATE/MEDIUM_NAND                            49732 us        37460 us           19
+FHEW_BINGATE/MEDIUM_XOR                             50649 us        37796 us           18
+FHEW_BINGATE/MEDIUM_XNOR                            54132 us        39609 us           18
+FHEW_BINGATE/STD128_LMKCDEY_OR/min_time:10.000      57252 us        43438 us          316
+FHEW_BINGATE/STD128_LMKCDEY_AND                     56218 us        41927 us           16
+FHEW_BINGATE/STD128_LMKCDEY_NOR                     57765 us        42637 us           17
+FHEW_BINGATE/STD128_LMKCDEY_NAND                    57459 us        42393 us           17
+FHEW_BINGATE/STD128_LMKCDEY_XOR                     58103 us        42544 us           17
+FHEW_BINGATE/STD128_LMKCDEY_XNOR                    56408 us        42127 us           17
+FHEW_KEYSWITCH/MEDIUM/min_time:1.000                  583 us          580 us         2378
+FHEW_KEYSWITCH/STD128_LMKCDEY/min_time:1.000          915 us          914 us         1518

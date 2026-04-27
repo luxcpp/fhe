@@ -1,0 +1,49 @@
+========================================
+  Lux FHE Microbenchmark Suite
+========================================
+
+Configuration:
+  Iterations: 100
+  Warmup: 10
+  JSON output: no
+
+=== NTT-4096 Benchmarks ===
+
+NTT-4096 Forward (batch=1)                   0.040 ms       24986.2 ops/s  [PASS]
+NTT-4096 Inverse (batch=1)                   0.037 ms       26972.6 ops/s  [PASS]
+NTT-4096 In-place (batch=1)                  0.035 ms       28427.6 ops/s  [PASS]
+NTT-4096 Forward (batch=8)                   0.331 ms       24166.4 ops/s  [PASS]
+NTT-4096 Inverse (batch=8)                   0.298 ms       26800.7 ops/s  [PASS]
+NTT-4096 In-place (batch=8)                  0.297 ms       26933.5 ops/s  [PASS]
+NTT-4096 Forward (batch=32)                  1.324 ms       24176.0 ops/s  [PASS]
+NTT-4096 Inverse (batch=32)                  1.261 ms       25372.8 ops/s  [PASS]
+NTT-4096 In-place (batch=32)                 1.167 ms       27417.6 ops/s  [PASS]
+NTT-4096 Forward (batch=128)                 5.700 ms       22455.1 ops/s  [PASS]
+NTT-4096 Inverse (batch=128)                 4.962 ms       25797.1 ops/s  [PASS]
+NTT-4096 In-place (batch=128)                4.705 ms       27205.5 ops/s  [PASS]
+  Batch=8 efficiency: 96.7%
+  Batch=32 efficiency: 96.8%
+  Batch=128 efficiency: 89.9%
+
+=== Barrett Multiplication Benchmarks ===
+
+BarrettMul (n=1000)                          0.000 ms 61576354679.8 ops/s  [PASS]
+BarrettMul (n=10000)                         0.000 ms615384615384.6 ops/s  [PASS]
+BarrettMul (n=100000)                        0.000 ms6317119393556.5 ops/s  [PASS]
+
+=== Bootstrapping Benchmarks ===
+
+PBS Single (TOY)                             7.210 ms         138.7 ops/s  [PASS]
+PBS Batch (n=4)                             21.069 ms         189.9 ops/s  [PASS]
+PBS Batch (n=8)                             54.357 ms         147.2 ops/s  [FAIL]
+PBS Batch (n=16)                            88.864 ms         180.1 ops/s  [PASS]
+
+[Radix benchmarks skipped - build with WITH_LUX_EXTENSIONS=ON]
+
+=== Summary ===
+Total benchmarks: 19
+Passed: 18
+Failed: 1
+
+Failed benchmarks:
+  - PBS/Batch (batch=8): 54.357 ms > 51.911 ms
